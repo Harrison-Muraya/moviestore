@@ -10,6 +10,11 @@ export default defineConfig({
             refresh: true,
         }),
         react(),
-        // tailwindcss(),
+        tailwindcss(),
     ],
+    resolve: {
+      alias: {
+        '@': '/resources/js'
+      }  
+    },
 });
