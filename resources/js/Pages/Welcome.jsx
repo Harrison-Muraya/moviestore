@@ -50,29 +50,4 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         </>
     );
 
-
-    // return (
-    //     <>
-    //         <Head title="Alpha - Welcome" />
-    //         <div className="h-screen bg-[url('/images/wp4286137-stuff-wallpapers.jpg')] bg-cover bg-center bg-no-repeat">
-    //             <div className="absolute inset-0 bg-black opacity-20"></div>
-    //             <div className="container relative z-10 p-4 px-48">
-    //                 <div className="flex justify-between items center py-4">
-    //                     <a href="#" className="text-blue-600 text-4xl font-semibold tracking-wider">ALPHA <span className='text-red-600'>.</span></a>
-    //                     <a href="#" className='text-white bg-blue-600 rounded-full px-6 pt-2 font-semibold'>Sign in</a>
-    //                 </div>
-    //                 <div className="flex flex-col items-center items-center flex-1 text-white">
-    // <div className="">
-    //     <p className=" text-5xl font-bold capitalize">Alpha got you coverd,</p>
-    //     <p className='text-5xl font-bold capitalize mt-2'>enjoy series and shows...</p>
-    //     <p className="my-4">Ready to watch? Enter your email to create or restart your membership.</p>
-    // </div>
-
-    //                     <div className=""></div>
-    //                 </div>
-
-    //             </div>
-    //         </div>
-    //     </>
-    // );
 }
