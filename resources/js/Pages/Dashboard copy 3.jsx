@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Search, Heart, Plus, Settings, Loader2, AlertCircle, X } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Search, Heart, Plus, Settings, Loader2, AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
-    const [isDark, setIsDark] = useState(true);
+    const [isDark, setIsDark] = useState(false);
     const [currentMovie, setCurrentMovie] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
@@ -120,8 +120,8 @@ export default function Dashboard() {
     // Filter movies based on search term and genre
     const filteredMovies = latestMovies.filter(movie => {
         const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
+                             movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesGenre = selectedGenre === 'All' || movie.genre === selectedGenre;
         return matchesSearch && matchesGenre;
     });
@@ -225,7 +225,7 @@ export default function Dashboard() {
     const handleVideoClick = (e) => {
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
-
+        
         if (tapLength < 500 && tapLength > 0) {
             // Double tap detected
             handleFullscreen();
@@ -233,7 +233,7 @@ export default function Dashboard() {
             // Single tap - toggle play/pause
             handlePlayPause();
         }
-
+        
         setLastTap(currentTime);
         showControls();
     };
@@ -260,7 +260,7 @@ export default function Dashboard() {
         setProgress(0);
         setVideoError(false);
         setIsLoading(false);
-
+        
         // Restore watch progress if exists
         const savedProgress = watchProgress[movie.id];
         if (savedProgress && videoRef.current) {
@@ -305,19 +305,11 @@ export default function Dashboard() {
         // Search functionality is handled by the filter effect
     };
 
-    // Get dynamic color for time indicator based on progress
-    const getTimeColor = () => {
-        if (progress < 25) return 'text-red-500';
-        if (progress < 50) return 'text-yellow-500';
-        if (progress < 75) return 'text-blue-500';
-        return 'text-green-500';
-    };
-
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (!currentMovie) return;
-
+            
             switch (e.code) {
                 case 'Space':
                     e.preventDefault();
@@ -452,7 +444,7 @@ export default function Dashboard() {
         return (
             <div className="min-h-screen bg-black">
                 {/* Video Player */}
-                <div
+                <div 
                     ref={playerRef}
                     className="relative w-full h-screen group"
                     onMouseMove={handleMouseMove}
@@ -483,7 +475,7 @@ export default function Dashboard() {
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
                             />
-
+                            
                             {/* Loading Spinner */}
                             {isLoading && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -494,25 +486,12 @@ export default function Dashboard() {
                             )}
                         </>
                     )}
-
-                    {/* Exit Fullscreen Button - Top Right */}
-                    {isFullscreen && (
-                        <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-                            }`}>
-                            <button
-                                onClick={handleFullscreen}
-                                className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
-                                title="Exit fullscreen"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                    )}
-
+                    
                     {/* Video Controls Overlay */}
                     {!videoError && (
-                        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                            }`}>
+                        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 transition-all duration-300 ${
+                            controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                        }`}>
                             {/* Progress Bar */}
                             <div className="mb-4">
                                 <input
@@ -524,13 +503,11 @@ export default function Dashboard() {
                                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                                 />
                                 <div className="flex justify-between text-white text-sm mt-2">
-                                    <span className={`font-medium transition-colors duration-300 ${getTimeColor()}`}>
-                                        {formatTime(videoRef.current?.currentTime)}
-                                    </span>
-                                    <span className="text-gray-300">{formatTime(duration)}</span>
+                                    <span>{formatTime(videoRef.current?.currentTime)}</span>
+                                    <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
-
+                            
                             {/* Control Buttons */}
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
@@ -541,7 +518,7 @@ export default function Dashboard() {
                                     >
                                         <SkipBack size={28} />
                                     </button>
-
+                                    
                                     <button
                                         onClick={() => handleSkip(-10)}
                                         className="text-white hover:text-gray-300 transition-colors duration-200"
@@ -549,7 +526,7 @@ export default function Dashboard() {
                                     >
                                         <SkipBack size={24} />
                                     </button>
-
+                                    
                                     <button
                                         onClick={handlePlayPause}
                                         className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105"
@@ -564,7 +541,7 @@ export default function Dashboard() {
                                             <Play size={28} />
                                         )}
                                     </button>
-
+                                    
                                     <button
                                         onClick={() => handleSkip(10)}
                                         className="text-white hover:text-gray-300 transition-colors duration-200"
@@ -572,7 +549,7 @@ export default function Dashboard() {
                                     >
                                         <SkipForward size={24} />
                                     </button>
-
+                                    
                                     {/* Volume Controls */}
                                     <div className="flex items-center space-x-2 group/volume">
                                         <button
@@ -598,12 +575,12 @@ export default function Dashboard() {
                                         </span>
                                     </div>
                                 </div>
-
+                                
                                 <div className="text-white text-center">
                                     <h3 className="text-2xl font-bold">{currentMovie.title}</h3>
                                     <p className="text-gray-300">{currentMovie.genre} • {currentMovie.year} • {currentMovie.duration}</p>
                                 </div>
-
+                                
                                 <div className="flex items-center space-x-2">
                                     {/* Quality Menu */}
                                     <div className="relative">
@@ -623,10 +600,11 @@ export default function Dashboard() {
                                                             setSelectedQuality(quality);
                                                             setShowQualityMenu(false);
                                                         }}
-                                                        className={`block w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedQuality === quality
-                                                            ? 'bg-red-600 text-white'
-                                                            : 'text-gray-300 hover:bg-gray-700'
-                                                            }`}
+                                                        className={`block w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                                                            selectedQuality === quality 
+                                                                ? 'bg-red-600 text-white' 
+                                                                : 'text-gray-300 hover:bg-gray-700'
+                                                        }`}
                                                     >
                                                         {quality}
                                                     </button>
@@ -634,8 +612,8 @@ export default function Dashboard() {
                                             </div>
                                         )}
                                     </div>
-
-                                    <button
+                                    
+                                    <button 
                                         onClick={handleFullscreen}
                                         className="text-white hover:text-gray-300 transition-colors duration-200"
                                         title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
@@ -647,9 +625,20 @@ export default function Dashboard() {
                         </div>
                     )}
 
+                    {/* Keyboard shortcuts help */}
+                    <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-2 rounded-lg text-sm opacity-70 transition-opacity duration-300 hover:opacity-100">
+                        <div className="text-xs space-y-1">
+                            <div>Space: Play/Pause</div>
+                            <div>← →: Skip 10s</div>
+                            <div>F: Fullscreen</div>
+                            <div>M: Mute</div>
+                        </div>
+                    </div>
+
                     {/* Center play/pause indicator */}
-                    <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-200 ${!controlsVisible && !isPlaying && !isLoading ? 'opacity-100' : 'opacity-0'
-                        }`}>
+                    <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-200 ${
+                        !controlsVisible && !isPlaying && !isLoading ? 'opacity-100' : 'opacity-0'
+                    }`}>
                         <div className="bg-black/50 rounded-full p-6">
                             <Play className="text-white" size={48} />
                         </div>
@@ -700,10 +689,11 @@ export default function Dashboard() {
                         </span>
                         <button
                             onClick={() => setIsDark(!isDark)}
-                            className={`w-14 h-7 flex items-center rounded-full p-1 duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                                ? 'bg-indigo-600 justify-end'
-                                : 'bg-gray-300 dark:bg-gray-600 justify-start'
-                                }`}
+                            className={`w-14 h-7 flex items-center rounded-full p-1 duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                                isDark 
+                                    ? 'bg-indigo-600 justify-end' 
+                                    : 'bg-gray-300 dark:bg-gray-600 justify-start'
+                            }`}
                         >
                             <div className="w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300"></div>
                         </button>
@@ -711,7 +701,7 @@ export default function Dashboard() {
                 </div>
             </header>
 
-
+           
             {/* Main Content */}
             <main className="relative">
                 {/* Hero Video Section */}
@@ -726,10 +716,10 @@ export default function Dashboard() {
                         <source src="/trailers/STRANGER_THINGS_Season_5_Trailer__2025.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
-
+                    
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-xl"></div>
-
+                    
                     {/* Hero Content */}
                     <div className="relative z-10 flex h-full items-end p-8">
                         <div className="text-white max-w-2xl">
@@ -739,7 +729,7 @@ export default function Dashboard() {
                             <p className="text-lg md:text-xl text-gray-200 mb-6">
                                 Discover unlimited streaming content with premium quality
                             </p>
-                            <button  onClick={() => selectMovie(movie)} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-200 transform hover:scale-105">
+                            <button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-200 transform hover:scale-105">
                                 Start Watching
                             </button>
                         </div>
@@ -754,7 +744,7 @@ export default function Dashboard() {
                                 {searchTerm ? `Search Results for "${searchTerm}"` : 'Latest Movies'}
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                {searchTerm
+                                {searchTerm 
                                     ? `Found ${filteredMovies.length} movies`
                                     : 'Discover the newest additions to our collection'
                                 }
@@ -770,12 +760,8 @@ export default function Dashboard() {
                                         onClick={() => selectMovie(movie)}
                                     >
                                         <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-                                            <video
-                                                autoPlay
-                                                muted
-                                                playsInline
-                                                src={movie.videoUrl}
-                                                // src={movie.thumbnail}
+                                            <img
+                                                src={movie.thumbnail}
                                                 alt={movie.title}
                                                 className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
                                             />
@@ -822,7 +808,7 @@ export default function Dashboard() {
             </main>
 
             {/* Custom Styles */}
-            <style >{`
+            <style jsx>{`
                 .scrollbar-hide {
                     -ms-overflow-style: none;
                     scrollbar-width: none;
