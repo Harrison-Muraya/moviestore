@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Foundation\Application;
@@ -8,9 +9,7 @@ use Inertia\Inertia;
 
 Route::get('/', [WelcomeController::class, 'welcome']);
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard',[DashboardController::class, 'dashboard'] )->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
