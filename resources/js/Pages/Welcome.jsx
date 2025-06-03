@@ -20,21 +20,21 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 <div className="relative z-10 h-full flex flex-col justify-between">
                     {/* Navbar */}
-                    <div className="flex justify-between items-center py-6 px-48">
+                    <div className="flex justify-between items-center p-6 md:py-6 md:px-48">
                         <p
-                            className="text-indigo-600 text-4xl font-semibold tracking-wider">
+                            className="text-indigo-600 text-2xl md:text-4xl font-semibold tracking-wider">
                             ALPHA <span className="text-red-600">.</span>
                         </p>
-                        <Link href={route('login')} className="text-white bg-indigo-600 rounded-full px-6 py-2 font-semibold">
+                        <Link href={route('login')} className="text-white bg-indigo-600 rounded-full px-4 py-[2px] p md:px-6 md:py-2 font-semibold">
                             Sign In
                         </Link>
                     </div>
 
                     {/* Centered Content */}
-                    <div className="flex flex-col items-center justify-center text-white flex-1 px-6">
+                    <div className="flex flex-col items-center justify-center text-white flex-1 text-center md:text-left px-6">
                         <div>
-                            <p className="text-5xl font-bold capitalize">Alpha got you covered,</p>
-                            <p className="text-5xl font-bold capitalize mt-2">enjoy series and shows...</p>
+                            <p className="text-2xl md:text-5xl font-bold capitalize">Alpha got you covered,</p>
+                            <p className="text-2xl md:text-5xl font-bold capitalize mt-2">enjoy series and shows...</p>
                             <p className="my-4 text-lg">
                                 Ready to watch? Enter your email to create or restart your membership.
                             </p>
