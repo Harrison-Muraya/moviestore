@@ -22,10 +22,11 @@ export default function Dashboard() {
     const [showQualityMenu, setShowQualityMenu] = useState(false);
     const [selectedQuality, setSelectedQuality] = useState('HD');
 
+
     const videoRef = useRef(null);
     const playerRef = useRef(null);
     const controlsTimeoutRef = useRef(null);
-
+    const videoRefs = useRef({});
     // Sample movie data with additional metadata
     const latestMovies = [
         {
@@ -500,7 +501,8 @@ export default function Dashboard() {
                         <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
                             }`}>
                             <button
-                                onClick={handleFullscreen}
+                                onClick={() => window.location.reload()}
+                                // onClick={handleFullscreen}
                                 className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
                                 title="Exit fullscreen"
                             >
@@ -739,7 +741,7 @@ export default function Dashboard() {
                             <p className="text-lg md:text-xl text-gray-200 mb-6">
                                 Discover unlimited streaming content with premium quality
                             </p>
-                            <button  onClick={() => selectMovie(movie)} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-200 transform hover:scale-105">
+                            <button onClick={() => selectMovie(movie)} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-200 transform hover:scale-105">
                                 Start Watching
                             </button>
                         </div>
@@ -770,7 +772,7 @@ export default function Dashboard() {
                                         onClick={() => selectMovie(movie)}
                                     >
                                         <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-                                            <video
+                                            {/* <video
                                                 autoPlay
                                                 muted
                                                 playsInline
@@ -778,7 +780,33 @@ export default function Dashboard() {
                                                 // src={movie.thumbnail}
                                                 alt={movie.title}
                                                 className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
+                                            /> */}
+
+
+                                            <video
+                                                ref={(el) => (videoRefs.current[movie.id] = el)}
+                                                muted
+                                                playsInline
+                                                src={movie.videoUrl}
+                                                className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
+                                                onMouseEnter={() => {
+                                                    const video = videoRefs.current[movie.id];
+                                                    if (video) {
+                                                        video.currentTime = 0;
+                                                        video.play();
+                                                    }
+                                                }}
+                                                onMouseLeave={() => {
+                                                    const video = videoRefs.current[movie.id];
+                                                    if (video) {
+                                                        video.pause();
+                                                        video.currentTime = 0;
+                                                    }
+                                                }}
                                             />
+
+
+
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                                             {/* Play Button Overlay */}
