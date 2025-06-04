@@ -114,6 +114,11 @@ export default function Register() {
                         Register
                     </PrimaryButton>
                 </div>
+                <Link
+                    href={route('login')}
+                    className="text-center mt-4 text-gray-600">
+                    Already have an account? <span className="text-blue-500 cursor-pointer">Log In</span>
+                </Link>
             </form>
         </GuestLayout>
     );
