@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\Portal\DashboardController;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\Portal\DashboardController;
+use App\Http\Controllers\Portal\ContentUploadController;
 
 Route::get('/', [WelcomeController::class, 'welcome']);
 
@@ -16,6 +17,11 @@ Route::controller(DashboardController::class)->group(function () {
 
     // Added CowHealth API endpoint
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
+});
+
+Route::controller(ContentUploadController::class)->group(function(){
+    Route::get('/upload-movies', 'index')->name('storeview');   
+    Route::post('/upload-content', 'store')->name('uploadContent');
 });
 
 Route::middleware('auth')->group(function () {

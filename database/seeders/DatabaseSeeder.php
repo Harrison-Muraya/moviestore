@@ -34,11 +34,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        $geners = GenreSeeder::class;
-        $this->call($geners);
+        // $geners = GenreSeeder::class;
+        // $this->call($geners);
 
-        $movies = MovieSeeder::class;
-        $this->call($movies);
+        // $movies = MovieSeeder::class;
+        // $this->call($movies);
 
         // Add RolesTableSeeder
         // $roles = RolesTableSeeder::class;
