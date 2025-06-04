@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('movies', function (Blueprint $table) {
+       Schema::create('movie_watches', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->foreignId('genre_id')->constrained()->onDelete('cascade')->nullble();
-            $table->string('slug')->nullable();
-            $table->text('description')->nullable();
-            $table->string('video_path');
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('movie_id')->constrained();
+            $table->integer('watched_seconds')->default(0);
             $table->integer('status')->default(0);
-            $table->integer('flag')->default(1);            
+            $table->integer('flag')->default(1);
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('movies');
+        Schema::dropIfExists('movie_watches');
     }
 };
