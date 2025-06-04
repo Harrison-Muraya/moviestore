@@ -6,9 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class MovieWatch extends Model
 {
-    public function genre()
-    {
-        return $this->belongsTo(Genre::class);
-    }
-
+    
 }

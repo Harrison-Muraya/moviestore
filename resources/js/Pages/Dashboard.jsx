@@ -27,8 +27,31 @@ export default function Dashboard() {
     const playerRef = useRef(null);
     const controlsTimeoutRef = useRef(null);
     const videoRefs = useRef({});
+
+    const [latestMovies, setMovies] = useState([]);
+
+
+    // loading data from database
+    useEffect(() => {
+        const url = route('getmoviedata');
+
+        fetch(url, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status === true) {
+                    console.log("setMovies retrieved successfully:", data.response.setMovies);
+                    // Appending Movies and production records to the state
+                    setMoviess(data.response.setMovies)
+                } else {
+                    console.error("Failed to fetch movies:", data);
+                }
+            })
+            .catch((error) => console.error("Error fetching movies:", error));
+    }, []);
     // Sample movie data with additional metadata
-    const latestMovies = [
+    const latestMoviess = [
         {
             id: 1,
             title: "Cosmic Horizons",
