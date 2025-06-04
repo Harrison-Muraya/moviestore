@@ -74,39 +74,6 @@ class ContentUploadController extends Controller
             'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-
-        // $request->validate([
-        //     'title' => 'required|string|max:255',
-        //     'type' => 'required|in:movie,series',
-        //     'genres' => 'required|array',
-        //     'genres.*' => 'exists:genres,id',
-        //     'description' => 'nullable|string',
-        //     'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
-        //     'language' => 'nullable|string|max:10',
-        //     'country' => 'nullable|string|max:100',
-        //     // 'cast' => 'nullable|array',
-        //     'rating' => 'nullable|numeric|min:0|max:10',
-        //     'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
-        //     'trailer' => 'nullable|mimes:mp4,avi,mov,wmv|max:102400',
-        //     // Movie specific
-        //     'duration' => 'required_if:type,movie|nullable|string',
-        //     'video' => 'nullable|mimes:mp4,avi,mov,wmv|max:2048000',
-        //     'video' => 'required_if:type,movie|nullable|mimes:mp4,avi,mov,wmv|max:2048000',
-        //     // Series specific
-        //     'seasons' => 'required_if:type,series|nullable|array',
-        //     'seasons.*.season_number' => 'required|integer|min:1',
-        //     'seasons.*.title' => 'nullable|string|max:255',
-        //     'seasons.*.description' => 'nullable|string',
-        //     'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-        //     'seasons.*.episodes' => 'required|array|min:1',
-        //     'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
-        //     'seasons.*.episodes.*.title' => 'required|string|max:255',
-        //     'seasons.*.episodes.*.description' => 'nullable|string',
-        //     'seasons.*.episodes.*.duration' => 'nullable|string',
-        //     'seasons.*.episodes.*.video' => 'required|mimes:mp4,avi,mov,wmv|max:2048000',
-        //     'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-        // ]);
-
          log::info(['Form data: varidation is complete']);
 
         try {
@@ -131,6 +98,7 @@ class ContentUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            log::info('Error :', [$e->getMessage()]);
             DB::rollBack();
             return response()->json([
                 'success' => false,
@@ -151,6 +119,7 @@ class ContentUploadController extends Controller
 
         return Movie::create([
             'title' => $request->title,
+            // 'genre_id' => $request->genres,
             'slug' => Str::slug($request->title . '-' . $request->year),
             'type' => $request->type,
             'description' => $request->description,

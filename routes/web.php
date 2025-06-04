@@ -19,6 +19,11 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
+// routes/api.php or routes/web.php
+Route::get('/api/genres', function () {
+    return response()->json(\App\Models\Genre::all());
+});
+
 Route::controller(ContentUploadController::class)->group(function(){
     Route::get('/upload-movies', 'index')->name('storeview');   
     Route::post('/upload-content', 'store')->name('uploadContent');

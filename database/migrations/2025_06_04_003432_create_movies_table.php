@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->foreignId('genre_id')->constrained()->onDelete('cascade')->nullable();
+            // $table->foreignId('genre_id')->constrained()->onDelete('cascade')->nullable();
             $table->string('slug')->unique();
             $table->string('duration')->nullable();
             $table->string('year')->nullable();
@@ -37,22 +37,6 @@ return new class extends Migration
             $table->index(['type', 'status']);
             $table->index('year');
         });
-
-        // Schema::create('movies', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('title');
-        //     $table->foreignId('genre_id')->constrained()->onDelete('cascade')->nullble();
-        //     $table->string('slug')->nullable();
-        //     $table->string('duration')->nullable();
-        //     $table->string('year')->nullable();
-        //     $table->text('description')->nullable();
-        //     $table->string('thumbnail');
-        //     $table->string('video_path');
-        //     $table->json('cast')->nullable();
-        //     $table->integer('status')->default(0);
-        //     $table->integer('flag')->default(1);            
-        //     $table->timestamps();
-        // });
     }
 
     /**

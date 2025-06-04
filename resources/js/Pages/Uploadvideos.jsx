@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Plus, Trash, Film, Tv, Star, Calendar, Globe, Clock } from 'lucide-react';
 
 const ContentUploadForm = () => {
@@ -19,32 +19,24 @@ const ContentUploadForm = () => {
         seasons: []
     });
 
-    const [genres, setGenres] = useState([
-        { id: 1, name: 'Action' },
-        { id: 2, name: 'Comedy' },
-        { id: 3, name: 'Drama' },
-        { id: 4, name: 'Horror' },
-        { id: 5, name: 'Romance' },
-        { id: 6, name: 'Sci-Fi' },
-        { id: 7, name: 'Thriller' },
-        { id: 8, name: 'Documentary' }
-    ]);
+    const [genres, setGenres] = useState([]);
 
     // Load genres from API
-    // useEffect(() => {
-    //     const fetchGenres = async () => {
-    //         try {
-    //             const response = await fetch('/api/genres');
-    //             if (response.ok) {
-    //                 const genresData = await response.json();
-    //                 setGenres(genresData);
-    //             }
-    //         } catch (error) {
-    //             console.log('Using hardcoded genres - API not available');
-    //         }
-    //     };
-    //     fetchGenres();
-    // }, []);
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const response = await fetch('/api/genres');
+                if (response.ok) {
+                    const genresData = await response.json();
+                    // console.log('genre data ', genresData);
+                    setGenres(genresData);
+                }
+            } catch (error) {
+                console.log('Using hardcoded genres - API not available');
+            }
+        };
+        fetchGenres();
+    }, []);
 
     const [loading, setLoading] = useState(false);
     const [castInput, setCastInput] = useState('');
