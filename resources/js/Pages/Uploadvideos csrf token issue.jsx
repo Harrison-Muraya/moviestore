@@ -19,7 +19,7 @@ const ContentUploadForm = () => {
         seasons: []
     });
 
-    const [genres, setGenres] = useState([
+    const [genres] = useState([
         { id: 1, name: 'Action' },
         { id: 2, name: 'Comedy' },
         { id: 3, name: 'Drama' },
@@ -29,23 +29,7 @@ const ContentUploadForm = () => {
         { id: 7, name: 'Thriller' },
         { id: 8, name: 'Documentary' }
     ]);
-
-    // Load genres from API
-    // useEffect(() => {
-    //     const fetchGenres = async () => {
-    //         try {
-    //             const response = await fetch('/api/genres');
-    //             if (response.ok) {
-    //                 const genresData = await response.json();
-    //                 setGenres(genresData);
-    //             }
-    //         } catch (error) {
-    //             console.log('Using hardcoded genres - API not available');
-    //         }
-    //     };
-    //     fetchGenres();
-    // }, []);
-
+    
     const [loading, setLoading] = useState(false);
     const [castInput, setCastInput] = useState('');
     const [errors, setErrors] = useState({});
@@ -165,16 +149,16 @@ const ContentUploadForm = () => {
 
     const validateForm = () => {
         const newErrors = {};
-
+        
         if (!formData.title.trim()) newErrors.title = 'Title is required';
         if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
         if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
-
+        
         if (formData.type === 'movie') {
             if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
             if (!formData.video) newErrors.video = 'Video file is required for movies';
         }
-
+        
         if (formData.type === 'series') {
             if (formData.seasons.length === 0) {
                 newErrors.seasons = 'At least one season is required for series';
@@ -194,16 +178,8 @@ const ContentUploadForm = () => {
                 });
             }
         }
-
+        
         return newErrors;
-    };
-
-    // Helper function to get cookie value
-    const getCookie = (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
     };
 
     const debugFormData = (form) => {
@@ -241,7 +217,7 @@ const ContentUploadForm = () => {
         form.append('language', formData.language);
         form.append('country', formData.country || '');
         form.append('rating', formData.rating || '');
-
+        
         // Duration (for movies)
         if (formData.type === 'movie' && formData.duration) {
             form.append('duration', formData.duration);
@@ -291,43 +267,26 @@ const ContentUploadForm = () => {
             });
         }
 
-        // Add CSRF token to FormData as well (alternative method)
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        if (csrfToken) {
-            form.append('_token', csrfToken);
-        }
-
         // Debug info
         const debugText = debugFormData(form);
         setDebugInfo(debugText);
         console.log(debugText);
 
         try {
-            // Get CSRF token from meta tag or cookie
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                getCookie('XSRF-TOKEN');
-
-            const headers = {
-                'Accept': 'application/json',
-                // Don't set Content-Type - let browser set it with boundary
-            };
-
-            // Add CSRF token if available
-            if (csrfToken) {
-                headers['X-CSRF-TOKEN'] = csrfToken;
-            }
-
+            // Simulated API call - replace with your actual endpoint
             const response = await fetch('/upload-content', {
                 method: 'POST',
                 body: form,
-                headers: headers,
-                credentials: 'same-origin' // Important for CSRF cookies
+                headers: {
+                    'Accept': 'application/json',
+                    // Don't set Content-Type - let browser set it with boundary
+                }
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Server response:', errorData);
-
+                
                 if (response.status === 422 && errorData.errors) {
                     setErrors(errorData.errors);
                     alert('Validation failed. Check the errors below.');
@@ -339,7 +298,7 @@ const ContentUploadForm = () => {
 
             const result = await response.json();
             alert('Content uploaded successfully!');
-
+            
             // Reset form
             setFormData({
                 title: '',
@@ -357,7 +316,7 @@ const ContentUploadForm = () => {
                 video: null,
                 seasons: []
             });
-
+            
         } catch (error) {
             console.error('Upload error:', error);
             alert('Upload failed. Check console for details.');

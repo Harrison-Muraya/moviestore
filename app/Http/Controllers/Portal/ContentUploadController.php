@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Portal;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Models\Genre;
 use App\Models\Movie;
+use Inertia\Response;
 use App\Models\Season;
 use App\Models\Episode;
-use App\Models\Genre;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class ContentUploadController extends Controller
 {
@@ -30,36 +31,83 @@ class ContentUploadController extends Controller
 
     public function store(Request $request)
     {
+        log::info('Form data:  end point was hit');
+
         $request->validate([
+            // Basic content information
             'title' => 'required|string|max:255',
             'type' => 'required|in:movie,series',
-            'genres' => 'required|array',
+            'genres' => 'required|array|min:1',
             'genres.*' => 'exists:genres,id',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:2000',
             'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
             'language' => 'nullable|string|max:10',
             'country' => 'nullable|string|max:100',
-            'cast' => 'nullable|array',
             'rating' => 'nullable|numeric|min:0|max:10',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'trailer' => 'nullable|mimes:mp4,avi,mov,wmv|max:102400',
-            // Movie specific
-            'duration' => 'required_if:type,movie|nullable|string',
-            'video' => 'required_if:type,movie|nullable|mimes:mp4,avi,mov,wmv|max:2048000',
-            // Series specific
-            'seasons' => 'required_if:type,series|nullable|array',
+            
+            // Cast members
+            'cast' => 'nullable|array',
+            'cast.*' => 'string|max:255',
+            
+            // Required files
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
+            'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
+            
+            // Movie specific fields
+            'duration' => 'required_if:type,movie|nullable|string|max:20',
+            'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
+            
+            // Series specific fields
+            'seasons' => 'required_if:type,series|nullable|array|min:1',
             'seasons.*.season_number' => 'required|integer|min:1',
             'seasons.*.title' => 'nullable|string|max:255',
-            'seasons.*.description' => 'nullable|string',
-            'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'seasons.*.description' => 'nullable|string|max:1000',
+            'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            
+            // Episodes validation
             'seasons.*.episodes' => 'required|array|min:1',
             'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
             'seasons.*.episodes.*.title' => 'required|string|max:255',
-            'seasons.*.episodes.*.description' => 'nullable|string',
-            'seasons.*.episodes.*.duration' => 'nullable|string',
-            'seasons.*.episodes.*.video' => 'required|mimes:mp4,avi,mov,wmv|max:2048000',
-            'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'seasons.*.episodes.*.description' => 'nullable|string|max:1000',
+            'seasons.*.episodes.*.duration' => 'nullable|string|max:20',
+            'seasons.*.episodes.*.video' => 'required|file|mimes:mp4,avi,mov,wmv,webm|max:2048000',
+            'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+
+        // $request->validate([
+        //     'title' => 'required|string|max:255',
+        //     'type' => 'required|in:movie,series',
+        //     'genres' => 'required|array',
+        //     'genres.*' => 'exists:genres,id',
+        //     'description' => 'nullable|string',
+        //     'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
+        //     'language' => 'nullable|string|max:10',
+        //     'country' => 'nullable|string|max:100',
+        //     // 'cast' => 'nullable|array',
+        //     'rating' => 'nullable|numeric|min:0|max:10',
+        //     'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+        //     'trailer' => 'nullable|mimes:mp4,avi,mov,wmv|max:102400',
+        //     // Movie specific
+        //     'duration' => 'required_if:type,movie|nullable|string',
+        //     'video' => 'nullable|mimes:mp4,avi,mov,wmv|max:2048000',
+        //     'video' => 'required_if:type,movie|nullable|mimes:mp4,avi,mov,wmv|max:2048000',
+        //     // Series specific
+        //     'seasons' => 'required_if:type,series|nullable|array',
+        //     'seasons.*.season_number' => 'required|integer|min:1',
+        //     'seasons.*.title' => 'nullable|string|max:255',
+        //     'seasons.*.description' => 'nullable|string',
+        //     'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        //     'seasons.*.episodes' => 'required|array|min:1',
+        //     'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
+        //     'seasons.*.episodes.*.title' => 'required|string|max:255',
+        //     'seasons.*.episodes.*.description' => 'nullable|string',
+        //     'seasons.*.episodes.*.duration' => 'nullable|string',
+        //     'seasons.*.episodes.*.video' => 'required|mimes:mp4,avi,mov,wmv|max:2048000',
+        //     'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        // ]);
+
+         log::info(['Form data: varidation is complete']);
 
         try {
             DB::beginTransaction();
