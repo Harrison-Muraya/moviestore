@@ -15,9 +15,7 @@ class DashboardController extends Controller
     }
 
     public function getMovies(){
-        $Movies = \App\Models\Movie::with('genre')
-            ->orderBy('date', 'desc')
-            ->get();
+        $Movies = \App\Models\Movie::with('genre')->get();
 
         // $data['info'] = $healthRecords;
         // $data['cows'] = $cows;

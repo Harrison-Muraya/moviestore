@@ -6,8 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Genre extends Model
 {
+    // public function movies()
+    // {
+    //     return $this->hasMany(Movie::class);
+    // }
+    protected $fillable = [
+        'name', 'slug', 'description', 'color', 'icon', 'sort_order', 'status'
+    ];
+
     public function movies()
     {
-        return $this->hasMany(Movie::class);
+        return $this->belongsToMany(Movie::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 }
