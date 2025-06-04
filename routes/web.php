@@ -15,7 +15,7 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
 
     // Added CowHealth API endpoint
-    Route::get('/get-cowdata', 'getCowHealth')->name('getmoviedata');
+    Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
 Route::middleware('auth')->group(function () {

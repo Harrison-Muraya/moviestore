@@ -12,11 +12,20 @@ class GenreSeeder extends Seeder
     /**
      * Seed the application's database.
      */
+    // public function run(): void
+    // {
+    //     Genre::create(['name' => 'Adventure']);
+    //     Genre::create(['name' => 'Drama']);
+    //     Genre::create(['name' => 'Horrar']);
+
+    // }
     public function run(): void
     {
-        Genre::create(['name' => 'Adventure']);
-        Genre::create(['name' => 'Drama']);
-        Genre::create(['name' => 'Horrar']);
-
+        Genre::insert([
+            ['name' => 'Adventure', 'status' => 1, 'flag' => 1],
+            ['name' => 'Drama', 'status' => 1, 'flag' => 1],
+            ['name' => 'Comedy', 'status' => 1, 'flag' => 1],
+            ['name' => 'Sci-Fi', 'status' => 1, 'flag' => 1],
+        ]);
     }
 }

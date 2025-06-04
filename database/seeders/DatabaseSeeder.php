@@ -7,6 +7,7 @@ use App\Models\Genre;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\GenreSeeder;
+use Database\Seeders\MovieSeeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -25,8 +26,19 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin')
         ]);
 
+         User::with(['roles'])->create([
+            'username' => 'harrison muraya',
+            'name' => 'harrison',
+            'email' => 'harrison@gmail.com',
+            'password' => Hash::make('gZAxMDsmhb5EBfq')
+        ]);
+
+
         $geners = GenreSeeder::class;
         $this->call($geners);
+
+        $movies = MovieSeeder::class;
+        $this->call($movies);
 
         // Add RolesTableSeeder
         // $roles = RolesTableSeeder::class;

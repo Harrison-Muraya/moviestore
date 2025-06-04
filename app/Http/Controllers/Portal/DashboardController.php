@@ -14,7 +14,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard');
     }
 
-    public function getCowHealth(){
+    public function getMovies(){
         $Movies = \App\Models\Movie::with('genre')
             ->orderBy('date', 'desc')
             ->get();

@@ -34,7 +34,6 @@ export default function Dashboard() {
     // loading data from database
     useEffect(() => {
         const url = route('getmoviedata');
-
         fetch(url, {
             method: "GET",
         })
@@ -43,7 +42,7 @@ export default function Dashboard() {
                 if (data.status === true) {
                     console.log("setMovies retrieved successfully:", data.response.setMovies);
                     // Appending Movies and production records to the state
-                    setMoviess(data.response.setMovies)
+                    setMovies(data.response.setMovies)
                 } else {
                     console.error("Failed to fetch movies:", data);
                 }
