@@ -401,40 +401,47 @@ const ContentUploadForm = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Upload className="w-6 h-6" />
-                Upload Content
-            </h2>
+        <div className="max-w-4xl mx-auto p-2 md:p-6 bg-white rounded-lg shadow-lg">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Upload Content</h1>
+                <p className="text-gray-600">Add movies or TV series with episodes</p>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <Film className="mr-2" size={20} />
+                    Content Type
+                </h2>
+                <div className="flex space-x-4">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="type"
+                            value="movie"
+                            checked={formData.type === 'movie'}
+                            onChange={handleInputChange}
+                            className="mr-2"
+                        />
+                        <Film className="mr-1" size={16} />
+                        Movie
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="type"
+                            value="series"
+                            checked={formData.type === 'series'}
+                            onChange={handleInputChange}
+                            className="mr-2"
+                        />
+                        <Tv className="mr-1" size={16} />
+                        TV Series
+                    </label>
+                </div>
+            </div>
 
             {/* Basic Information */}
-            <div className="space-y-4 mb-6">
-                <div>
-                    <label className="block text-sm font-medium mb-2">Title *</label>
-                    <input
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                        className="w-full border rounded-md px-3 py-2"
-                        placeholder="Enter content title"
-                    />
-                    {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium mb-2">Type *</label>
-                    <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleInputChange}
-                        className="w-full border rounded-md px-3 py-2"
-                    >
-                        <option value="movie">Movie</option>
-                        <option value="series">Series</option>
-                    </select>
-                </div>
-
+            <div className="space-y-4 px-2 mb-6">
                 <div>
                     <label className="block text-sm font-medium mb-2">Genres *</label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -453,90 +460,163 @@ const ContentUploadForm = () => {
                     {errors.genres && <p className="text-red-500 text-sm mt-1">{errors.genres}</p>}
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium mb-2">Description</label>
-                    <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        className="w-full border rounded-md px-3 py-2"
-                        rows="3"
-                        placeholder="Enter description"
-                    />
-                </div>
+                {/* Basic Information */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Title *
+                            </label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter content title"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md "
+                            />
+                            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Calendar className="inline mr-1" size={16} />
+                                Year
+                            </label>
+                            <input
+                                type="number"
+                                name="year"
+                                value={formData.year}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300  rounded-md px-3 py-2"
+                                min="1900"
+                                max={new Date().getFullYear() + 5}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Globe className="inline mr-1" size={16} />
+                                Language
+                            </label>
+                            <input
+                                type="text"
+                                name="language"
+                                value={formData.language}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Country
+                            </label>
+                            <input
+                                type="text"
+                                name="country"
+                                value={formData.country}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Year</label>
-                        <input
-                            type="number"
-                            name="year"
-                            value={formData.year}
+                        {/* Movie Duration */}
+                        {formData.type === 'movie' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <Clock className="inline mr-1" size={16} />
+                                    Duration
+                                </label>
+                                <input
+                                    type="text"
+                                    name="duration"
+                                    value={formData.duration}
+                                    onChange={handleInputChange}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                    placeholder="e.g., 120 min or 2h 0m"
+                                />
+                                {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
+                            </div>
+                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Star className="inline mr-1" size={16} />
+                                Rating (0-10)
+                            </label>
+                            <input
+                                type="number"
+                                name="rating"
+                                value={formData.rating}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                min="0"
+                                max="10"
+                                step="0.1"
+                                placeholder="0.0"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
                             onChange={handleInputChange}
                             className="w-full border rounded-md px-3 py-2"
-                            min="1900"
-                            max={new Date().getFullYear() + 5}
+                            rows="3"
+                            placeholder="Enter description"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Rating</label>
+                </div>
+                <div className="bg-gray-50 p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-4">Cast</h2>
+                    <div className="flex gap-2 mb-4">
                         <input
-                            type="number"
-                            name="rating"
-                            value={formData.rating}
-                            onChange={handleInputChange}
-                            className="w-full border rounded-md px-3 py-2"
-                            min="0"
-                            max="10"
-                            step="0.1"
-                            placeholder="0.0"
+                            type="text"
+                            value={castInput}
+                            onChange={(e) => setCastInput(e.target.value)}
+                            placeholder="Enter cast member name"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCastMember())}
                         />
-                    </div>
-                </div>
-            </div>
-
-            {/* Cast */}
-            <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Cast</label>
-                <div className="flex gap-2 mb-2">
-                    <input
-                        type="text"
-                        value={castInput}
-                        onChange={(e) => setCastInput(e.target.value)}
-                        className="flex-1 border rounded-md px-3 py-2"
-                        placeholder="Enter cast member name"
-                        onKeyPress={(e) => e.key === 'Enter' && addCastMember()}
-                    />
-                    <button
-                        type="button"
-                        onClick={addCastMember}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                    >
-                        <Plus className="w-4 h-4" />
-                    </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {formData.cast.map((actor, index) => (
-                        <span
-                            key={index}
-                            className="bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                        <button
+                            type="button"
+                            onClick={addCastMember}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center"
                         >
-                            {actor}
-                            <button
-                                type="button"
-                                onClick={() => removeCastMember(index)}
-                                className="text-red-500 hover:text-red-700"
+                            <Plus size={16} className="mr-1" />
+                            Add
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {formData.cast.map((member, index) => (
+                            <span
+                                key={index}
+                                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
                             >
-                                <Trash className="w-3 h-3" />
-                            </button>
-                        </span>
-                    ))}
+                                {member}
+                                <button
+                                    type="button"
+                                    onClick={() => removeCastMember(index)}
+                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                >
+                                    <Trash size={12} />
+                                </button>
+                            </span>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* Files */}
-            <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-4">Files</h3>
+            <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <Upload className="mr-2" size={20} />
+                    Media Files
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-medium mb-2">Thumbnail *</label>
@@ -562,7 +642,7 @@ const ContentUploadForm = () => {
                             />
                         </div>
                     )}
-                    
+
                     {formData.type === 'movie' && (
                         <div>
                             <label className="block text-sm font-medium mb-2">Video *</label>
@@ -579,177 +659,158 @@ const ContentUploadForm = () => {
                 </div>
             </div>
 
-            {/* Movie Duration */}
-            {formData.type === 'movie' && (
-                <div className="mb-6">
-                    <label className="block text-sm font-medium mb-2">Duration *</label>
-                    <input
-                        type="text"
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleInputChange}
-                        className="w-full border rounded-md px-3 py-2"
-                        placeholder="e.g., 120 min or 2h 0m"
-                    />
-                    {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
-                </div>
-            )}
-
-            {/* Series Seasons */}
+            {/* Seasons & Episodes (for TV Series) */}
             {formData.type === 'series' && (
-                <div className="mb-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold">Seasons</h3>
+                        <h2 className="text-xl font-semibold flex items-center">
+                            <Tv className="mr-2" size={20} />
+                            Seasons & Episodes
+                        </h2>
                         <button
                             type="button"
                             onClick={addSeason}
-                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center gap-2"
+                            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center"
                         >
-                            <Plus className="w-4 h-4" />
+                            <Plus size={16} className="mr-1" />
                             Add Season
                         </button>
                     </div>
-                    {errors.seasons && <p className="text-red-500 text-sm mb-4">{errors.seasons}</p>}
 
-                    {formData.seasons.map((season, sIndex) => (
-                        <div key={sIndex} className="border rounded-md p-4 mb-4">
+                    {formData.seasons.map((season, seasonIndex) => (
+                        <div key={seasonIndex} className="mb-6 border border-gray-200 rounded-lg p-4 bg-white">
                             <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium">Season {season.season_number}</h4>
+                                <h3 className="text-lg font-medium">Season {season.season_number}</h3>
                                 <button
                                     type="button"
-                                    onClick={() => removeSeason(sIndex)}
+                                    onClick={() => removeSeason(seasonIndex)}
                                     className="text-red-500 hover:text-red-700"
                                 >
-                                    <Trash className="w-4 h-4" />
+                                    <Trash size={16} />
                                 </button>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-2">Season Title</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Season Title
+                                    </label>
                                     <input
                                         type="text"
                                         value={season.title}
-                                        onChange={(e) => updateSeason(sIndex, 'title', e.target.value)}
-                                        className="w-full border rounded-md px-3 py-2"
-                                        placeholder="Season title"
+                                        onChange={(e) => updateSeason(seasonIndex, 'title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-2">Season Thumbnail</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Season Thumbnail
+                                    </label>
                                     <input
                                         type="file"
-                                        onChange={(e) => updateSeason(sIndex, 'thumbnail', e.target.files[0])}
+                                        onChange={(e) => updateSeason(seasonIndex, 'thumbnail', e.target.files[0])}
                                         accept="image/*"
-                                        className="w-full border rounded-md px-3 py-2"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
 
                             <div className="mb-4">
-                                <label className="block text-sm font-medium mb-2">Season Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Season Description
+                                </label>
                                 <textarea
                                     value={season.description}
-                                    onChange={(e) => updateSeason(sIndex, 'description', e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2"
+                                    onChange={(e) => updateSeason(seasonIndex, 'description', e.target.value)}
                                     rows="2"
-                                    placeholder="Season description"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
-                            {/* Episodes */}
-                            <div>
+                            <div className="mb-4">
                                 <div className="flex justify-between items-center mb-2">
-                                    <h5 className="font-medium">Episodes</h5>
+                                    <h4 className="font-medium">Episodes</h4>
                                     <button
                                         type="button"
-                                        onClick={() => addEpisode(sIndex)}
-                                        className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center gap-1"
+                                        onClick={() => addEpisode(seasonIndex)}
+                                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 flex items-center"
                                     >
-                                        <Plus className="w-3 h-3" />
+                                        <Plus size={14} className="mr-1" />
                                         Add Episode
                                     </button>
                                 </div>
-                                {errors[`season_${sIndex}_episodes`] && (
-                                    <p className="text-red-500 text-sm mb-2">{errors[`season_${sIndex}_episodes`]}</p>
-                                )}
 
-                                {season.episodes.map((episode, eIndex) => (
-                                    <div key={eIndex} className="border rounded-md p-3 mb-3 bg-gray-50">
-                                        <div className="flex justify-between items-center mb-3">
-                                            <h6 className="font-medium">Episode {episode.episode_number}</h6>
+                                {season.episodes.map((episode, episodeIndex) => (
+                                    <div key={episodeIndex} className="border border-gray-100 rounded p-3 mb-3 bg-gray-50">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-medium text-sm">Episode {episode.episode_number}</span>
                                             <button
                                                 type="button"
-                                                onClick={() => removeEpisode(sIndex, eIndex)}
+                                                onClick={() => removeEpisode(seasonIndex, episodeIndex)}
                                                 className="text-red-500 hover:text-red-700"
                                             >
-                                                <Trash className="w-3 h-3" />
+                                                <Trash size={14} />
                                             </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">Episode Title *</label>
-                                                <input
-                                                    type="text"
-                                                    value={episode.title}
-                                                    onChange={(e) => updateEpisode(sIndex, eIndex, 'title', e.target.value)}
-                                                    className="w-full border rounded-md px-2 py-1"
-                                                    placeholder="Episode title"
-                                                />
-                                                {errors[`season_${sIndex}_episode_${eIndex}_title`] && (
-                                                    <p className="text-red-500 text-xs mt-1">
-                                                        {errors[`season_${sIndex}_episode_${eIndex}_title`]}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1">Duration</label>
-                                                <input
-                                                    type="text"
-                                                    value={episode.duration}
-                                                    onChange={(e) => updateEpisode(sIndex, eIndex, 'duration', e.target.value)}
-                                                    className="w-full border rounded-md px-2 py-1"
-                                                    placeholder="e.g., 45 min"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3">
-                                            <label className="block text-sm font-medium mb-1">Description</label>
-                                            <textarea
-                                                value={episode.description}
-                                                onChange={(e) => updateEpisode(sIndex, eIndex, 'description', e.target.value)}
-                                                className="w-full border rounded-md px-2 py-1"
-                                                rows="2"
-                                                placeholder="Episode description"
-                                            />
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <div>
-                                                <label className="block text-sm font-medium mb-1">Episode Video *</label>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Episode Title
+                                                </label>
                                                 <input
-                                                    type="file"
-                                                    onChange={(e) => updateEpisode(sIndex, eIndex, 'video', e.target.files[0])}
-                                                    accept="video/*"
-                                                    className="w-full border rounded-md px-2 py-1"
+                                                    type="text"
+                                                    value={episode.title}
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'title', e.target.value)}
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                                 />
-                                                {errors[`season_${sIndex}_episode_${eIndex}_video`] && (
-                                                    <p className="text-red-500 text-xs mt-1">
-                                                        {errors[`season_${sIndex}_episode_${eIndex}_video`]}
-                                                    </p>
-                                                )}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium mb-1">Episode Thumbnail</label>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Duration
+                                                </label>
                                                 <input
-                                                    type="file"
-                                                    onChange={(e) => updateEpisode(sIndex, eIndex, 'thumbnail', e.target.files[0])}
-                                                    accept="image/*"
-                                                    className="w-full border rounded-md px-2 py-1"
+                                                    type="text"
+                                                    value={episode.duration}
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'duration', e.target.value)}
+                                                    placeholder="e.g., 45 min"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                                 />
                                             </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Video File
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'video', e.target.files[0])}
+                                                    accept="video/*"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Episode Thumbnail
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'thumbnail', e.target.files[0])}
+                                                    accept="image/*"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-2">
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Episode Description
+                                            </label>
+                                            <textarea
+                                                value={episode.description}
+                                                onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'description', e.target.value)}
+                                                rows="2"
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
                                         </div>
                                     </div>
                                 ))}
@@ -760,14 +821,14 @@ const ContentUploadForm = () => {
             )}
 
             {/* Debug Information */}
-            {debugInfo && (
+            {/* {debugInfo && (
                 <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
                     <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-h-60">
                         {debugInfo}
                     </pre>
                 </div>
-            )}
+            )} */}
 
             {/* Error Display */}
             {Object.keys(errors).length > 0 && (
@@ -802,6 +863,26 @@ const ContentUploadForm = () => {
                     </>
                 )}
             </button>
+
+            {/* <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+            >
+                {loading ? (
+                    <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Uploading...
+                    </>
+                ) : (
+                    <>
+                        <Upload className="mr-2" size={16} />
+                        Upload Content
+                    </>
+                )}
+            </button> */}
+
+
         </div>
     );
 };
