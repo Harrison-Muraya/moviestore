@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('duration')->nullable();
             $table->string('year')->nullable();
             $table->text('description')->nullable();
-            $table->string('thumbnail');
+            $table->string('thumbnail')->nullable();
             $table->string('trailer_path')->nullable(); // Add trailer support
             $table->string('video_path')->nullable(); // Make nullable for series
             $table->json('cast')->nullable();

@@ -155,12 +155,51 @@ const ContentUploadForm = () => {
         }));
     };
 
+    // const validateForm = () => {
+    //     const newErrors = {};
+
+    //     if (!formData.title.trim()) newErrors.title = 'Title is required';
+    //     if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
+    //     if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
+
+    //     if (formData.type === 'movie') {
+    //         if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
+    //         if (!formData.video) newErrors.video = 'Video file is required for movies';
+    //     }
+
+    //     if (formData.type === 'series') {
+    //         if (formData.seasons.length === 0) {
+    //             newErrors.seasons = 'At least one season is required for series';
+    //         } else {
+    //             formData.seasons.forEach((season, sIndex) => {
+    //                 if (season.episodes.length === 0) {
+    //                     newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
+    //                 }
+    //                 season.episodes.forEach((episode, eIndex) => {
+    //                     if (!episode.title.trim()) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
+    //                     }
+    //                     if (!episode.video) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
+    //                     }
+    //                 });
+    //             });
+    //         }
+    //     }
+
+    //     return newErrors;
+    // };
+
+    //------------------------------------------------------------------------------------
     const validateForm = () => {
         const newErrors = {};
 
+        // Basic validation
         if (!formData.title.trim()) newErrors.title = 'Title is required';
         if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
-        if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
+
+        // Thumbnail is required for both movies and series
+        // if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
 
         if (formData.type === 'movie') {
             if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
@@ -174,21 +213,24 @@ const ContentUploadForm = () => {
                 formData.seasons.forEach((season, sIndex) => {
                     if (season.episodes.length === 0) {
                         newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
+                    } else {
+                        season.episodes.forEach((episode, eIndex) => {
+                            if (!episode.title.trim()) {
+                                newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
+                            }
+                            if (!episode.video) {
+                                newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
+                            }
+                        });
                     }
-                    season.episodes.forEach((episode, eIndex) => {
-                        if (!episode.title.trim()) {
-                            newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
-                        }
-                        if (!episode.video) {
-                            newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
-                        }
-                    });
                 });
             }
         }
 
         return newErrors;
     };
+    //------------------------------------------------------------------------------------
+
 
     // Helper function to get cookie value
     const getCookie = (name) => {
@@ -493,45 +535,47 @@ const ContentUploadForm = () => {
             </div>
 
             {/* Files */}
-            <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-4">Files</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Thumbnail *</label>
-                        <input
-                            type="file"
-                            name="thumbnail"
-                            onChange={handleFileChange}
-                            accept="image/*"
-                            className="w-full border rounded-md px-3 py-2"
-                        />
-                        {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Trailer</label>
-                        <input
-                            type="file"
-                            name="trailer"
-                            onChange={handleFileChange}
-                            accept="video/*"
-                            className="w-full border rounded-md px-3 py-2"
-                        />
-                    </div>
-                    {formData.type === 'movie' && (
+            {formData.type === 'movie' && (
+                <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-4">Files</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-2">Video *</label>
+                            <label className="block text-sm font-medium mb-2">Thumbnail *</label>
                             <input
                                 type="file"
-                                name="video"
+                                name="thumbnail"
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                className="w-full border rounded-md px-3 py-2"
+                            />
+                            {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Trailer</label>
+                            <input
+                                type="file"
+                                name="trailer"
                                 onChange={handleFileChange}
                                 accept="video/*"
                                 className="w-full border rounded-md px-3 py-2"
                             />
-                            {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
                         </div>
-                    )}
+                        {formData.type === 'movie' && (
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Video *</label>
+                                <input
+                                    type="file"
+                                    name="video"
+                                    onChange={handleFileChange}
+                                    accept="video/*"
+                                    className="w-full border rounded-md px-3 py-2"
+                                />
+                                {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Movie Duration */}
             {formData.type === 'movie' && (

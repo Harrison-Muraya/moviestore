@@ -19,16 +19,19 @@ class ContentUploadController extends Controller
 {
     public function index(): Response
     {
+        // $genres = Genre::active()->orderBy('sort_order')->get();
         $genres = Genre::active()->get();
 
         return Inertia::render('Uploadvideos', [
-            'genres' => $genres
-        ]);
+        'genres' => $genres
+    ]);
+        // return Inertia::render('Uploadvideos',);
+        // return view('content.upload', compact('genres'));
     }
 
     public function store(Request $request)
     {
-        Log::info('Form data: endpoint was hit');
+        log::info('Form data:  end point was hit');
 
         $request->validate([
             // Basic content information
@@ -47,7 +50,7 @@ class ContentUploadController extends Controller
             'cast.*' => 'string|max:255',
             
             // Required files
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400', // 5MB - Required for both
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
             'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
             
             // Movie specific fields
@@ -71,7 +74,7 @@ class ContentUploadController extends Controller
             'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        Log::info('Form data: validation is complete');
+         log::info(['Form data: varidation is complete']);
 
         try {
             DB::beginTransaction();
@@ -95,7 +98,7 @@ class ContentUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::info('Error:', [$e->getMessage()]);
+            log::info('Error :', [$e->getMessage()]);
             DB::rollBack();
             return response()->json([
                 'success' => false,
@@ -106,19 +109,17 @@ class ContentUploadController extends Controller
 
     private function createMovie(Request $request)
     {
-        // Thumbnail is now required, so we don't need to check for null
         $thumbnailPath = $this->uploadFile($request->file('thumbnail'), 'thumbnails');
-        
         $trailerPath = $request->hasFile('trailer') 
             ? $this->uploadFile($request->file('trailer'), 'trailers') 
             : null;
-            
         $videoPath = $request->hasFile('video') 
             ? $this->uploadFile($request->file('video'), 'videos') 
             : null;
 
         return Movie::create([
             'title' => $request->title,
+            // 'genre_id' => $request->genres,
             'slug' => Str::slug($request->title . '-' . $request->year),
             'type' => $request->type,
             'description' => $request->description,
@@ -163,9 +164,7 @@ class ContentUploadController extends Controller
     private function processEpisodes($season, $movie, $episodesData)
     {
         foreach ($episodesData as $episodeData) {
-            // Episode video is required by validation, so no need to check for null
             $videoPath = $this->uploadFile($episodeData['video'], 'episodes');
-            
             $thumbnailPath = isset($episodeData['thumbnail']) 
                 ? $this->uploadFile($episodeData['thumbnail'], 'episodes/thumbnails') 
                 : null;
@@ -187,11 +186,6 @@ class ContentUploadController extends Controller
 
     private function uploadFile($file, $directory)
     {
-        // Add null check for safety
-        if (!$file) {
-            return null;
-        }
-        
         $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
         return $file->storeAs($directory, $filename, 'public');
     }
