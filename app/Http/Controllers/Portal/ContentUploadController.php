@@ -71,7 +71,7 @@ class ContentUploadController extends Controller
             'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        Log::info('Form data: validation is complete');
+        Log::info(['Form data season: ', $request->seasons]);
 
         try {
             DB::beginTransaction();

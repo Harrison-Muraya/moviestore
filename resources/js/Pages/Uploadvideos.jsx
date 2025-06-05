@@ -535,21 +535,22 @@ const ContentUploadForm = () => {
             </div>
 
             {/* Files */}
-            {formData.type === 'movie' && (
-                <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-4">Files</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Thumbnail *</label>
-                            <input
-                                type="file"
-                                name="thumbnail"
-                                onChange={handleFileChange}
-                                accept="image/*"
-                                className="w-full border rounded-md px-3 py-2"
-                            />
-                            {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail}</p>}
-                        </div>
+            <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-4">Files</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Thumbnail *</label>
+                        <input
+                            type="file"
+                            name="thumbnail"
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="w-full border rounded-md px-3 py-2"
+                        />
+                        {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail}</p>}
+                    </div>
+
+                    {formData.type === 'movie' && (
                         <div>
                             <label className="block text-sm font-medium mb-2">Trailer</label>
                             <input
@@ -560,22 +561,23 @@ const ContentUploadForm = () => {
                                 className="w-full border rounded-md px-3 py-2"
                             />
                         </div>
-                        {formData.type === 'movie' && (
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Video *</label>
-                                <input
-                                    type="file"
-                                    name="video"
-                                    onChange={handleFileChange}
-                                    accept="video/*"
-                                    className="w-full border rounded-md px-3 py-2"
-                                />
-                                {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
-                            </div>
-                        )}
-                    </div>
+                    )}
+                    
+                    {formData.type === 'movie' && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Video *</label>
+                            <input
+                                type="file"
+                                name="video"
+                                onChange={handleFileChange}
+                                accept="video/*"
+                                className="w-full border rounded-md px-3 py-2"
+                            />
+                            {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* Movie Duration */}
             {formData.type === 'movie' && (
