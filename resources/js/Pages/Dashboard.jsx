@@ -521,7 +521,7 @@ export default function Dashboard() {
                         <>
                             <video
                                 ref={videoRef}
-                                src={currentMovie.videoUrl}
+                                src={currentMovie.video_path}
                                 className="w-full h-full object-cover cursor-pointer"
                                 onClick={handleVideoClick}
                                 onDoubleClick={handleDoubleClick}
@@ -835,28 +835,28 @@ export default function Dashboard() {
                                         onClick={() => selectMovie(movie)}
                                     >
                                         <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-                                            {/* <video
-                                                autoPlay
-                                                muted
-                                                playsInline
-                                                src={movie.videoUrl}
-                                                // src={movie.thumbnail}
+
+                                            {/* Thumbnail Image */}
+                                            <img
+                                                src={`/storage/${movie.thumbnail}`} // Add thumbnail_path to your movie data
                                                 alt={movie.title}
-                                                className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
-                                            /> */}
+                                                className="w-full h-96 object-cover transition-all duration-300 group-hover:opacity-0"
+                                                loading="lazy"
+                                            />
 
-
+                                            {/* Trailer Video (hidden by default, shown on hover) */}
                                             <video
                                                 ref={(el) => (videoRefs.current[movie.id] = el)}
                                                 muted
                                                 playsInline
-                                                src={movie.videoUrl}
-                                                className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
+                                                preload="metadata"
+                                                src={`/storage/${movie.trailer_path}`} // Add trailer_path to your movie data
+                                                className="absolute inset-0 w-full h-96 object-cover opacity-0 group-hover:opacity-100 transition-all duration-300"
                                                 onMouseEnter={() => {
                                                     const video = videoRefs.current[movie.id];
                                                     if (video) {
                                                         video.currentTime = 0;
-                                                        video.play();
+                                                        video.play().catch(err => console.error("Trailer play error:", err));
                                                     }
                                                 }}
                                                 onMouseLeave={() => {
@@ -866,10 +866,11 @@ export default function Dashboard() {
                                                         video.currentTime = 0;
                                                     }
                                                 }}
-                                            />
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
 
-
-
+                                            {/* Gradient Overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                                             {/* Play Button Overlay */}
@@ -894,6 +895,69 @@ export default function Dashboard() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* <div className="relative">
+                            <div className="flex space-x-6 overflow-x-auto pb-6 scrollbar-hide">
+                                {filteredMovies.map((movie) => (
+                                    <div
+                                        key={movie.id}
+                                        className="flex-none w-80 group cursor-pointer"
+                                        onClick={() => selectMovie(movie)}
+                                    >
+                                        <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+
+
+                                            <video
+                                                ref={(el) => (videoRefs.current[movie.id] = el)}
+                                                muted
+                                                playsInline
+                                                preload="metadata"
+                                                src={`/storage/${movie.video_path}`} // adjust path if needed
+                                                className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
+                                                onMouseEnter={() => {
+                                                    const video = videoRefs.current[movie.id];
+                                                    if (video) {
+                                                        video.currentTime = 0;
+                                                        video.play().catch(err => console.error("Play error:", err));
+                                                    }
+                                                }}
+                                                onMouseLeave={() => {
+                                                    const video = videoRefs.current[movie.id];
+                                                    if (video) {
+                                                        video.pause();
+                                                        video.currentTime = 0;
+                                                    }
+                                                }}
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
+
+
+
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div> */}
+
+                        {/* Play Button Overlay */}
+                        {/* <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div className="bg-red-600 rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
+                                                    <Play className="text-white" size={32} />
+                                                </div>
+                                            </div> */}
+
+                        {/* Movie Info */}
+                        {/* <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300">
+                                                <h3 className="text-white text-xl font-bold mb-2">{movie.title}</h3>
+                                                <p className="text-gray-300 text-sm mb-2 line-clamp-2">{movie.description}</p>
+                                                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                                    <span>{movie.genre}</span>
+                                                    <span>{movie.year}</span>
+                                                    <span>{movie.duration}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div> */}
 
                         {filteredMovies.length === 0 && searchTerm && (
                             <div className="text-center py-12">
