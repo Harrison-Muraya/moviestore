@@ -155,6 +155,7 @@ const ContentUploadForm = () => {
         }));
     };
 
+    // do not delete
     // const validateForm = () => {
     //     const newErrors = {};
 

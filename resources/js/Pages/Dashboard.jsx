@@ -31,111 +31,133 @@ export default function Dashboard() {
     const [latestMovies, setMovies] = useState([]);
 
 
-    // loading data from database
+    // // loading data from database
+    // useEffect(() => {
+    //     const url = route('getmoviedata');
+    //     fetch(url, {
+    //         method: "GET",
+    //     })
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //             if (data.status === true) {
+    //                 console.log("setMovies retrieved successfully:", data.response.setMovies);
+    //                 // Appending Movies and production records to the state
+    //                 setMovies(data.response.setMovies)
+    //             } else {
+    //                 console.error("Failed to fetch movies:", data);
+    //             }
+    //         })
+    //         .catch((error) => console.error("Error fetching movies:", error));
+    // }, []);
+
+    // Load genres from API
     useEffect(() => {
-        const url = route('getmoviedata');
-        fetch(url, {
-            method: "GET",
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status === true) {
-                    console.log("setMovies retrieved successfully:", data.response.setMovies);
-                    // Appending Movies and production records to the state
-                    setMovies(data.response.setMovies)
+        const fetchMovies = async () => {
+            try {
+                const response = await fetch('/get-movies');
+                if (response.ok) {
+                    const movieData = await response.json();
+                    console.log('Fetched movie data:', movieData.response.setMovies);
+                    setMovies(movieData.response.setMovies); // this is the correct value to set
                 } else {
-                    console.error("Failed to fetch movies:", data);
+                    console.error('Server returned error:', response.status);
                 }
-            })
-            .catch((error) => console.error("Error fetching movies:", error));
+            } catch (error) {
+                console.error('Fetch error:', error);
+                console.log('Using hardcoded genres - API not available');
+            }
+        };
+
+        fetchMovies();
     }, []);
+
     // Sample movie data with additional metadata
-    const latestMoviess = [
-        {
-            id: 1,
-            title: "Cosmic Horizons",
-            thumbnail: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=300&h=400&fit=crop",
-            duration: "2h 15m",
-            durationSeconds: 8100,
-            genre: "Sci-Fi",
-            year: "2024",
-            rating: 8.5,
-            description: "A thrilling journey through space and time as humanity discovers new worlds beyond imagination.",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            cast: ["Emma Stone", "Ryan Gosling", "John Krasinski"],
-            director: "Christopher Nolan"
-        },
-        {
-            id: 2,
-            title: "Ocean's Mystery",
-            thumbnail: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=300&h=400&fit=crop",
-            duration: "1h 48m",
-            durationSeconds: 6480,
-            genre: "Adventure",
-            year: "2024",
-            rating: 7.8,
-            description: "Deep beneath the waves lies a secret that could change everything we know about our planet.",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            cast: ["Zendaya", "Timothée Chalamet", "Oscar Isaac"],
-            director: "Denis Villeneuve"
-        },
-        {
-            id: 3,
-            title: "Neon Nights",
-            thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
-            duration: "2h 2m",
-            durationSeconds: 7320,
-            genre: "Thriller",
-            year: "2024",
-            rating: 9.1,
-            description: "In a cyberpunk future, one detective must solve the case that will determine humanity's fate.",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            cast: ["Keanu Reeves", "Scarlett Johansson", "Michael Shannon"],
-            director: "The Wachowskis"
-        },
-        {
-            id: 4,
-            title: "Mountain's Call",
-            thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=400&fit=crop",
-            duration: "1h 55m",
-            durationSeconds: 6900,
-            genre: "Drama",
-            year: "2024",
-            rating: 8.2,
-            description: "A story of courage and determination as climbers face their greatest challenge yet.",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-            cast: ["Jake Gyllenhaal", "Elisabeth Moss", "Oscar Isaac"],
-            director: "Alejandro G. Iñárritu"
-        },
-        {
-            id: 5,
-            title: "Digital Dreams",
-            thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
-            duration: "2h 12m",
-            durationSeconds: 7920,
-            genre: "Sci-Fi",
-            year: "2024",
-            rating: 8.7,
-            description: "When reality and virtual worlds collide, what defines what is real?",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-            cast: ["Anya Taylor-Joy", "Dev Patel", "Lupita Nyong'o"],
-            director: "Jordan Peele"
-        },
-        {
-            id: 6,
-            title: "Desert Winds",
-            thumbnail: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300&h=400&fit=crop",
-            duration: "1h 43m",
-            durationSeconds: 6180,
-            genre: "Western",
-            year: "2024",
-            rating: 7.5,
-            description: "A lone wanderer discovers that some legends are more real than anyone believed.",
-            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-            cast: ["Adam Driver", "Saoirse Ronan", "Oscar Isaac"],
-            director: "Coen Brothers"
-        }
-    ];
+    // const latestMoviess = [
+    //     {
+    //         id: 1,
+    //         title: "Cosmic Horizons",
+    //         thumbnail: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=300&h=400&fit=crop",
+    //         duration: "2h 15m",
+    //         durationSeconds: 8100,
+    //         genre: "Sci-Fi",
+    //         year: "2024",
+    //         rating: 8.5,
+    //         description: "A thrilling journey through space and time as humanity discovers new worlds beyond imagination.",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    //         cast: ["Emma Stone", "Ryan Gosling", "John Krasinski"],
+    //         director: "Christopher Nolan"
+    //     },
+    //     {
+    //         id: 2,
+    //         title: "Ocean's Mystery",
+    //         thumbnail: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=300&h=400&fit=crop",
+    //         duration: "1h 48m",
+    //         durationSeconds: 6480,
+    //         genre: "Adventure",
+    //         year: "2024",
+    //         rating: 7.8,
+    //         description: "Deep beneath the waves lies a secret that could change everything we know about our planet.",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    //         cast: ["Zendaya", "Timothée Chalamet", "Oscar Isaac"],
+    //         director: "Denis Villeneuve"
+    //     },
+    //     {
+    //         id: 3,
+    //         title: "Neon Nights",
+    //         thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
+    //         duration: "2h 2m",
+    //         durationSeconds: 7320,
+    //         genre: "Thriller",
+    //         year: "2024",
+    //         rating: 9.1,
+    //         description: "In a cyberpunk future, one detective must solve the case that will determine humanity's fate.",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    //         cast: ["Keanu Reeves", "Scarlett Johansson", "Michael Shannon"],
+    //         director: "The Wachowskis"
+    //     },
+    //     {
+    //         id: 4,
+    //         title: "Mountain's Call",
+    //         thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=400&fit=crop",
+    //         duration: "1h 55m",
+    //         durationSeconds: 6900,
+    //         genre: "Drama",
+    //         year: "2024",
+    //         rating: 8.2,
+    //         description: "A story of courage and determination as climbers face their greatest challenge yet.",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    //         cast: ["Jake Gyllenhaal", "Elisabeth Moss", "Oscar Isaac"],
+    //         director: "Alejandro G. Iñárritu"
+    //     },
+    //     {
+    //         id: 5,
+    //         title: "Digital Dreams",
+    //         thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
+    //         duration: "2h 12m",
+    //         durationSeconds: 7920,
+    //         genre: "Sci-Fi",
+    //         year: "2024",
+    //         rating: 8.7,
+    //         description: "When reality and virtual worlds collide, what defines what is real?",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    //         cast: ["Anya Taylor-Joy", "Dev Patel", "Lupita Nyong'o"],
+    //         director: "Jordan Peele"
+    //     },
+    //     {
+    //         id: 6,
+    //         title: "Desert Winds",
+    //         thumbnail: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300&h=400&fit=crop",
+    //         duration: "1h 43m",
+    //         durationSeconds: 6180,
+    //         genre: "Western",
+    //         year: "2024",
+    //         rating: 7.5,
+    //         description: "A lone wanderer discovers that some legends are more real than anyone believed.",
+    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    //         cast: ["Adam Driver", "Saoirse Ronan", "Oscar Isaac"],
+    //         director: "Coen Brothers"
+    //     }
+    // ];
 
     const genres = ['All', 'Sci-Fi', 'Adventure', 'Thriller', 'Drama', 'Western'];
     const qualityOptions = ['HD', 'Full HD', '4K'];
@@ -696,8 +718,27 @@ export default function Dashboard() {
                             <span className="text-red-600">.</span>
                         </h1>
                     </div>
-
                     {/* Search Bar */}
+                    <form onSubmit={handleSearch} className="flex w-full max-w-md gap-2">
+                        <div className="relative flex-1">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full h-12 pr-10 rounded-lg bg-white/10 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 px-4 text-sm placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Search movies, actors, directors..."
+                            />
+                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400" size={20} />
+                        </div>
+                        <button
+                            type="submit"
+                            className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            Search
+                        </button>
+                    </form>
+
+                    {/* Search Bar
                     <form onSubmit={handleSearch} className="flex max-w-md gap-2 flex-1 md:flex-none">
                         <div className="relative flex-1">
                             <input
@@ -715,7 +756,7 @@ export default function Dashboard() {
                         >
                             Search
                         </button>
-                    </form>
+                    </form> */}
 
                     {/* Dark Mode Toggle */}
                     <div className="flex items-center gap-3">

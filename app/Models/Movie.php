@@ -23,6 +23,8 @@ class Movie extends Model
         'total_episodes' => 'integer',
     ];
 
+    protected $with = ['genres',];
+
     // Relationships
     public function genres()
     {
