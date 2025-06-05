@@ -59,6 +59,7 @@ export default function Dashboard() {
                     const movieData = await response.json();
                     console.log('Fetched movie data:', movieData.response.setMovies);
                     setMovies(movieData.response.setMovies); // this is the correct value to set
+                    // setCurrentMovie(movieData.response.setMovies)
                 } else {
                     console.error('Server returned error:', response.status);
                 }
@@ -163,13 +164,21 @@ export default function Dashboard() {
     const qualityOptions = ['HD', 'Full HD', '4K'];
 
     // Filter movies based on search term and genre
-    const filteredMovies = latestMovies.filter(movie => {
+    const filteredMovies = (latestMovies || []).filter(movie => {
         const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            movie.genres.toLowerCase().includes(searchTerm.toLowerCase()) ||
             movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesGenre = selectedGenre === 'All' || movie.genre === selectedGenre;
+        const matchesGenre = selectedGenre === 'All' || movie.genres === selectedGenre;
         return matchesSearch && matchesGenre;
     });
+
+    // const filteredMovies = latestMovies.filter(movie => {
+    //     const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //         movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //         movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
+    //     const matchesGenre = selectedGenre === 'All' || movie.genre === selectedGenre;
+    //     return matchesSearch && matchesGenre;
+    // });
 
     // Video player functions with error handling
     const handlePlayPause = () => {
@@ -838,10 +847,17 @@ export default function Dashboard() {
 
                                             {/* Thumbnail Image */}
                                             <img
-                                                src={`/storage/${movie.thumbnail}`} // Add thumbnail_path to your movie data
+                                                src={movie.thumbnail?.startsWith('http')
+                                                    ? movie.thumbnail
+                                                    : `/storage/${movie.thumbnail}`
+                                                }
                                                 alt={movie.title}
                                                 className="w-full h-96 object-cover transition-all duration-300 group-hover:opacity-0"
                                                 loading="lazy"
+                                                onError={(e) => {
+                                                    console.error(`Thumbnail failed to load: ${e.target.src}`);
+                                                    e.target.src = '/storage/default-thumbnail.jpg'; // fallback image
+                                                }}
                                             />
 
                                             {/* Trailer Video (hidden by default, shown on hover) */}
@@ -850,10 +866,15 @@ export default function Dashboard() {
                                                 muted
                                                 playsInline
                                                 preload="metadata"
-                                                src={`/storage/${movie.trailer_path}`} // Add trailer_path to your movie data
+                                                src={movie.trailer_path?.startsWith('http')
+                                                    ? movie.trailer_path
+                                                    : `/storage/${movie.trailer_path}`
+                                                }
                                                 className="absolute inset-0 w-full h-96 object-cover opacity-0 group-hover:opacity-100 transition-all duration-300"
                                                 onMouseEnter={() => {
                                                     const video = videoRefs.current[movie.id];
+                                                    console.log('Video src:', video?.src); // Debug log
+                                                    console.log('Movie trailer_path:', movie.trailer_path); // Debug log
                                                     if (video) {
                                                         video.currentTime = 0;
                                                         video.play().catch(err => console.error("Trailer play error:", err));
@@ -895,6 +916,7 @@ export default function Dashboard() {
                                 ))}
                             </div>
                         </div>
+
 
                         {/* <div className="relative">
                             <div className="flex space-x-6 overflow-x-auto pb-6 scrollbar-hide">
