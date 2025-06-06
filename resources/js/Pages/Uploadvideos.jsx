@@ -356,6 +356,7 @@ const ContentUploadForm = () => {
                 method: 'POST',
                 body: form,
                 headers: headers,
+                'X-CRSF-TOKEN': csrf,
                 credentials: 'same-origin' // Important for CSRF cookies
             });
 
