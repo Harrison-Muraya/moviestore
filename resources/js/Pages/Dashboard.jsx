@@ -72,94 +72,6 @@ export default function Dashboard() {
         fetchMovies();
     }, []);
 
-    // Sample movie data with additional metadata
-    // const latestMoviess = [
-    //     {
-    //         id: 1,
-    //         title: "Cosmic Horizons",
-    //         thumbnail: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=300&h=400&fit=crop",
-    //         duration: "2h 15m",
-    //         durationSeconds: 8100,
-    //         genre: "Sci-Fi",
-    //         year: "2024",
-    //         rating: 8.5,
-    //         description: "A thrilling journey through space and time as humanity discovers new worlds beyond imagination.",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    //         cast: ["Emma Stone", "Ryan Gosling", "John Krasinski"],
-    //         director: "Christopher Nolan"
-    //     },
-    //     {
-    //         id: 2,
-    //         title: "Ocean's Mystery",
-    //         thumbnail: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=300&h=400&fit=crop",
-    //         duration: "1h 48m",
-    //         durationSeconds: 6480,
-    //         genre: "Adventure",
-    //         year: "2024",
-    //         rating: 7.8,
-    //         description: "Deep beneath the waves lies a secret that could change everything we know about our planet.",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    //         cast: ["Zendaya", "Timothée Chalamet", "Oscar Isaac"],
-    //         director: "Denis Villeneuve"
-    //     },
-    //     {
-    //         id: 3,
-    //         title: "Neon Nights",
-    //         thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
-    //         duration: "2h 2m",
-    //         durationSeconds: 7320,
-    //         genre: "Thriller",
-    //         year: "2024",
-    //         rating: 9.1,
-    //         description: "In a cyberpunk future, one detective must solve the case that will determine humanity's fate.",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    //         cast: ["Keanu Reeves", "Scarlett Johansson", "Michael Shannon"],
-    //         director: "The Wachowskis"
-    //     },
-    //     {
-    //         id: 4,
-    //         title: "Mountain's Call",
-    //         thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=400&fit=crop",
-    //         duration: "1h 55m",
-    //         durationSeconds: 6900,
-    //         genre: "Drama",
-    //         year: "2024",
-    //         rating: 8.2,
-    //         description: "A story of courage and determination as climbers face their greatest challenge yet.",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    //         cast: ["Jake Gyllenhaal", "Elisabeth Moss", "Oscar Isaac"],
-    //         director: "Alejandro G. Iñárritu"
-    //     },
-    //     {
-    //         id: 5,
-    //         title: "Digital Dreams",
-    //         thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop",
-    //         duration: "2h 12m",
-    //         durationSeconds: 7920,
-    //         genre: "Sci-Fi",
-    //         year: "2024",
-    //         rating: 8.7,
-    //         description: "When reality and virtual worlds collide, what defines what is real?",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    //         cast: ["Anya Taylor-Joy", "Dev Patel", "Lupita Nyong'o"],
-    //         director: "Jordan Peele"
-    //     },
-    //     {
-    //         id: 6,
-    //         title: "Desert Winds",
-    //         thumbnail: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=300&h=400&fit=crop",
-    //         duration: "1h 43m",
-    //         durationSeconds: 6180,
-    //         genre: "Western",
-    //         year: "2024",
-    //         rating: 7.5,
-    //         description: "A lone wanderer discovers that some legends are more real than anyone believed.",
-    //         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    //         cast: ["Adam Driver", "Saoirse Ronan", "Oscar Isaac"],
-    //         director: "Coen Brothers"
-    //     }
-    // ];
-
     const genres = ['All', 'Sci-Fi', 'Adventure', 'Thriller', 'Drama', 'Western'];
     const qualityOptions = ['HD', 'Full HD', '4K'];
 
@@ -171,14 +83,6 @@ export default function Dashboard() {
         const matchesGenre = selectedGenre === 'All' || movie.genres === selectedGenre;
         return matchesSearch && matchesGenre;
     });
-
-    // const filteredMovies = latestMovies.filter(movie => {
-    //     const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //         movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //         movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
-    //     const matchesGenre = selectedGenre === 'All' || movie.genre === selectedGenre;
-    //     return matchesSearch && matchesGenre;
-    // });
 
     // Video player functions with error handling
     const handlePlayPause = () => {
@@ -530,7 +434,10 @@ export default function Dashboard() {
                         <>
                             <video
                                 ref={videoRef}
-                                src={currentMovie.video_path}
+                                src={currentMovie.video_path?.startsWith('http')
+                                    ? currentMovie.video_path : `/storage/${currentMovie.video_path}`
+                                }
+                                // src={currentMovie.video_path}
                                 className="w-full h-full object-cover cursor-pointer"
                                 onClick={handleVideoClick}
                                 onDoubleClick={handleDoubleClick}
@@ -747,26 +654,6 @@ export default function Dashboard() {
                         </button>
                     </form>
 
-                    {/* Search Bar
-                    <form onSubmit={handleSearch} className="flex max-w-md gap-2 flex-1 md:flex-none">
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full rounded-lg bg-white/10 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 px-4 py-3 text-sm placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                placeholder="Search movies, actors, directors..."
-                            />
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                        </div>
-                        <button
-                            type="submit"
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                            Search
-                        </button>
-                    </form> */}
-
                     {/* Dark Mode Toggle */}
                     <div className="flex items-center gap-3">
                         <span className="text-sm font-medium">
@@ -917,69 +804,6 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-
-                        {/* <div className="relative">
-                            <div className="flex space-x-6 overflow-x-auto pb-6 scrollbar-hide">
-                                {filteredMovies.map((movie) => (
-                                    <div
-                                        key={movie.id}
-                                        className="flex-none w-80 group cursor-pointer"
-                                        onClick={() => selectMovie(movie)}
-                                    >
-                                        <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-
-
-                                            <video
-                                                ref={(el) => (videoRefs.current[movie.id] = el)}
-                                                muted
-                                                playsInline
-                                                preload="metadata"
-                                                src={`/storage/${movie.video_path}`} // adjust path if needed
-                                                className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-110"
-                                                onMouseEnter={() => {
-                                                    const video = videoRefs.current[movie.id];
-                                                    if (video) {
-                                                        video.currentTime = 0;
-                                                        video.play().catch(err => console.error("Play error:", err));
-                                                    }
-                                                }}
-                                                onMouseLeave={() => {
-                                                    const video = videoRefs.current[movie.id];
-                                                    if (video) {
-                                                        video.pause();
-                                                        video.currentTime = 0;
-                                                    }
-                                                }}
-                                            >
-                                                Your browser does not support the video tag.
-                                            </video>
-
-
-
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div> */}
-
-                        {/* Play Button Overlay */}
-                        {/* <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <div className="bg-red-600 rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-                                                    <Play className="text-white" size={32} />
-                                                </div>
-                                            </div> */}
-
-                        {/* Movie Info */}
-                        {/* <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300">
-                                                <h3 className="text-white text-xl font-bold mb-2">{movie.title}</h3>
-                                                <p className="text-gray-300 text-sm mb-2 line-clamp-2">{movie.description}</p>
-                                                <div className="flex items-center space-x-4 text-sm text-gray-400">
-                                                    <span>{movie.genre}</span>
-                                                    <span>{movie.year}</span>
-                                                    <span>{movie.duration}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div> */}
 
                         {filteredMovies.length === 0 && searchTerm && (
                             <div className="text-center py-12">

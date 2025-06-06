@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ContentUploadController extends Controller
 {
@@ -30,48 +31,60 @@ class ContentUploadController extends Controller
     {
         Log::info('Form data: endpoint was hit');
 
-        $request->validate([
-            // Basic content information
-            'title' => 'required|string|max:255',
-            'type' => 'required|in:movie,series',
-            'genres' => 'required|array|min:1',
-            'genres.*' => 'exists:genres,id',
-            'description' => 'nullable|string|max:2000',
-            'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
-            'language' => 'nullable|string|max:10',
-            'country' => 'nullable|string|max:100',
-            'rating' => 'nullable|numeric|min:0|max:10',
-            
-            // Cast members
-            'cast' => 'nullable|array',
-            'cast.*' => 'string|max:255',
-            
-            // Required files
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400', // 5MB - Required for both
-            'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
-            
-            // Movie specific fields
-            'duration' => 'required_if:type,movie|nullable|string|max:20',
-            'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
-            
-            // Series specific fields
-            'seasons' => 'required_if:type,series|nullable|array|min:1',
-            'seasons.*.season_number' => 'required|integer|min:1',
-            'seasons.*.title' => 'nullable|string|max:255',
-            'seasons.*.description' => 'nullable|string|max:1000',
-            'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            
-            // Episodes validation
-            'seasons.*.episodes' => 'required|array|min:1',
-            'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
-            'seasons.*.episodes.*.title' => 'required|string|max:255',
-            'seasons.*.episodes.*.description' => 'nullable|string|max:1000',
-            'seasons.*.episodes.*.duration' => 'nullable|string|max:20',
-            'seasons.*.episodes.*.video' => 'required|file|mimes:mp4,avi,mov,wmv,webm|max:2048000',
-            'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-        ]);
+        try {
+            $request->validate([
+                // Basic content information
+                'title' => 'required|string|max:255',
+                'type' => 'required|in:movie,series',
+                'genres' => 'required|array|min:1',
+                'genres.*' => 'exists:genres,id',
+                'description' => 'nullable|string|max:2000',
+                'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
+                'language' => 'nullable|string|max:10',
+                'country' => 'nullable|string|max:100',
+                'rating' => 'nullable|numeric|min:0|max:10',
+                
+                // Cast members
+                'cast' => 'nullable|array',
+                'cast.*' => 'string|max:255',
+                
+                // Required files
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400', // 5MB - Required for both
+                'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
+                
+                // Movie specific fields
+                'duration' => 'required_if:type,movie|nullable|string|max:20',
+                'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
+                
+                // Series specific fields
+                'seasons' => 'required_if:type,series|nullable|array|min:1',
+                'seasons.*.season_number' => 'required|integer|min:1',
+                'seasons.*.title' => 'nullable|string|max:255',
+                'seasons.*.description' => 'nullable|string|max:1000',
+                'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                
+                // Episodes validation
+                'seasons.*.episodes' => 'required|array|min:1',
+                'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
+                'seasons.*.episodes.*.title' => 'required|string|max:255',
+                'seasons.*.episodes.*.description' => 'nullable|string|max:1000',
+                'seasons.*.episodes.*.duration' => 'nullable|string|max:20',
+                'seasons.*.episodes.*.video' => 'required|file|mimes:mp4,avi,mov,wmv,webm|max:2048000',
+                'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            ]);     
+            Log::info(['Form data season: ', $request->seasons]);
 
-        Log::info(['Form data season: ', $request->seasons]);
+        } catch (ValidationException $e) {
+            Log::error('Validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+            ]);
+
+            // Optionally rethrow or return error response
+            throw $e;
+        }
+
+
 
         try {
             DB::beginTransaction();
