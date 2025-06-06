@@ -494,6 +494,8 @@ const ContentUploadForm = () => {
                                 min="1900"
                                 max={new Date().getFullYear() + 5}
                             />
+                            {errors.year && <p className="text-red-500 text-sm mt-1">{errors.year}</p>}
+
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -507,6 +509,8 @@ const ContentUploadForm = () => {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
+                            {errors.language && <p className="text-red-500 text-sm mt-1">{errors.language}</p>}
+
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -519,6 +523,7 @@ const ContentUploadForm = () => {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
+                            {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
                         </div>
 
                         {/* Movie Duration */}
@@ -555,6 +560,7 @@ const ContentUploadForm = () => {
                                 step="0.1"
                                 placeholder="0.0"
                             />
+                            {errors.rating && <p className="text-red-500 text-sm mt-1">{errors.rating}</p>}
                         </div>
                     </div>
 
@@ -822,14 +828,14 @@ const ContentUploadForm = () => {
             )}
 
             {/* Debug Information */}
-            {/* {debugInfo && (
+            {debugInfo && (
                 <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
                     <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-h-60">
                         {debugInfo}
                     </pre>
                 </div>
-            )} */}
+            )}
 
             {/* Error Display */}
             {Object.keys(errors).length > 0 && (
