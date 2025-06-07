@@ -34,7 +34,8 @@ class ContentUploadController extends Controller
         try {
             $request->validate([
                 // Basic content information
-                'title' => 'required|string|max:255',
+                // 'title' => 'required|string|max:255',
+                'title' => 'string|max:255',
                 'type' => 'required|in:movie,series',
                 'genres' => 'required|array|min:1',
                 'genres.*' => 'exists:genres,id',
