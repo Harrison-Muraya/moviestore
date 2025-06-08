@@ -284,9 +284,7 @@ const ContentUploadForm = () => {
 
         // Cast members
         formData.cast.forEach((actor, index) => {
-            if (actor.trim()) {
-                form.append(`cast[${index}]`, actor);
-            }
+            form.append(`cast[${index}]`, actor);
         });
 
         // Genres
