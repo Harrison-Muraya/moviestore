@@ -154,6 +154,45 @@ const ContentUploadForm = () => {
             )
         }));
     };
+
+    // do not delete
+    // const validateForm = () => {
+    //     const newErrors = {};
+
+    //     if (!formData.title.trim()) newErrors.title = 'Title is required';
+    //     if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
+    //     if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
+
+    //     if (formData.type === 'movie') {
+    //         if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
+    //         if (!formData.video) newErrors.video = 'Video file is required for movies';
+    //     }
+
+    //     if (formData.type === 'series') {
+    //         if (formData.seasons.length === 0) {
+    //             newErrors.seasons = 'At least one season is required for series';
+    //         } else {
+    //             formData.seasons.forEach((season, sIndex) => {
+    //                 if (season.episodes.length === 0) {
+    //                     newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
+    //                 }
+    //                 season.episodes.forEach((episode, eIndex) => {
+    //                     if (!episode.title.trim()) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
+    //                     }
+    //                     if (!episode.video) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
+    //                     }
+    //                 });
+    //             });
+    //         }
+    //     }
+
+    //     return newErrors;
+    // };
+
+    //------------------------------------------------------------------------------------
+
     const validateForm = () => {
         const newErrors = {};
 
@@ -835,6 +874,24 @@ const ContentUploadForm = () => {
                     </>
                 )}
             </button>
+
+            {/* <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+            >
+                {loading ? (
+                    <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Uploading...
+                    </>
+                ) : (
+                    <>
+                        <Upload className="mr-2" size={16} />
+                        Upload Content
+                    </>
+                )}
+            </button> */}
         </div>
     );
 };
