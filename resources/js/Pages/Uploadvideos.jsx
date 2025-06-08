@@ -192,6 +192,13 @@ const ContentUploadForm = () => {
     // };
 
     //------------------------------------------------------------------------------------
+
+    // Add this before your fetch call to verify FormData
+    console.log('FormData being sent:');
+    for (let [key, value] of form.entries()) {
+        console.log(key, value);
+    }
+
     const validateForm = () => {
         const newErrors = {};
 
@@ -890,8 +897,6 @@ const ContentUploadForm = () => {
                     </>
                 )}
             </button> */}
-
-
         </div>
     );
 };

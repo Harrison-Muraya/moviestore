@@ -29,16 +29,21 @@ class ContentUploadController extends Controller
 
     public function store(Request $request)
     {
-        Log::info('Form data: endpoint was hit');
-        Log::info('Incoming data:', $request->all());
+        Log::info('Raw request data:', [
+            'all' => $request->all(),
+            'input' => $request->input(),
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'has_files' => $request->hasFile('thumbnail'),
+        ]);
 
         try {
             $request->validate([
                 // Basic content information
                 // 'title' => 'required|string|max:255',
                 'title' => 'string|max:255',
-                'type' => 'required|in:movie,series',
-                'genres' => 'required|array|min:1',
+                'type' => 'nullable|in:movie,series',
+                'genres' => 'nullable|array|min:1',
                 'genres.*' => 'exists:genres,id',
                 'description' => 'nullable|string|max:2000',
                 'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),

@@ -16,12 +16,12 @@ return new class extends Migration
             $table->foreignId('season_id')->constrained()->onDelete('cascade');
             $table->foreignId('movie_id')->constrained()->onDelete('cascade'); // For easier queries
             $table->integer('episode_number');
-            $table->string('title');
-            $table->string('slug');
+            $table->string('title')->nullable();;
+            $table->string('slug')->nullable();;
             $table->text('description')->nullable();
             $table->string('duration')->nullable();
             $table->string('thumbnail')->nullable();
-            $table->string('video_path');
+            $table->string('video_path')->nullable();;
             $table->decimal('rating', 3, 1)->nullable();
             $table->date('air_date')->nullable();
             $table->integer('status')->default(0);
