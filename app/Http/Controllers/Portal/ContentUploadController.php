@@ -51,11 +51,14 @@ class ContentUploadController extends Controller
                 
                 // Required files
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400', // 5MB - Required for both
-                'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
+                'trailer' => 'nullable|file|mimetypes:video/*|max:102400',
+                // 'trailer' => 'nullable|file|mimes:mp4,avi,mov,wmv,webm|max:102400', // 100MB
+                
                 
                 // Movie specific fields
                 'duration' => 'required_if:type,movie|nullable|string|max:20',
-                'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
+                'video' => 'required_if:type,movie|nullable|file|mimetypes:video/*|max:2048000',
+                // 'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
                 
                 // Series specific fields
                 'seasons' => 'required_if:type,series|nullable|array|min:1',
@@ -70,7 +73,8 @@ class ContentUploadController extends Controller
                 'seasons.*.episodes.*.title' => 'required|string|max:255',
                 'seasons.*.episodes.*.description' => 'nullable|string|max:1000',
                 'seasons.*.episodes.*.duration' => 'nullable|string|max:20',
-                'seasons.*.episodes.*.video' => 'required|file|mimes:mp4,avi,mov,wmv,webm|max:2048000',
+                'seasons.*.episodes.*.video' => 'required|file|mimetypes:video/*|max:2048000',
+                // 'seasons.*.episodes.*.video' => 'required|file|mimes:mp4,avi,mov,wmv,webm|max:2048000',
                 'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ]);     
             Log::info(['Form data season: ', $request->seasons]);
