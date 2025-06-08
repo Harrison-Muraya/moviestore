@@ -339,6 +339,7 @@ const ContentUploadForm = () => {
         const debugText = debugFormData(form);
         setDebugInfo(debugText);
         console.log(debugText);
+        console.log(form);
 
         try {
             // Get CSRF token from meta tag or cookie
