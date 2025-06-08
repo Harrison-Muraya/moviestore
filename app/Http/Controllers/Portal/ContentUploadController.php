@@ -30,6 +30,7 @@ class ContentUploadController extends Controller
     public function store(Request $request)
     {
         Log::info('Form data: endpoint was hit');
+        Log::info('Incoming data:', $request->all());
 
         try {
             $request->validate([
