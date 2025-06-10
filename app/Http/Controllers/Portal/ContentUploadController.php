@@ -37,6 +37,8 @@ class ContentUploadController extends Controller
             'has_files' => $request->hasFile('thumbnail'),
         ]);
 
+        // dd($request()->all());
+
         try {
             $request->validate([
                 // Basic content information

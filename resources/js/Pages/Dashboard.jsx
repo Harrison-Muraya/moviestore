@@ -31,46 +31,46 @@ export default function Dashboard() {
     const [latestMovies, setMovies] = useState([]);
 
 
-    // // loading data from database
-    // useEffect(() => {
-    //     const url = route('getmoviedata');
-    //     fetch(url, {
-    //         method: "GET",
-    //     })
-    //         .then((response) => response.json())
-    //         .then((data) => {
-    //             if (data.status === true) {
-    //                 console.log("setMovies retrieved successfully:", data.response.setMovies);
-    //                 // Appending Movies and production records to the state
-    //                 setMovies(data.response.setMovies)
-    //             } else {
-    //                 console.error("Failed to fetch movies:", data);
-    //             }
-    //         })
-    //         .catch((error) => console.error("Error fetching movies:", error));
-    // }, []);
+    // loading data from database
+    useEffect(() => {
+        const url = route('getmoviedata');
+        fetch(url, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status === true) {
+                    console.log("setMovies retrieved successfully:", data.response.setMovies);
+                    // Appending Movies and production records to the state
+                    setMovies(data.response.setMovies)
+                } else {
+                    console.error("Failed to fetch movies:", data);
+                }
+            })
+            .catch((error) => console.error("Error fetching movies:", error));
+    }, []);
 
     // Load genres from API
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const response = await fetch('/get-movies');
-                if (response.ok) {
-                    const movieData = await response.json();
-                    console.log('Fetched movie data:', movieData.response.setMovies);
-                    setMovies(movieData.response.setMovies); // this is the correct value to set
-                    // setCurrentMovie(movieData.response.setMovies)
-                } else {
-                    console.error('Server returned error:', response.status);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                console.log('Using hardcoded genres - API not available');
-            }
-        };
+    // useEffect(() => {
+    //     const fetchMovies = async () => {
+    //         try {
+    //             const response = await fetch('/get-movies');
+    //             if (response.ok) {
+    //                 const movieData = await response.json();
+    //                 console.log('Fetched movie data:', movieData.response.setMovies);
+    //                 setMovies(movieData.response.setMovies); // this is the correct value to set
+    //                 // setCurrentMovie(movieData.response.setMovies)
+    //             } else {
+    //                 console.error('Server returned error:', response.status);
+    //             }
+    //         } catch (error) {
+    //             console.error('Fetch error:', error);
+    //             console.log('Using hardcoded genres - API not available');
+    //         }
+    //     };
 
-        fetchMovies();
-    }, []);
+    //     fetchMovies();
+    // }, []);
 
     const genres = ['All', 'Sci-Fi', 'Adventure', 'Thriller', 'Drama', 'Western'];
     const qualityOptions = ['HD', 'Full HD', '4K'];
