@@ -1,600 +1,897 @@
-import { useEffect, useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Search, Heart, Plus, Settings, Loader2, AlertCircle, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, Plus, Trash, Film, Tv, Star, Calendar, Globe, Clock } from 'lucide-react';
 
-export default function Dashboard() {
-    const [isDark, setIsDark] = useState(true);
-    const [currentMovie, setCurrentMovie] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [volume, setVolume] = useState(100);
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const [lastTap, setLastTap] = useState(0);
-    const [controlsVisible, setControlsVisible] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [videoError, setVideoError] = useState(false);
-    const [favorites, setFavorites] = useState(new Set());
-    const [watchlist, setWatchlist] = useState(new Set());
-    const [watchProgress, setWatchProgress] = useState({});
-    const [selectedGenre, setSelectedGenre] = useState('All');
-    const [showQualityMenu, setShowQualityMenu] = useState(false);
-    const [selectedQuality, setSelectedQuality] = useState('HD');
+const ContentUploadForm = () => {
+    const [formData, setFormData] = useState({
+        title: '',
+        type: 'movie',
+        genres: [],
+        description: '',
+        year: new Date().getFullYear(),
+        language: 'en',
+        country: '',
+        rating: '',
+        cast: [],
+        duration: '',
+        thumbnail: null,
+        trailer: null,
+        video: null,
+        seasons: []
+    });
 
+    const [genres, setGenres] = useState([]);
 
-    const videoRef = useRef(null);
-    const playerRef = useRef(null);
-    const controlsTimeoutRef = useRef(null);
-    const videoRefs = useRef({});
-
-    const [latestMovies, setMovies] = useState([]);
-
-
-    // loading data from database
+    // Load genres from API
     useEffect(() => {
-        const url = route('getmoviedata');
-        fetch(url, {
-            method: "GET",
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status === true) {
-                    console.log("setMovies retrieved successfully:", data.response.setMovies);
-                    // Appending Movies and production records to the state
-                    setMovies(data.response.setMovies)
-                } else {
-                    console.error("Failed to fetch movies:", data);
-                }
-            })
-            .catch((error) => console.error("Error fetching movies:", error));
-    }, []);
-    const genres = ['All', 'Sci-Fi', 'Adventure', 'Thriller', 'Drama', 'Western'];
-        const qualityOptions = ['HD', 'Full HD', '4K'];
-    
-        // Filter movies based on search term and genre
-        const filteredMovies = (latestMovies || []).filter(movie => {
-            const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                movie.genres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                movie.cast.some(actor => actor.toLowerCase().includes(searchTerm.toLowerCase()));
-            const matchesGenre = selectedGenre === 'All' || movie.genres === selectedGenre;
-            return matchesSearch && matchesGenre;
-        });
-    
-        // Video player functions with error handling
-        const handlePlayPause = () => {
-            if (videoRef.current && !videoError) {
-                try {
-                    if (isPlaying) {
-                        videoRef.current.pause();
-                    } else {
-                        setIsLoading(true);
-                        videoRef.current.play().catch(handleVideoError);
-                    }
-                    setIsPlaying(!isPlaying);
-                } catch (error) {
-                    handleVideoError(error);
-                }
-            }
-        };
-    
-        const handleVideoError = (error) => {
-            console.error('Video playback error:', error);
-            setVideoError(true);
-            setIsLoading(false);
-            setIsPlaying(false);
-        };
-    
-        const handleMute = () => {
-            if (videoRef.current) {
-                videoRef.current.muted = !isMuted;
-                setIsMuted(!isMuted);
-            }
-        };
-    
-        const handleVolumeChange = (e) => {
-            const newVolume = e.target.value;
-            setVolume(newVolume);
-            if (videoRef.current) {
-                videoRef.current.volume = newVolume / 100;
-                if (newVolume === '0') {
-                    setIsMuted(true);
-                    videoRef.current.muted = true;
-                } else if (isMuted) {
-                    setIsMuted(false);
-                    videoRef.current.muted = false;
-                }
-            }
-        };
-    
-        const handleProgressChange = (e) => {
-            if (videoRef.current) {
-                const newTime = (e.target.value / 100) * duration;
-                videoRef.current.currentTime = newTime;
-                setProgress(e.target.value);
-            }
-        };
-    
-        const handleSkip = (seconds) => {
-            if (videoRef.current) {
-                const newTime = Math.max(0, Math.min(duration, videoRef.current.currentTime + seconds));
-                videoRef.current.currentTime = newTime;
-            }
-        };
-    
-        const handleFullscreen = async () => {
-            if (!playerRef.current) return;
-    
+        const fetchGenres = async () => {
             try {
-                if (!isFullscreen) {
-                    if (playerRef.current.requestFullscreen) {
-                        await playerRef.current.requestFullscreen();
-                    } else if (playerRef.current.webkitRequestFullscreen) {
-                        await playerRef.current.webkitRequestFullscreen();
-                    } else if (playerRef.current.mozRequestFullScreen) {
-                        await playerRef.current.mozRequestFullScreen();
-                    } else if (playerRef.current.msRequestFullscreen) {
-                        await playerRef.current.msRequestFullscreen();
-                    }
-                } else {
-                    if (document.exitFullscreen) {
-                        await document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) {
-                        await document.webkitExitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        await document.mozCancelFullScreen();
-                    } else if (document.msExitFullscreen) {
-                        await document.msExitFullscreen();
-                    }
+                const response = await fetch('/api/genres');
+                if (response.ok) {
+                    const genresData = await response.json();
+                    // console.log('genre data ', genresData);
+                    setGenres(genresData);
                 }
             } catch (error) {
-                console.error('Fullscreen error:', error);
+                console.log('Using hardcoded genres - API not available');
             }
         };
-    
-        const handleDoubleClick = (e) => {
-            e.preventDefault();
-            handleFullscreen();
+        fetchGenres();
+    }, []);
+
+    const [loading, setLoading] = useState(false);
+    const [castInput, setCastInput] = useState('');
+    const [errors, setErrors] = useState({});
+    const [debugInfo, setDebugInfo] = useState('');
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleFileChange = (e) => {
+        const { name, files } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: files[0]
+        }));
+    };
+
+    const handleGenreChange = (genreId) => {
+        setFormData(prev => ({
+            ...prev,
+            genres: prev.genres.includes(genreId)
+                ? prev.genres.filter(id => id !== genreId)
+                : [...prev.genres, genreId]
+        }));
+    };
+
+    const addCastMember = () => {
+        if (castInput.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                cast: [...prev.cast, castInput.trim()]
+            }));
+            setCastInput('');
+        }
+    };
+
+    const removeCastMember = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            cast: prev.cast.filter((_, i) => i !== index)
+        }));
+    };
+
+    const addSeason = () => {
+        const newSeason = {
+            season_number: formData.seasons.length + 1,
+            title: '',
+            description: '',
+            thumbnail: null,
+            episodes: []
         };
-    
-        const handleVideoClick = (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-    
-            if (tapLength < 500 && tapLength > 0) {
-                // Double tap detected
-                handleFullscreen();
+        setFormData(prev => ({
+            ...prev,
+            seasons: [...prev.seasons, newSeason]
+        }));
+    };
+
+    const updateSeason = (seasonIndex, field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            seasons: prev.seasons.map((season, index) =>
+                index === seasonIndex ? { ...season, [field]: value } : season
+            )
+        }));
+    };
+
+    const removeSeason = (seasonIndex) => {
+        setFormData(prev => ({
+            ...prev,
+            seasons: prev.seasons.filter((_, index) => index !== seasonIndex)
+        }));
+    };
+
+    const addEpisode = (seasonIndex) => {
+        const season = formData.seasons[seasonIndex];
+        const newEpisode = {
+            episode_number: season.episodes.length + 1,
+            title: '',
+            description: '',
+            duration: '',
+            video: null,
+            thumbnail: null
+        };
+
+        updateSeason(seasonIndex, 'episodes', [...season.episodes, newEpisode]);
+    };
+
+    const updateEpisode = (seasonIndex, episodeIndex, field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            seasons: prev.seasons.map((season, sIndex) =>
+                sIndex === seasonIndex ? {
+                    ...season,
+                    episodes: season.episodes.map((episode, eIndex) =>
+                        eIndex === episodeIndex ? { ...episode, [field]: value } : episode
+                    )
+                } : season
+            )
+        }));
+    };
+
+    const removeEpisode = (seasonIndex, episodeIndex) => {
+        setFormData(prev => ({
+            ...prev,
+            seasons: prev.seasons.map((season, sIndex) =>
+                sIndex === seasonIndex ? {
+                    ...season,
+                    episodes: season.episodes.filter((_, eIndex) => eIndex !== episodeIndex)
+                } : season
+            )
+        }));
+    };
+
+    // do not delete
+    // const validateForm = () => {
+    //     const newErrors = {};
+
+    //     if (!formData.title.trim()) newErrors.title = 'Title is required';
+    //     if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
+    //     if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
+
+    //     if (formData.type === 'movie') {
+    //         if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
+    //         if (!formData.video) newErrors.video = 'Video file is required for movies';
+    //     }
+
+    //     if (formData.type === 'series') {
+    //         if (formData.seasons.length === 0) {
+    //             newErrors.seasons = 'At least one season is required for series';
+    //         } else {
+    //             formData.seasons.forEach((season, sIndex) => {
+    //                 if (season.episodes.length === 0) {
+    //                     newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
+    //                 }
+    //                 season.episodes.forEach((episode, eIndex) => {
+    //                     if (!episode.title.trim()) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
+    //                     }
+    //                     if (!episode.video) {
+    //                         newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
+    //                     }
+    //                 });
+    //             });
+    //         }
+    //     }
+
+    //     return newErrors;
+    // };
+
+    //------------------------------------------------------------------------------------
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Basic validation
+        if (!formData.title.trim()) newErrors.title = 'Title is required';
+        if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
+
+        // Thumbnail is required for both movies and series
+        // if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
+
+        if (formData.type === 'movie') {
+            if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
+            if (!formData.video) newErrors.video = 'Video file is required for movies';
+        }
+
+        if (formData.type === 'series') {
+            if (formData.seasons.length === 0) {
+                newErrors.seasons = 'At least one season is required for series';
             } else {
-                // Single tap - toggle play/pause
-                handlePlayPause();
-            }
-    
-            setLastTap(currentTime);
-            showControls();
-        };
-    
-        const showControls = () => {
-            setControlsVisible(true);
-            if (controlsTimeoutRef.current) {
-                clearTimeout(controlsTimeoutRef.current);
-            }
-            controlsTimeoutRef.current = setTimeout(() => {
-                if (isPlaying) {
-                    setControlsVisible(false);
-                }
-            }, 3000);
-        };
-    
-        const handleMouseMove = () => {
-            showControls();
-        };
-    
-        const selectMovie = (movie) => {
-            setCurrentMovie(movie);
-            setIsPlaying(false);
-            setProgress(0);
-            setVideoError(false);
-            setIsLoading(false);
-    
-            // Restore watch progress if exists
-            const savedProgress = watchProgress[movie.id];
-            if (savedProgress && videoRef.current) {
-                setTimeout(() => {
-                    videoRef.current.currentTime = savedProgress;
-                    setProgress((savedProgress / movie.durationSeconds) * 100);
-                }, 100);
-            }
-        };
-    
-        const toggleFavorite = (movieId, e) => {
-            e.stopPropagation();
-            const newFavorites = new Set(favorites);
-            if (newFavorites.has(movieId)) {
-                newFavorites.delete(movieId);
-            } else {
-                newFavorites.add(movieId);
-            }
-            setFavorites(newFavorites);
-        };
-    
-        const toggleWatchlist = (movieId, e) => {
-            e.stopPropagation();
-            const newWatchlist = new Set(watchlist);
-            if (newWatchlist.has(movieId)) {
-                newWatchlist.delete(movieId);
-            } else {
-                newWatchlist.add(movieId);
-            }
-            setWatchlist(newWatchlist);
-        };
-    
-        const formatTime = (seconds) => {
-            if (!seconds) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        };
-    
-        const handleSearch = (e) => {
-            e.preventDefault();
-            // Search functionality is handled by the filter effect
-        };
-    
-        // Get dynamic color for time indicator based on progress
-        const getTimeColor = () => {
-            if (progress < 25) return 'text-red-500';
-            if (progress < 50) return 'text-yellow-500';
-            if (progress < 75) return 'text-blue-500';
-            return 'text-green-500';
-        };
-    
-        // Keyboard shortcuts
-        useEffect(() => {
-            const handleKeyPress = (e) => {
-                if (!currentMovie) return;
-    
-                switch (e.code) {
-                    case 'Space':
-                        e.preventDefault();
-                        handlePlayPause();
-                        break;
-                    case 'ArrowLeft':
-                        e.preventDefault();
-                        handleSkip(-10);
-                        break;
-                    case 'ArrowRight':
-                        e.preventDefault();
-                        handleSkip(10);
-                        break;
-                    case 'KeyM':
-                        e.preventDefault();
-                        handleMute();
-                        break;
-                    case 'KeyF':
-                        e.preventDefault();
-                        handleFullscreen();
-                        break;
-                    case 'Escape':
-                        if (isFullscreen) {
-                            handleFullscreen();
-                        }
-                        break;
-                }
-            };
-    
-            document.addEventListener('keydown', handleKeyPress);
-            return () => document.removeEventListener('keydown', handleKeyPress);
-        }, [currentMovie, isPlaying, isFullscreen]);
-    
-        // Save watch progress
-        useEffect(() => {
-            if (currentMovie && videoRef.current) {
-                const interval = setInterval(() => {
-                    const currentTime = videoRef.current.currentTime;
-                    if (currentTime > 30) { // Only save if watched for more than 30 seconds
-                        setWatchProgress(prev => ({
-                            ...prev,
-                            [currentMovie.id]: currentTime
-                        }));
+                formData.seasons.forEach((season, sIndex) => {
+                    if (season.episodes.length === 0) {
+                        newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
+                    } else {
+                        season.episodes.forEach((episode, eIndex) => {
+                            if (!episode.title.trim()) {
+                                newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
+                            }
+                            if (!episode.video) {
+                                newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
+                            }
+                        });
                     }
-                }, 10000); // Save every 10 seconds
-    
-                return () => clearInterval(interval);
+                });
             }
-        }, [currentMovie]);
-    
-        // Dark mode effect
-        useEffect(() => {
-            document.documentElement.classList.toggle('dark', isDark);
-        }, [isDark]);
-    
-        // Video progress tracking
-        useEffect(() => {
-            const video = videoRef.current;
-            if (video && currentMovie) {
-                const updateProgress = () => {
-                    const progressPercent = (video.currentTime / video.duration) * 100;
-                    setProgress(progressPercent);
-                    setIsLoading(false);
-                };
-    
-                const updateDuration = () => {
-                    setDuration(video.duration);
-                    setIsLoading(false);
-                };
-    
-                const handleLoadStart = () => setIsLoading(true);
-                const handleCanPlay = () => setIsLoading(false);
-                const handleError = (e) => handleVideoError(e);
-                const handleWaiting = () => setIsLoading(true);
-                const handlePlaying = () => setIsLoading(false);
-    
-                video.addEventListener('timeupdate', updateProgress);
-                video.addEventListener('loadedmetadata', updateDuration);
-                video.addEventListener('loadstart', handleLoadStart);
-                video.addEventListener('canplay', handleCanPlay);
-                video.addEventListener('error', handleError);
-                video.addEventListener('waiting', handleWaiting);
-                video.addEventListener('playing', handlePlaying);
-    
-                return () => {
-                    video.removeEventListener('timeupdate', updateProgress);
-                    video.removeEventListener('loadedmetadata', updateDuration);
-                    video.removeEventListener('loadstart', handleLoadStart);
-                    video.removeEventListener('canplay', handleCanPlay);
-                    video.removeEventListener('error', handleError);
-                    video.removeEventListener('waiting', handleWaiting);
-                    video.removeEventListener('playing', handlePlaying);
-                };
+        }
+
+        return newErrors;
+    };
+    //------------------------------------------------------------------------------------
+
+
+    // Helper function to get cookie value
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    };
+
+    const debugFormData = (form) => {
+        let debug = 'FormData contents:\n';
+        for (let [key, value] of form.entries()) {
+            if (value instanceof File) {
+                debug += `${key}: File(${value.name}, ${value.size} bytes, ${value.type})\n`;
+            } else {
+                debug += `${key}: ${value}\n`;
             }
-        }, [currentMovie]);
-    
-        // Fullscreen change detection
-        useEffect(() => {
-            const handleFullscreenChange = () => {
-                setIsFullscreen(
-                    document.fullscreenElement ||
-                    document.webkitFullscreenElement ||
-                    document.mozFullScreenElement ||
-                    document.msFullscreenElement
-                );
-            };
-    
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-            document.addEventListener('msfullscreenchange', handleFullscreenChange);
-    
-            return () => {
-                document.removeEventListener('fullscreenchange', handleFullscreenChange);
-                document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-                document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
-                document.removeEventListener('msfullscreenchange', handleFullscreenChange);
-            };
-        }, []);
-    
-        // Cleanup timeout on component unmount
-        useEffect(() => {
-            return () => {
-                if (controlsTimeoutRef.current) {
-                    clearTimeout(controlsTimeoutRef.current);
+        }
+        return debug;
+    };
+
+    const handleSubmit = async () => {
+        // Client-side validation
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            alert('Please fix the validation errors before submitting');
+            return;
+        }
+
+        setLoading(true);
+        setErrors({});
+        setDebugInfo('');
+
+        const form = new FormData();
+
+        // Basic fields
+        form.append('title', formData.title);
+        form.append('type', formData.type);
+        form.append('description', formData.description || '');
+        form.append('year', formData.year.toString());
+        form.append('language', formData.language);
+        form.append('country', formData.country || '');
+        form.append('rating', formData.rating || '');
+
+        // Duration (for movies)
+        if (formData.type === 'movie' && formData.duration) {
+            form.append('duration', formData.duration);
+        }
+
+        // Cast members
+        formData.cast.forEach((actor, index) => {
+            form.append(`cast[${index}]`, actor);
+        });
+
+        // Genres
+        formData.genres.forEach((genreId, index) => {
+            form.append(`genres[${index}]`, genreId.toString());
+        });
+
+        // Files
+        if (formData.thumbnail) form.append('thumbnail', formData.thumbnail);
+        if (formData.trailer) form.append('trailer', formData.trailer);
+        if (formData.video && formData.type === 'movie') {
+            form.append('video', formData.video);
+        }
+
+        // Seasons and episodes (for series)
+        if (formData.type === 'series') {
+            formData.seasons.forEach((season, sIndex) => {
+                form.append(`seasons[${sIndex}][season_number]`, season.season_number.toString());
+                form.append(`seasons[${sIndex}][title]`, season.title || '');
+                form.append(`seasons[${sIndex}][description]`, season.description || '');
+
+                if (season.thumbnail) {
+                    form.append(`seasons[${sIndex}][thumbnail]`, season.thumbnail);
                 }
+
+                season.episodes.forEach((episode, eIndex) => {
+                    form.append(`seasons[${sIndex}][episodes][${eIndex}][episode_number]`, episode.episode_number.toString());
+                    form.append(`seasons[${sIndex}][episodes][${eIndex}][title]`, episode.title);
+                    form.append(`seasons[${sIndex}][episodes][${eIndex}][description]`, episode.description || '');
+                    form.append(`seasons[${sIndex}][episodes][${eIndex}][duration]`, episode.duration || '');
+
+                    if (episode.thumbnail) {
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][thumbnail]`, episode.thumbnail);
+                    }
+                    if (episode.video) {
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][video]`, episode.video);
+                    }
+                });
+            });
+        }
+
+        // Add CSRF token to FormData as well (alternative method)
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            form.append('_token', csrfToken);
+        }
+
+        // Debug info
+        const debugText = debugFormData(form);
+        setDebugInfo(debugText);
+        console.log(debugText);
+
+        try {
+            // Get CSRF token from meta tag or cookie
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                getCookie('XSRF-TOKEN');
+
+            const headers = {
+                'Accept': 'application/json',
+                // Don't set Content-Type - let browser set it with boundary
             };
-        }, []);
-    
-        // If a movie is selected, show the video player
-        if (currentMovie) {
-            return (
-                <div className="min-h-screen bg-black">
-                    {/* Video Player */}
-                    <div
-                        ref={playerRef}
-                        className="relative w-full h-screen group"
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={() => setControlsVisible(false)}
-                    >
-                        {videoError ? (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                                <div className="text-center text-white">
-                                    <AlertCircle size={64} className="mx-auto mb-4 text-red-500" />
-                                    <h3 className="text-xl font-bold mb-2">Video Unavailable</h3>
-                                    <p className="text-gray-400 mb-4">Sorry, this video cannot be played right now.</p>
-                                    <button
-                                        onClick={() => setCurrentMovie(null)}
-                                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors"
-                                    >
-                                        Back to Movies
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <video
-                                    ref={videoRef}
-                                    src={currentMovie.video_path?.startsWith('http')
-                                        ? currentMovie.video_path : `/storage/${currentMovie.video_path}`
-                                    }
-                                    // src={currentMovie.video_path}
-                                    className="w-full h-full object-cover cursor-pointer"
-                                    onClick={handleVideoClick}
-                                    onDoubleClick={handleDoubleClick}
-                                    onPlay={() => setIsPlaying(true)}
-                                    onPause={() => setIsPlaying(false)}
+
+            // Add CSRF token if available
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            }
+
+            const response = await fetch('/upload-content', {
+                method: 'POST',
+                body: form,
+                headers: headers,
+                credentials: 'same-origin' // Important for CSRF cookies
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server response:', errorData);
+
+                if (response.status === 422 && errorData.errors) {
+                    setErrors(errorData.errors);
+                    alert('Validation failed. Check the errors below.');
+                } else {
+                    alert(`Upload failed: ${response.status} ${response.statusText}`);
+                }
+                return;
+            }
+
+            const result = await response.json();
+            alert('Content uploaded successfully!');
+
+            // Reset form
+            setFormData({
+                title: '',
+                type: 'movie',
+                genres: [],
+                description: '',
+                year: new Date().getFullYear(),
+                language: 'en',
+                country: '',
+                rating: '',
+                cast: [],
+                duration: '',
+                thumbnail: null,
+                trailer: null,
+                video: null,
+                seasons: []
+            });
+
+        } catch (errors) {
+            console.error('Upload error:', errors);
+            alert('Upload failed. Check console for details.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto p-2 md:p-6 bg-white rounded-lg shadow-lg">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Upload Content</h1>
+                <p className="text-gray-600">Add movies or TV series with episodes</p>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <Film className="mr-2" size={20} />
+                    Content Type
+                </h2>
+                <div className="flex space-x-4">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="type"
+                            value="movie"
+                            checked={formData.type === 'movie'}
+                            onChange={handleInputChange}
+                            className="mr-2"
+                        />
+                        <Film className="mr-1" size={16} />
+                        Movie
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="type"
+                            value="series"
+                            checked={formData.type === 'series'}
+                            onChange={handleInputChange}
+                            className="mr-2"
+                        />
+                        <Tv className="mr-1" size={16} />
+                        TV Series
+                    </label>
+                </div>
+            </div>
+
+            {/* Basic Information */}
+            <div className="space-y-4 px-2 mb-6">
+                <div>
+                    <label className="block text-sm font-medium mb-2">Genres *</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {genres.map(genre => (
+                            <label key={genre.id} className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.genres.includes(genre.id)}
+                                    onChange={() => handleGenreChange(genre.id)}
+                                    className="mr-2"
                                 />
-    
-                                {/* Loading Spinner */}
-                                {isLoading && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                                        <div className="bg-black/70 rounded-full p-4">
-                                            <Loader2 className="text-white animate-spin" size={48} />
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        )}
-    
-                        {/* Exit Fullscreen Button - Top Right */}
-                        {isFullscreen && (
-                            <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-                                }`}>
-                                <button
-                                    onClick={() => window.location.reload()}
-                                    // onClick={handleFullscreen}
-                                    className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
-                                    title="Exit fullscreen"
-                                >
-                                    <X size={24} />
-                                </button>
+                                {genre.name}
+                            </label>
+                        ))}
+                    </div>
+                    {errors.genres && <p className="text-red-500 text-sm mt-1">{errors.genres}</p>}
+                </div>
+
+                {/* Basic Information */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Title *
+                            </label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter content title"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md "
+                            />
+                            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Calendar className="inline mr-1" size={16} />
+                                Year
+                            </label>
+                            <input
+                                type="number"
+                                name="year"
+                                value={formData.year}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300  rounded-md px-3 py-2"
+                                min="1900"
+                                max={new Date().getFullYear() + 5}
+                            />
+                            {errors.year && <p className="text-red-500 text-sm mt-1">{errors.year}</p>}
+
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Globe className="inline mr-1" size={16} />
+                                Language
+                            </label>
+                            <input
+                                type="text"
+                                name="language"
+                                value={formData.language}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.language && <p className="text-red-500 text-sm mt-1">{errors.language}</p>}
+
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Country
+                            </label>
+                            <input
+                                type="text"
+                                name="country"
+                                value={formData.country}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
+                        </div>
+
+                        {/* Movie Duration */}
+                        {formData.type === 'movie' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <Clock className="inline mr-1" size={16} />
+                                    Duration
+                                </label>
+                                <input
+                                    type="text"
+                                    name="duration"
+                                    value={formData.duration}
+                                    onChange={handleInputChange}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                    placeholder="e.g., 120 min or 2h 0m"
+                                />
+                                {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
                             </div>
                         )}
-    
-                        {/* Video Controls Overlay */}
-                        {!videoError && (
-                            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                                }`}>
-                                {/* Progress Bar */}
-                                <div className="mb-4">
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        value={progress}
-                                        onChange={handleProgressChange}
-                                        className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-                                    />
-                                    <div className="flex justify-between text-white text-sm mt-2">
-                                        <span className={`font-medium transition-colors duration-300 ${getTimeColor()}`}>
-                                            {formatTime(videoRef.current?.currentTime)}
-                                        </span>
-                                        <span className="text-gray-300">{formatTime(duration)}</span>
-                                    </div>
-                                </div>
-    
-                                {/* Control Buttons */}
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <button
-                                            onClick={() => setCurrentMovie(null)}
-                                            className="text-white hover:text-red-500 transition-colors duration-200"
-                                            title="Back to movies"
-                                        >
-                                            <SkipBack size={28} />
-                                        </button>
-    
-                                        <button
-                                            onClick={() => handleSkip(-10)}
-                                            className="text-white hover:text-gray-300 transition-colors duration-200"
-                                            title="Skip back 10s"
-                                        >
-                                            <SkipBack size={24} />
-                                        </button>
-    
-                                        <button
-                                            onClick={handlePlayPause}
-                                            className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105"
-                                            title={isPlaying ? "Pause" : "Play"}
-                                            disabled={isLoading}
-                                        >
-                                            {isLoading ? (
-                                                <Loader2 className="animate-spin" size={28} />
-                                            ) : isPlaying ? (
-                                                <Pause size={28} />
-                                            ) : (
-                                                <Play size={28} />
-                                            )}
-                                        </button>
-    
-                                        <button
-                                            onClick={() => handleSkip(10)}
-                                            className="text-white hover:text-gray-300 transition-colors duration-200"
-                                            title="Skip forward 10s"
-                                        >
-                                            <SkipForward size={24} />
-                                        </button>
-    
-                                        {/* Volume Controls */}
-                                        <div className="flex items-center space-x-2 group/volume">
-                                            <button
-                                                onClick={handleMute}
-                                                className="text-white hover:text-gray-300 transition-colors duration-200"
-                                                title={isMuted ? "Unmute" : "Mute"}
-                                            >
-                                                {isMuted || volume === 0 ? <VolumeX size={28} /> : <Volume2 size={28} />}
-                                            </button>
-                                            <div className="opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="100"
-                                                    value={isMuted ? 0 : volume}
-                                                    onChange={handleVolumeChange}
-                                                    className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer volume-slider"
-                                                    title="Volume"
-                                                />
-                                            </div>
-                                            <span className="text-white text-sm w-8 opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
-                                                {Math.round(isMuted ? 0 : volume)}
-                                            </span>
-                                        </div>
-                                    </div>
-    
-                                    <div className="text-white text-center">
-                                        <h3 className="text-2xl font-bold">{currentMovie.title}</h3>
-                                        <p className="text-gray-300">{currentMovie.genre} • {currentMovie.year} • {currentMovie.duration}</p>
-                                    </div>
-    
-                                    <div className="flex items-center space-x-2">
-                                        {/* Quality Menu */}
-                                        <div className="relative">
-                                            <button
-                                                onClick={() => setShowQualityMenu(!showQualityMenu)}
-                                                className="text-white hover:text-gray-300 transition-colors duration-200"
-                                                title="Quality settings"
-                                            >
-                                                <Settings size={28} />
-                                            </button>
-                                            {showQualityMenu && (
-                                                <div className="absolute bottom-full right-0 mb-2 bg-black/90 rounded-lg p-2 min-w-[100px]">
-                                                    {qualityOptions.map(quality => (
-                                                        <button
-                                                            key={quality}
-                                                            onClick={() => {
-                                                                setSelectedQuality(quality);
-                                                                setShowQualityMenu(false);
-                                                            }}
-                                                            className={`block w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedQuality === quality
-                                                                ? 'bg-red-600 text-white'
-                                                                : 'text-gray-300 hover:bg-gray-700'
-                                                                }`}
-                                                        >
-                                                            {quality}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-    
-                                        <button
-                                            onClick={handleFullscreen}
-                                            className="text-white hover:text-gray-300 transition-colors duration-200"
-                                            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                                        >
-                                            <Maximize size={28} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-    
-                        {/* Center play/pause indicator */}
-                        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-200 ${!controlsVisible && !isPlaying && !isLoading ? 'opacity-100' : 'opacity-0'
-                            }`}>
-                            <div className="bg-black/50 rounded-full p-6">
-                                <Play className="text-white" size={48} />
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Star className="inline mr-1" size={16} />
+                                Rating (0-10)
+                            </label>
+                            <input
+                                type="number"
+                                name="rating"
+                                value={formData.rating}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                min="0"
+                                max="10"
+                                step="0.1"
+                                placeholder="0.0"
+                            />
+                            {errors.rating && <p className="text-red-500 text-sm mt-1">{errors.rating}</p>}
                         </div>
                     </div>
+
+                    <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            className="w-full border rounded-md px-3 py-2"
+                            rows="3"
+                            placeholder="Enter description"
+                        />
+                    </div>
                 </div>
-            );
-        }
-    
+                <div className="bg-gray-50 p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-4">Cast</h2>
+                    <div className="flex gap-2 mb-4">
+                        <input
+                            type="text"
+                            value={castInput}
+                            onChange={(e) => setCastInput(e.target.value)}
+                            placeholder="Enter cast member name"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCastMember())}
+                        />
+                        <button
+                            type="button"
+                            onClick={addCastMember}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center"
+                        >
+                            <Plus size={16} className="mr-1" />
+                            Add
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {formData.cast.map((member, index) => (
+                            <span
+                                key={index}
+                                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
+                            >
+                                {member}
+                                <button
+                                    type="button"
+                                    onClick={() => removeCastMember(index)}
+                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                >
+                                    <Trash size={12} />
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Files */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <Upload className="mr-2" size={20} />
+                    Media Files
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Thumbnail *</label>
+                        <input
+                            type="file"
+                            name="thumbnail"
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="w-full border rounded-md px-3 py-2"
+                        />
+                        {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail}</p>}
+                    </div>
+
+                    {formData.type === 'movie' && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Trailer</label>
+                            <input
+                                type="file"
+                                name="trailer"
+                                onChange={handleFileChange}
+                                accept="video/*"
+                                className="w-full border rounded-md px-3 py-2"
+                            />
+                        </div>
+                    )}
+
+                    {formData.type === 'movie' && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Video *</label>
+                            <input
+                                type="file"
+                                name="video"
+                                onChange={handleFileChange}
+                                accept="video/*"
+                                className="w-full border rounded-md px-3 py-2"
+                            />
+                            {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Seasons & Episodes (for TV Series) */}
+            {formData.type === 'series' && (
+                <div className="bg-gray-50 p-6 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold flex items-center">
+                            <Tv className="mr-2" size={20} />
+                            Seasons & Episodes
+                        </h2>
+                        <button
+                            type="button"
+                            onClick={addSeason}
+                            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center"
+                        >
+                            <Plus size={16} className="mr-1" />
+                            Add Season
+                        </button>
+                    </div>
+
+                    {formData.seasons.map((season, seasonIndex) => (
+                        <div key={seasonIndex} className="mb-6 border border-gray-200 rounded-lg p-4 bg-white">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-medium">Season {season.season_number}</h3>
+                                <button
+                                    type="button"
+                                    onClick={() => removeSeason(seasonIndex)}
+                                    className="text-red-500 hover:text-red-700"
+                                >
+                                    <Trash size={16} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Season Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={season.title}
+                                        onChange={(e) => updateSeason(seasonIndex, 'title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Season Thumbnail
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => updateSeason(seasonIndex, 'thumbnail', e.target.files[0])}
+                                        accept="image/*"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Season Description
+                                </label>
+                                <textarea
+                                    value={season.description}
+                                    onChange={(e) => updateSeason(seasonIndex, 'description', e.target.value)}
+                                    rows="2"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-medium">Episodes</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => addEpisode(seasonIndex)}
+                                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 flex items-center"
+                                    >
+                                        <Plus size={14} className="mr-1" />
+                                        Add Episode
+                                    </button>
+                                </div>
+
+                                {season.episodes.map((episode, episodeIndex) => (
+                                    <div key={episodeIndex} className="border border-gray-100 rounded p-3 mb-3 bg-gray-50">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-medium text-sm">Episode {episode.episode_number}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeEpisode(seasonIndex, episodeIndex)}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
+                                                <Trash size={14} />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Episode Title
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={episode.title}
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'title', e.target.value)}
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Duration
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={episode.duration}
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'duration', e.target.value)}
+                                                    placeholder="e.g., 45 min"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Video File
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'video', e.target.files[0])}
+                                                    accept="video/*"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Episode Thumbnail
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'thumbnail', e.target.files[0])}
+                                                    accept="image/*"
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-2">
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Episode Description
+                                            </label>
+                                            <textarea
+                                                value={episode.description}
+                                                onChange={(e) => updateEpisode(seasonIndex, episodeIndex, 'description', e.target.value)}
+                                                rows="2"
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Debug Information */}
+            {debugInfo && (
+                <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
+                    <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-h-60">
+                        {debugInfo}
+                    </pre>
+                </div>
+            )}
+
+            {/* Error Display */}
+            {Object.keys(errors).length > 0 && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <h3 className="text-red-800 font-semibold mb-2">Validation Errors:</h3>
+                    <ul className="text-red-700 text-sm">
+                        {Object.entries(errors).map(([field, message]) => (
+                            <li key={field} className="mb-1">
+                                <strong>{field}:</strong> {Array.isArray(message) ? message.join(', ') : message}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+                {loading ? (
+                    <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        Uploading...
+                    </>
+                ) : (
+                    <>
+                        <Upload className="w-4 h-4" />
+                        Upload Content
+                    </>
+                )}
+            </button>
+
+            {/* <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+            >
+                {loading ? (
+                    <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Uploading...
+                    </>
+                ) : (
+                    <>
+                        <Upload className="mr-2" size={16} />
+                        Upload Content
+                    </>
+                )}
+            </button> */}
+
+
+        </div>
+    );
+};
+
+export default ContentUploadForm;
