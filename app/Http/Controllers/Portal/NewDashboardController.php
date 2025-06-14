@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Controllers\Portal;
+
+use Inertia\Inertia;
+use Inertia\Response;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+
+
+class NewDashboardController extends Controller
+{
+    public function dashboard (): Response
+    {
+        return Inertia::render('Dashboard');
+    }
+
+
+    public function getMovies()
+    {
+        try {
+            $Movies = \App\Models\Movie::with('genres')->get();
+
+            return response()->json([
+                'status' => true,
+                'response' => [
+                    'setMovies' => $Movies,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Movie fetch failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch movies.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+}

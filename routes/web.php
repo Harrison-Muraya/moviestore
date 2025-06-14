@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Portal\DashboardController;
+use App\Http\Controllers\Portal\NewDashboardController;
 use App\Http\Controllers\Portal\ContentUploadController;
 
 Route::get('/', [WelcomeController::class, 'welcome']);
@@ -23,6 +24,8 @@ Route::controller(DashboardController::class)->group(function () {
 Route::get('/api/genres', function () {
     return response()->json(\App\Models\Genre::all());
 });
+
+Route::get('/newlayout', [NewDashboardController::class, 'index']);
 
 Route::controller(ContentUploadController::class)->group(function(){
     Route::get('/upload-movies', 'index')->name('storeview');   
