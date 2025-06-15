@@ -118,7 +118,8 @@ const NetflixInterface = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Link href={route('video.player', {id: currentTrailer.id})} className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
+              <Link href={route('video.player', { id: currentTrailer.id })}
+                className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
                 <Play className="w-5 h-5 mr-2 fill-current" />
                 Watch Movie
               </Link>
@@ -150,7 +151,7 @@ const NetflixInterface = () => {
         </div>
 
         <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
-          { }
+
           {trendingMovies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 group cursor-pointer">
               <div className="relative w-48 h-64 rounded-lg overflow-hidden bg-gray-800">
@@ -180,7 +181,7 @@ const NetflixInterface = () => {
                 </div>
 
                 {/* Hover Play Button */}
-                <Link href={route('video.player', {id: movie.id})} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie.id)}>
+                <Link href={route('video.player', { id: movie.id })} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                     <Play className="w-8 h-8 text-white fill-current" />
                   </div>

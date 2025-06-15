@@ -109,7 +109,7 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
 
   // Handle back to movies
   const handleBackToMovies = () => {
-    window.location.href = route('newdashboard.layout'); 
+    window.location.href = route('dashboard'); 
   }
 
   // Touch gesture handlers
