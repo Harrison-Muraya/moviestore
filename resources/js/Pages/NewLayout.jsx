@@ -27,7 +27,7 @@ const NetflixInterface = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true) {
-          // console.log("Movies:", data.response.setMovies);
+          console.log("Movies:", data.response.setMovies);
           setTreds(data.response.trendingMovies);
           setMovies(data.response.setMovies);
 
