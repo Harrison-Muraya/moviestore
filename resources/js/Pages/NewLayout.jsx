@@ -118,7 +118,7 @@ const NetflixInterface = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Link href={route('video.player', currentTrailer.id)} className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
+              <Link href={route('video.player', {id: currentTrailer.id})} className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
                 <Play className="w-5 h-5 mr-2 fill-current" />
                 Watch Movie
               </Link>
