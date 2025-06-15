@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Upload, Plus, Trash, Film, Tv, Star, Calendar, Globe, Clock } from 'lucide-react';
 
@@ -20,6 +21,10 @@ const ContentUploadForm = () => {
     });
 
     const [genres, setGenres] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [castInput, setCastInput] = useState('');
+    const [errors, setErrors] = useState({});
+    const [debugInfo, setDebugInfo] = useState('');
 
     // Load genres from API
     useEffect(() => {
@@ -28,20 +33,23 @@ const ContentUploadForm = () => {
                 const response = await fetch('/api/genres');
                 if (response.ok) {
                     const genresData = await response.json();
-                    // console.log('genre data ', genresData);
                     setGenres(genresData);
                 }
             } catch (error) {
                 console.log('Using hardcoded genres - API not available');
+                // Fallback genres for testing
+                setGenres([
+                    { id: 1, name: 'Action' },
+                    { id: 2, name: 'Comedy' },
+                    { id: 3, name: 'Drama' },
+                    { id: 4, name: 'Horror' },
+                    { id: 5, name: 'Romance' },
+                    { id: 6, name: 'Thriller' }
+                ]);
             }
         };
         fetchGenres();
     }, []);
-
-    const [loading, setLoading] = useState(false);
-    const [castInput, setCastInput] = useState('');
-    const [errors, setErrors] = useState({});
-    const [debugInfo, setDebugInfo] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -155,52 +163,11 @@ const ContentUploadForm = () => {
         }));
     };
 
-    // do not delete
-    // const validateForm = () => {
-    //     const newErrors = {};
-
-    //     if (!formData.title.trim()) newErrors.title = 'Title is required';
-    //     if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
-    //     if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
-
-    //     if (formData.type === 'movie') {
-    //         if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
-    //         if (!formData.video) newErrors.video = 'Video file is required for movies';
-    //     }
-
-    //     if (formData.type === 'series') {
-    //         if (formData.seasons.length === 0) {
-    //             newErrors.seasons = 'At least one season is required for series';
-    //         } else {
-    //             formData.seasons.forEach((season, sIndex) => {
-    //                 if (season.episodes.length === 0) {
-    //                     newErrors[`season_${sIndex}_episodes`] = `Season ${sIndex + 1} must have at least one episode`;
-    //                 }
-    //                 season.episodes.forEach((episode, eIndex) => {
-    //                     if (!episode.title.trim()) {
-    //                         newErrors[`season_${sIndex}_episode_${eIndex}_title`] = `Episode ${eIndex + 1} title is required`;
-    //                     }
-    //                     if (!episode.video) {
-    //                         newErrors[`season_${sIndex}_episode_${eIndex}_video`] = `Episode ${eIndex + 1} video is required`;
-    //                     }
-    //                 });
-    //             });
-    //         }
-    //     }
-
-    //     return newErrors;
-    // };
-
-    //------------------------------------------------------------------------------------
     const validateForm = () => {
         const newErrors = {};
 
-        // Basic validation
         if (!formData.title.trim()) newErrors.title = 'Title is required';
         if (formData.genres.length === 0) newErrors.genres = 'At least one genre is required';
-
-        // Thumbnail is required for both movies and series
-        // if (!formData.thumbnail) newErrors.thumbnail = 'Thumbnail is required';
 
         if (formData.type === 'movie') {
             if (!formData.duration.trim()) newErrors.duration = 'Duration is required for movies';
@@ -230,15 +197,11 @@ const ContentUploadForm = () => {
 
         return newErrors;
     };
-    //------------------------------------------------------------------------------------
 
-
-    // Helper function to get cookie value
-    const getCookie = (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
+    // Helper function to get CSRF token from meta tag
+    const getCSRFToken = () => {
+        const token = document.querySelector('meta[name="csrf-token"]');
+        return token ? token.getAttribute('content') : null;
     };
 
     const debugFormData = (form) => {
@@ -253,7 +216,9 @@ const ContentUploadForm = () => {
         return debug;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
         // Client-side validation
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
@@ -266,113 +231,114 @@ const ContentUploadForm = () => {
         setErrors({});
         setDebugInfo('');
 
-        const form = new FormData();
-
-        // Basic fields
-        form.append('title', formData.title);
-        form.append('type', formData.type);
-        form.append('description', formData.description || '');
-        form.append('year', formData.year.toString());
-        form.append('language', formData.language);
-        form.append('country', formData.country || '');
-        form.append('rating', formData.rating || '');
-
-        // Duration (for movies)
-        if (formData.type === 'movie' && formData.duration) {
-            form.append('duration', formData.duration);
-        }
-
-        // Cast members
-        formData.cast.forEach((actor, index) => {
-            form.append(`cast[${index}]`, actor);
-        });
-
-        // Genres
-        formData.genres.forEach((genreId, index) => {
-            form.append(`genres[${index}]`, genreId.toString());
-        });
-
-        // Files
-        if (formData.thumbnail) form.append('thumbnail', formData.thumbnail);
-        if (formData.trailer) form.append('trailer', formData.trailer);
-        if (formData.video && formData.type === 'movie') {
-            form.append('video', formData.video);
-        }
-
-        // Seasons and episodes (for series)
-        if (formData.type === 'series') {
-            formData.seasons.forEach((season, sIndex) => {
-                form.append(`seasons[${sIndex}][season_number]`, season.season_number.toString());
-                form.append(`seasons[${sIndex}][title]`, season.title || '');
-                form.append(`seasons[${sIndex}][description]`, season.description || '');
-
-                if (season.thumbnail) {
-                    form.append(`seasons[${sIndex}][thumbnail]`, season.thumbnail);
-                }
-
-                season.episodes.forEach((episode, eIndex) => {
-                    form.append(`seasons[${sIndex}][episodes][${eIndex}][episode_number]`, episode.episode_number.toString());
-                    form.append(`seasons[${sIndex}][episodes][${eIndex}][title]`, episode.title);
-                    form.append(`seasons[${sIndex}][episodes][${eIndex}][description]`, episode.description || '');
-                    form.append(`seasons[${sIndex}][episodes][${eIndex}][duration]`, episode.duration || '');
-
-                    if (episode.thumbnail) {
-                        form.append(`seasons[${sIndex}][episodes][${eIndex}][thumbnail]`, episode.thumbnail);
-                    }
-                    if (episode.video) {
-                        form.append(`seasons[${sIndex}][episodes][${eIndex}][video]`, episode.video);
-                    }
-                });
-            });
-        }
-
-        // Add CSRF token to FormData as well (alternative method)
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        if (csrfToken) {
-            form.append('_token', csrfToken);
-        }
-
-        // Debug info
-        const debugText = debugFormData(form);
-        setDebugInfo(debugText);
-        console.log(debugText);
-
         try {
-            // Get CSRF token from meta tag or cookie
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                getCookie('XSRF-TOKEN');
+            const form = new FormData();
 
-            const headers = {
-                'Accept': 'application/json',
-                // Don't set Content-Type - let browser set it with boundary
-            };
+            // Basic fields
+            form.append('title', formData.title);
+            form.append('type', formData.type);
+            form.append('description', formData.description || '');
+            form.append('year', formData.year.toString());
+            form.append('language', formData.language);
+            form.append('country', formData.country || '');
+            form.append('rating', formData.rating || '');
 
-            // Add CSRF token if available
-            if (csrfToken) {
-                headers['X-CSRF-TOKEN'] = csrfToken;
+            // Duration (for movies)
+            if (formData.type === 'movie' && formData.duration) {
+                form.append('duration', formData.duration);
             }
 
+            // Cast members - Laravel expects array format
+            formData.cast.forEach((actor, index) => {
+                if (actor.trim()) {
+                    form.append(`cast[${index}]`, actor);
+                }
+            });
+
+            // Genres - Laravel expects array format
+            formData.genres.forEach((genreId, index) => {
+                form.append(`genres[${index}]`, genreId.toString());
+            });
+
+            // Files
+            if (formData.thumbnail) form.append('thumbnail', formData.thumbnail);
+            if (formData.trailer) form.append('trailer', formData.trailer);
+            if (formData.video && formData.type === 'movie') {
+                form.append('video', formData.video);
+            }
+
+            // Seasons and episodes (for series)
+            if (formData.type === 'series') {
+                formData.seasons.forEach((season, sIndex) => {
+                    form.append(`seasons[${sIndex}][season_number]`, season.season_number.toString());
+                    form.append(`seasons[${sIndex}][title]`, season.title || '');
+                    form.append(`seasons[${sIndex}][description]`, season.description || '');
+
+                    if (season.thumbnail) {
+                        form.append(`seasons[${sIndex}][thumbnail]`, season.thumbnail);
+                    }
+
+                    season.episodes.forEach((episode, eIndex) => {
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][episode_number]`, episode.episode_number.toString());
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][title]`, episode.title);
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][description]`, episode.description || '');
+                        form.append(`seasons[${sIndex}][episodes][${eIndex}][duration]`, episode.duration || '');
+
+                        if (episode.thumbnail) {
+                            form.append(`seasons[${sIndex}][episodes][${eIndex}][thumbnail]`, episode.thumbnail);
+                        }
+                        if (episode.video) {
+                            form.append(`seasons[${sIndex}][episodes][${eIndex}][video]`, episode.video);
+                        }
+                    });
+                });
+            }
+
+            // CSRF Token
+            const csrfToken = getCSRFToken();
+            if (csrfToken) {
+                form.append('_token', csrfToken);
+            }
+
+            // Debug info
+            const debugText = debugFormData(form);
+            setDebugInfo(debugText);
+            console.log('Submitting FormData:', debugText);
+
+            // Make the request
             const response = await fetch('/upload-content', {
                 method: 'POST',
                 body: form,
-                headers: headers,
-                credentials: 'same-origin' // Important for CSRF cookies
+                headers: {
+                    'Accept': 'application/json',
+                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+                },
+                credentials: 'same-origin'
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Server response:', errorData);
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
 
-                if (response.status === 422 && errorData.errors) {
-                    setErrors(errorData.errors);
-                    alert('Validation failed. Check the errors below.');
-                } else {
-                    alert(`Upload failed: ${response.status} ${response.statusText}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+
+                try {
+                    const errorData = JSON.parse(errorText);
+                    if (response.status === 422 && errorData.errors) {
+                        setErrors(errorData.errors);
+                        alert('Validation failed. Check the errors below.');
+                    } else {
+                        alert(`Upload failed: ${response.status} ${response.statusText}\n${errorData.message || errorText}`);
+                    }
+                } catch (parseError) {
+                    alert(`Upload failed: ${response.status} ${response.statusText}\n${errorText}`);
                 }
                 return;
             }
 
             const result = await response.json();
+            console.log('Success response:', result);
             alert('Content uploaded successfully!');
 
             // Reset form
@@ -393,9 +359,9 @@ const ContentUploadForm = () => {
                 seasons: []
             });
 
-        } catch (errors) {
-            console.error('Upload error:', errors);
-            alert('Upload failed. Check console for details.');
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert(`Upload failed: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -888,8 +854,6 @@ const ContentUploadForm = () => {
                     </>
                 )}
             </button> */}
-
-
         </div>
     );
 };
