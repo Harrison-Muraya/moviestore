@@ -7,8 +7,8 @@ const NetflixInterface = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
-  const [trendingMovies, setTreds ] = useState([]);
-  const[trailers, setMovies] = useState([]);
+  const [trendingMovies, setTreds] = useState([]);
+  const [trailers, setMovies] = useState([]);
 
   // Sample movie trailers (using placeholder videos)
   // const trailers = [
@@ -17,7 +17,12 @@ const NetflixInterface = () => {
   //   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
   // ];
 
-  const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
+  // stranger things trailer
+  const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
+
+  // const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
+
+
 
   // loading data from database
   useEffect(() => {
@@ -28,8 +33,8 @@ const NetflixInterface = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true) {
-          // console.log("setMovies retrieved successfully:", data.response.setMovies);
-          console.log("trendingMovies retrieved successfully:", data.response.trendingMovies);
+          console.log("setMovies retrieved successfully:", data.response.setMovies);
+          // console.log("trendingMovies retrieved successfully:", data.response.trendingMovies);
           // Appending Movies and production records to the state
           setTreds(data.response.trendingMovies)
           setMovies(data.response.setMovies)
@@ -39,7 +44,7 @@ const NetflixInterface = () => {
       })
       .catch((error) => console.error("Error fetching movies:", error));
   }, []);
-  
+
   // Effect to handle video mute state
   useEffect(() => {
     if (videoRef.current) {
@@ -64,7 +69,8 @@ const NetflixInterface = () => {
           loop
           playsInline
         >
-          <source src={currentTrailer} type="video/mp4" />
+          {/* <source src={currentTrailer.trailer_path?.startsWith('http') ? currentTrailer.trailer_path : `/storage/${currentTrailer.trailer_path}`} type="video/mp4" /> */}
+          {/* <source src={currentTrailer.trailer_path ||strangerThingsTrailer } type="video/mp4" /> */}
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
@@ -75,7 +81,9 @@ const NetflixInterface = () => {
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-4">
             <Menu className="w-6 h-6 md:hidden" />
-            <h1 className="text-red-500 text-2xl font-bold">Ngetflix</h1>
+            <h1 className="text-indigo-600 text-2xl font-bold">ALPHA
+              <span className="text-red-600">.</span>
+            </h1>
           </div>
           <nav className="hidden md:flex space-x-6">
             <a href="#" className="text-white hover:text-gray-300 transition-colors">Movies</a>
@@ -143,12 +151,16 @@ const NetflixInterface = () => {
         </div>
 
         <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
-          {}
+          { }
           {trendingMovies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 group cursor-pointer">
               <div className="relative w-48 h-64 rounded-lg overflow-hidden bg-gray-800">
                 <img
-                  src={movie.thumbnail}
+                  // src={movie.thumbnail}
+                  src={movie.thumbnail?.startsWith('http')
+                    ? movie.thumbnail
+                    : `/storage/${movie.thumbnail}`
+                  }
                   alt={movie.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
