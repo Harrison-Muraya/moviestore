@@ -41,7 +41,22 @@ class NewDashboardController extends Controller
     public function VideoPlayer ($id): Response
     {
         Log::info('VideoPlayer method called ',[ $id]);
-        return Inertia::render('VideoPlayer');
+
+        $movie = \App\Models\Movie::with('genres')->find($id);
+        if (!$movie) {
+            Log::error('Movie not found', ['id' => $id]);
+            return Inertia::render('Error', [
+                'message' => 'Movie not found.',
+            ]);
+        }
+        Log::info('Movie found', ['movie' => $movie]);
+
+        
+        return Inertia::render('VideoPlayer',
+            [
+                'movie' => $movie,
+            ]
+        );
     }
 
 }
