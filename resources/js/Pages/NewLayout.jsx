@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Info, Search, Bell, User, Menu, Volume2, VolumeX, ChevronRight } from 'lucide-react';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -11,38 +10,63 @@ const NetflixInterface = () => {
   const [trailers, setMovies] = useState([]);
   const [currentTrailer, setCurrentTrailer] = useState(null);
 
-
   // stranger things trailer
   const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
 
-  // const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
-
-
-
   // loading data from database
-
   useEffect(() => {
     const url = route('getmoviedata');
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true) {
-          // console.log("Movies:", data.response.setMovies);
           setTreds(data.response.trendingMovies);
           setMovies(data.response.setMovies);
 
           // Pick a random trailer AFTER loading
           const loadedTrailers = data.response.setMovies;
-          const random = loadedTrailers[Math.floor(Math.random() * loadedTrailers.length)];
-          setCurrentTrailer(random?.trailer_path ? random : { trailer_path: strangerThingsTrailer });
+          if (loadedTrailers && loadedTrailers.length > 0) {
+            const random = loadedTrailers[Math.floor(Math.random() * loadedTrailers.length)];
+            setCurrentTrailer(random?.trailer_path ? random : { 
+              id: 'fallback', // Add fallback id
+              trailer_path: strangerThingsTrailer,
+              title: 'Stranger Things',
+              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            });
+          } else {
+            // No trailers available, use fallback
+            setCurrentTrailer({ 
+              id: 'fallback',
+              trailer_path: strangerThingsTrailer,
+              title: 'Stranger Things',
+              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            });
+          }
         } else {
           console.error("Failed to fetch movies:", data);
+          // Set fallback on error
+          setCurrentTrailer({ 
+            id: 'fallback',
+            trailer_path: strangerThingsTrailer,
+            title: 'Stranger Things',
+            description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+          });
         }
       })
-      .catch((error) => console.error("Error fetching movies:", error));
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+        // Set fallback on error
+        setCurrentTrailer({ 
+          id: 'fallback',
+          trailer_path: strangerThingsTrailer,
+          title: 'Stranger Things',
+          description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+        });
+      });
   }, []);
 
   console.log("Current Trailer:", currentTrailer);
+
   // Effect to handle video mute state
   useEffect(() => {
     if (videoRef.current) {
@@ -53,6 +77,14 @@ const NetflixInterface = () => {
   // Function to handle movie watch action
   const toggleMute = () => {
     setIsMuted(!isMuted);
+  };
+
+  // Function to handle watch movie click
+  const handleWatchMovie = (e) => {
+    if (!currentTrailer?.id || currentTrailer.id === 'fallback') {
+      e.preventDefault();
+      alert('This is a demo trailer. Please select a movie from the trending section to watch.');
+    }
   };
 
   return (
@@ -114,15 +146,24 @@ const NetflixInterface = () => {
             </h2>
 
             <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-xl leading-relaxed">
-              {currentTrailer.title || "Alpha got you covered with the latest movies and TV shows.Enjoy a seamless streaming experience with our user-friendly interface and high-quality content."}
+              {currentTrailer.description || currentTrailer.title || "Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content."}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Link href={route('video.player', { id: currentTrailer?.id })}
-                className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
-                <Play className="w-5 h-5 mr-2 fill-current" />
-                Watch Movie
-              </Link>
+              {currentTrailer?.id && currentTrailer.id !== 'fallback' ? (
+                <Link href={route('video.player', { id: currentTrailer.id })}
+                  className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
+                  <Play className="w-5 h-5 mr-2 fill-current" />
+                  Watch Movie
+                </Link>
+              ) : (
+                <button
+                  onClick={handleWatchMovie}
+                  className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
+                  <Play className="w-5 h-5 mr-2 fill-current" />
+                  Watch Movie
+                </button>
+              )}
               <button className="flex items-center justify-center bg-gray-600/70 text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-600 transition-colors backdrop-blur-sm">
                 <Info className="w-5 h-5 mr-2" />
                 More Info
@@ -151,12 +192,10 @@ const NetflixInterface = () => {
         </div>
 
         <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
-
           {trendingMovies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 group cursor-pointer">
               <div className="relative w-48 h-64 rounded-lg overflow-hidden bg-gray-800">
                 <img
-                  // src={movie.thumbnail}
                   src={movie.thumbnail?.startsWith('http')
                     ? movie.thumbnail
                     : `/storage/${movie.thumbnail}`
