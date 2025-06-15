@@ -25,6 +25,13 @@ const ContentUploadForm = () => {
     const [castInput, setCastInput] = useState('');
     const [errors, setErrors] = useState({});
     const [debugInfo, setDebugInfo] = useState('');
+    const [progress, setProgress] = useState(0);
+
+    // const handleFileChangepro = (e) => {
+    //     FileSystemFileEntry(e.target.files[0] )
+    //     setProgress(0);
+    //     setErrors({});
+    // };
 
     // Load genres from API
     useEffect(() => {
@@ -313,7 +320,14 @@ const ContentUploadForm = () => {
                     'Accept': 'application/json',
                     ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
                 },
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+
+                //handle upload progress
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setProgress(percentCompleted);
+                    console.log(`Upload progress: ${percentCompleted}%`);
+                }
             });
 
             console.log('Response status:', response.status);
@@ -821,39 +835,27 @@ const ContentUploadForm = () => {
             <button
                 type="button"
                 onClick={handleSubmit}
+                // onChange={handleFileChangepro}
                 disabled={loading}
                 className="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-                {loading ? (
-                    <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Uploading...
-                    </>
-                ) : (
-                    <>
-                        <Upload className="w-4 h-4" />
-                        Upload Content
-                    </>
-                )}
+                upload
             </button>
+            {/* progress bar */}
+            {progress > 0  && (
+                <div style={{ width: '300px', margin: '20px auto', background: '#f3f3f3', borderRadius: '5px', height: '10px' }}>
+                    <div
+                        style={{
+                            width: `${progress}%`,
+                            height: '100%',
+                            backgroundColor: '#4caf50',
+                            borderRadius: '5px',
+                            transition: 'width 0.3s ease-in-out'
+                        }}
+                    ></div>
+                </div>
+            )}
 
-            {/* <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
-            >
-                {loading ? (
-                    <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Uploading...
-                    </>
-                ) : (
-                    <>
-                        <Upload className="mr-2" size={16} />
-                        Upload Content
-                    </>
-                )}
-            </button> */}
         </div>
     );
 };
