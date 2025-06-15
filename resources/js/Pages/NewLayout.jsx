@@ -42,7 +42,7 @@ const NetflixInterface = () => {
       .catch((error) => console.error("Error fetching movies:", error));
   }, []);
 
-  // console.log("Current Trailer:", currentTrailer?.trailer_path);
+  console.log("Current Trailer:", currentTrailer?.id);
   // Effect to handle video mute state
   useEffect(() => {
     if (videoRef.current) {
@@ -118,7 +118,7 @@ const NetflixInterface = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Link href={route('video.player', { id: currentTrailer.id })}
+              <Link href={route('video.player', { id: currentTrailer?.id })}
                 className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
                 <Play className="w-5 h-5 mr-2 fill-current" />
                 Watch Movie
