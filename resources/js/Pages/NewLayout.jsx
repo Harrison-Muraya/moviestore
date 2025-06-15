@@ -8,13 +8,14 @@ const NetflixInterface = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
   const [trendingMovies, setTreds ] = useState([]);
+  const[trailers, setMovies] = useState([]);
 
   // Sample movie trailers (using placeholder videos)
-  const trailers = [
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-  ];
+  // const trailers = [
+  //   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  //   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+  //   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+  // ];
 
   const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
 

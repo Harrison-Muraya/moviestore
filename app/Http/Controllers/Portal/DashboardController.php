@@ -19,8 +19,8 @@ class DashboardController extends Controller
     public function getMovies()
     {
         try {
-            $Movies = \App\Models\Movie::with('genres')->get();
-            $trendingMovies = \App\Models\Movie::with('genres')->where('type', 'movie')->latest()->take(5)->get();
+            $Movies = \App\Models\Movie::with('genres')->where('type', 'movie')->get();
+            $trendingMovies = \App\Models\Movie::with('genres')->where('type', 'movie')->latest()->take(10)->get();
 
             return response()->json([
                 'status' => true,
