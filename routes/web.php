@@ -30,7 +30,6 @@ Route::controller(NewDashboardController::class)->group(function () {
     Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');
    
 }); 
-Route::get('/newlayout', [NewDashboardController::class, 'dashboard']);
 
 
 Route::controller(ContentUploadController::class)->group(function(){
