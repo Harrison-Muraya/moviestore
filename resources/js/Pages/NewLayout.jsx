@@ -180,7 +180,7 @@ const NetflixInterface = () => {
                 </div>
 
                 {/* Hover Play Button */}
-                <Link href={route('video.player', movie.id)} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie.id)}>
+                <Link href={route('video.player', {id: movie.id})} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie.id)}>
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                     <Play className="w-8 h-8 text-white fill-current" />
                   </div>
