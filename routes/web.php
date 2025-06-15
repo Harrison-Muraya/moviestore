@@ -25,7 +25,7 @@ Route::get('/api/genres', function () {
     return response()->json(\App\Models\Genre::all());
 });
 
-Route::get('/newlayout', [NewDashboardController::class, 'index']);
+Route::get('/newlayout', [NewDashboardController::class, 'dashboard']);
 
 Route::controller(ContentUploadController::class)->group(function(){
     Route::get('/upload-movies', 'index')->name('storeview');   
