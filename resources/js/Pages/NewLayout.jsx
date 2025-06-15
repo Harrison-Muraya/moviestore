@@ -27,7 +27,7 @@ const NetflixInterface = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true) {
-          console.log("Movies:", data.response.setMovies);
+          // console.log("Movies:", data.response.setMovies);
           setTreds(data.response.trendingMovies);
           setMovies(data.response.setMovies);
 
@@ -42,7 +42,7 @@ const NetflixInterface = () => {
       .catch((error) => console.error("Error fetching movies:", error));
   }, []);
 
-  console.log("Current Trailer:", currentTrailer?.id);
+  console.log("Current Trailer:", currentTrailer);
   // Effect to handle video mute state
   useEffect(() => {
     if (videoRef.current) {
