@@ -25,11 +25,11 @@ Route::get('/api/genres', function () {
     return response()->json(\App\Models\Genre::all());
 });
                  
-Route::controller(NewDashboardController::class)->group(function () {
-    Route::get('/newlayout',  'dashboard')->name('newdashboard.layout');
-    Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');
+// Route::controller(NewDashboardController::class)->group(function () {
+//     Route::get('/newlayout',  'dashboard')->name('newdashboard.layout');
+//     Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');
    
-}); 
+// }); 
 
 
 Route::controller(ContentUploadController::class)->group(function(){
@@ -38,6 +38,13 @@ Route::controller(ContentUploadController::class)->group(function(){
 });
 
 Route::middleware('auth')->group(function () {
+    Route::controller(NewDashboardController::class)->group(function () {
+        Route::get('/newlayout',  'dashboard')->name('newdashboard.layout');
+        Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');    
+    }); 
+
+
+
     Route::get('/dashboard',[DashboardController::class, 'dashboard'] )->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
