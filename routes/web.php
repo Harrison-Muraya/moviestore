@@ -27,7 +27,7 @@ Route::get('/api/genres', function () {
                  
 Route::controller(NewDashboardController::class)->group(function () {
     Route::get('/newlayout',  'dashboard')->name('newdashboard.layout');
-    Route::get('/video-player', 'VideoPlayer')->name('video.player');
+    Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');
    
 }); 
 Route::get('/newlayout', [NewDashboardController::class, 'dashboard']);

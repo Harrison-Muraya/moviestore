@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -37,8 +38,9 @@ class NewDashboardController extends Controller
         }
     }
 
-    public function VideoPlayer ()
+    public function VideoPlayer ($id): Response
     {
+        Log::info('VideoPlayer method called ',[ $id]);
         return Inertia::render('VideoPlayer');
     }
 

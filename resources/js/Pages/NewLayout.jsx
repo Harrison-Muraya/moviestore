@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Info, Search, Bell, User, Menu, Volume2, VolumeX, ChevronRight } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 const NetflixInterface = () => {
   const [isMuted, setIsMuted] = useState(true);
@@ -59,6 +60,15 @@ const NetflixInterface = () => {
       videoRef.current.muted = isMuted;
     }
   }, [isMuted]);
+
+  const hundleWatchMovie = (movieData) => {
+    // Handle the action when the "Watch Movie" button is clicked
+    console.log(`Watching movie: ${movieData}`);
+    // fetch(`/video-player/${movieData}`)
+    //   .catch(error => {
+    //     console.error('Error fetching video data:', error);
+    //   });
+  };
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
@@ -124,7 +134,7 @@ const NetflixInterface = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <button className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
+            <button className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
               <Play className="w-5 h-5 mr-2 fill-current" />
               Watch Movie
             </button>
@@ -180,11 +190,11 @@ const NetflixInterface = () => {
                 </div>
                 
                 {/* Hover Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Link href={route('video.player', movie.id)} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie.id)}>
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                     <Play className="w-8 h-8 text-white fill-current" />
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           ))}
@@ -192,7 +202,7 @@ const NetflixInterface = () => {
       </div>
 
       {/* Custom Scrollbar Styles */}
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

@@ -54,6 +54,13 @@ const NetflixInterface = () => {
     }
   ];
 
+  const hundleWatchMovie = (movieData) => {
+    // Handle the action when the "Watch Movie" button is clicked
+    console.log(`Watching movie: ${movieData.title}`);
+  }
+
+  // Toggle mute state
+
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
@@ -94,7 +101,7 @@ const NetflixInterface = () => {
             <a href="#" className="text-gray-300 hover:text-white transition-colors">New & Popular</a>
           </nav>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <Search className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
           <Bell className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
@@ -112,19 +119,19 @@ const NetflixInterface = () => {
               New Movie
             </span>
           </div>
-          
+
           <h2 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
             Keluarga Cemara
           </h2>
-          
+
           <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-xl leading-relaxed">
-            This film depicts a very desirable family without any problems 
-            and always get along every day, until a father figure leaves his 
+            This film depicts a very desirable family without any problems
+            and always get along every day, until a father figure leaves his
             family, and everything changes.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <button className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors">
+            <button className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
               <Play className="w-5 h-5 mr-2 fill-current" />
               Watch Movie
             </button>
@@ -153,7 +160,7 @@ const NetflixInterface = () => {
             <ChevronRight className="w-5 h-5 ml-1" />
           </button>
         </div>
-        
+
         <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
           {trendingMovies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 group cursor-pointer">
@@ -164,23 +171,23 @@ const NetflixInterface = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                
+
                 {/* Category Badge */}
                 <div className="absolute top-3 left-3">
                   <span className={`${movie.color} text-white text-xs px-2 py-1 rounded font-medium`}>
                     {movie.category}
                   </span>
                 </div>
-                
+
                 {/* Title */}
                 <div className="absolute bottom-4 left-4 right-4">
                   <h4 className="text-white font-semibold text-lg leading-tight">
                     {movie.title}
                   </h4>
                 </div>
-                
+
                 {/* Hover Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie)}>
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                     <Play className="w-8 h-8 text-white fill-current" />
                   </div>
@@ -192,7 +199,7 @@ const NetflixInterface = () => {
       </div>
 
       {/* Custom Scrollbar Styles */}
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
