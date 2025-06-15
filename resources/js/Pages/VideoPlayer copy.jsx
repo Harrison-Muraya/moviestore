@@ -402,18 +402,6 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
         )}
 
         {/* Close Button - Top Right (only show if onClose is provided) */}
-        {/* {onClose && (
-          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}>
-            <button
-              onClick={onClose}
-              className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
-              title="Close player"
-            >
-              <X size={24} />
-            </button>
-          </div>
-        )} */}
 
         {!videoError && (
           <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'

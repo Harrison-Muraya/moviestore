@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
-  Maximize, Settings, X, Loader2, AlertCircle,
+  Maximize, Settings, X, Loader2, AlertCircle, RotateCcw,
 } from 'lucide-react';
 
 const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
@@ -19,12 +19,45 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState('HD');
   const [autoPlayAttempted, setAutoPlayAttempted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [orientation, setOrientation] = useState('portrait');
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
+  const touchStartRef = useRef(null);
+  const touchEndRef = useRef(null);
 
   const qualityOptions = ['HD', 'Full HD', '4K'];
+
+  // Detect mobile device and orientation
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    
+    const checkOrientation = () => {
+      if (window.innerHeight > window.innerWidth) {
+        setOrientation('portrait');
+      } else {
+        setOrientation('landscape');
+      }
+    };
+
+    checkMobile();
+    checkOrientation();
+    
+    window.addEventListener('resize', checkMobile);
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
 
   // Reset state when movie changes
   useEffect(() => {
@@ -35,6 +68,8 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
       setIsLoading(true);
       setControlsVisible(true);
       setAutoPlayAttempted(false);
+      setShowVolumeSlider(false);
+      setShowQualityMenu(false);
     }
   }, [movie, isOpen]);
 
@@ -53,11 +88,9 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
           console.log('Auto-play failed (this is normal in many browsers):', error);
           setIsLoading(false);
           setAutoPlayAttempted(true);
-          // Don't set this as an error since auto-play restrictions are normal
         }
       };
 
-      // Wait for video to be ready before attempting auto-play
       if (video.readyState >= 3) {
         attemptAutoPlay();
       } else {
@@ -74,10 +107,75 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
     }
   }, [movie, isOpen, autoPlayAttempted]);
 
-  // hundle back to movies
-  const hundleBackToMovies = () => {
+  // Handle back to movies
+  const handleBackToMovies = () => {
     window.location.href = route('newdashboard.layout'); 
   }
+
+  // Touch gesture handlers
+  const handleTouchStart = (e) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now()
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+
+    touchEndRef.current = {
+      x: e.changedTouches[0].clientX,
+      y: e.changedTouches[0].clientY,
+      time: Date.now()
+    };
+
+    const deltaX = touchEndRef.current.x - touchStartRef.current.x;
+    const deltaY = touchEndRef.current.y - touchStartRef.current.y;
+    const deltaTime = touchEndRef.current.time - touchStartRef.current.time;
+
+    // Detect swipe gestures
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 100 && deltaTime < 500) {
+      if (deltaX > 0) {
+        // Swipe right - skip forward
+        handleSkip(10);
+        showSkipIndicator('forward');
+      } else {
+        // Swipe left - skip backward
+        handleSkip(-10);
+        showSkipIndicator('backward');
+      }
+    }
+
+    // Detect tap vs double tap
+    const currentTime = Date.now();
+    const tapLength = currentTime - lastTap;
+
+    if (tapLength < 500 && tapLength > 0) {
+      // Double tap detected
+      if (isMobile && !isFullscreen) {
+        handleFullscreen();
+      } else {
+        handleFullscreen();
+      }
+    } else {
+      // Single tap - show/hide controls or play/pause
+      if (controlsVisible) {
+        handlePlayPause();
+      } else {
+        showControls();
+      }
+    }
+
+    setLastTap(currentTime);
+    touchStartRef.current = null;
+    touchEndRef.current = null;
+  };
+
+  const showSkipIndicator = (direction) => {
+    // This could be enhanced with a visual indicator
+    showControls();
+  };
 
   // Video player functions with error handling
   const handlePlayPause = () => {
@@ -172,23 +270,25 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
-    handleFullscreen();
+    if (!isMobile) {
+      handleFullscreen();
+    }
   };
 
   const handleVideoClick = (e) => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
+    if (!isMobile) {
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTap;
 
-    if (tapLength < 500 && tapLength > 0) {
-      // Double tap detected
-      handleFullscreen();
-    } else {
-      // Single tap - toggle play/pause
-      handlePlayPause();
+      if (tapLength < 500 && tapLength > 0) {
+        handleFullscreen();
+      } else {
+        handlePlayPause();
+      }
+
+      setLastTap(currentTime);
+      showControls();
     }
-
-    setLastTap(currentTime);
-    showControls();
   };
 
   const showControls = () => {
@@ -197,14 +297,16 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
       clearTimeout(controlsTimeoutRef.current);
     }
     controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) {
+      if (isPlaying && !isMobile) {
         setControlsVisible(false);
       }
-    }, 3000);
+    }, isMobile ? 5000 : 3000); // Longer timeout on mobile
   };
 
   const handleMouseMove = () => {
-    showControls();
+    if (!isMobile) {
+      showControls();
+    }
   };
 
   const formatTime = (seconds) => {
@@ -222,8 +324,10 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
     return 'text-green-500';
   };
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts (disabled on mobile)
   useEffect(() => {
+    if (isMobile) return;
+
     const handleKeyPress = (e) => {
       if (!movie || !isOpen) return;
 
@@ -260,7 +364,7 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [movie, isPlaying, isFullscreen, isOpen]);
+  }, [movie, isPlaying, isFullscreen, isOpen, isMobile]);
 
   // Video progress tracking
   useEffect(() => {
@@ -340,9 +444,9 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
   if (!movie) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="text-center text-white">
-          <AlertCircle size={64} className="mx-auto mb-4 text-red-500" />
-          <h3 className="text-xl font-bold mb-2">No Movie Found</h3>
+        <div className="text-center text-white px-4">
+          <AlertCircle size={isMobile ? 48 : 64} className="mx-auto mb-4 text-red-500" />
+          <h3 className={`font-bold mb-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>No Movie Found</h3>
           <p className="text-gray-400">The requested movie could not be loaded.</p>
         </div>
       </div>
@@ -356,13 +460,15 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
         ref={playerRef}
         className="relative w-full h-full group"
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => setControlsVisible(false)}
+        onMouseLeave={() => !isMobile && setControlsVisible(false)}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
         {videoError ? (
           <div className="w-full h-full flex items-center justify-center bg-gray-900">
-            <div className="text-center text-white">
-              <AlertCircle size={64} className="mx-auto mb-4 text-red-500" />
-              <h3 className="text-xl font-bold mb-2">Video Unavailable</h3>
+            <div className="text-center text-white px-4">
+              <AlertCircle size={isMobile ? 48 : 64} className="mx-auto mb-4 text-red-500" />
+              <h3 className={`font-bold mb-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>Video Unavailable</h3>
               <p className="text-gray-400 mb-4">Sorry, this video cannot be played right now.</p>
               {onClose && (
                 <button
@@ -383,70 +489,76 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                 : `/storage/${movie.video_path}`
               }
               className="w-full h-full object-cover cursor-pointer"
-              onClick={handleVideoClick}
+              onClick={!isMobile ? handleVideoClick : undefined}
               onDoubleClick={handleDoubleClick}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               preload="auto"
+              playsInline
             />
 
             {/* Loading Spinner */}
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                 <div className="bg-black/70 rounded-full p-4">
-                  <Loader2 className="text-white animate-spin" size={48} />
+                  <Loader2 className="text-white animate-spin" size={isMobile ? 32 : 48} />
                 </div>
               </div>
             )}
           </>
         )}
 
-        {/* Close Button - Top Right (only show if onClose is provided) */}
-        {/* {onClose && (
-          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}>
-            <button
-              onClick={onClose}
-              className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
-              title="Close player"
-            >
-              <X size={24} />
-            </button>
-          </div>
-        )} */}
-
+        {/* Close Button - Top Right */}
         {!videoError && (
-          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}>
+          <div className={`absolute ${isMobile ? 'top-2 right-2' : 'top-4 right-4'} z-50 transition-all duration-300 ${
+            controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+          }`}>
             <div
-              onClick={onClose || hundleBackToMovies}
-              // href={route('newdashboard.layout')}
-              className="bg-black/70 hover:bg-black/90 text-white rounded-full p-3 transition-all duration-200 transform hover:scale-110 backdrop-blur-sm"
+              onClick={onClose || handleBackToMovies}
+              className={`bg-black/70 hover:bg-black/90 text-white rounded-full ${
+                isMobile ? 'p-2' : 'p-3'
+              } transition-all duration-200 transform hover:scale-110 backdrop-blur-sm cursor-pointer`}
               title="Close player"
             >
-              <X size={24} />
+              <X size={isMobile ? 20 : 24} />
+            </div>
+          </div>
+        )}
+
+        {/* Mobile-specific touch hints */}
+        {isMobile && !controlsVisible && !isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center text-white/70">
+              <div className="mb-2">
+                <Play size={48} className="mx-auto mb-2" />
+              </div>
+              <p className="text-sm">Tap to play</p>
+              <p className="text-xs mt-1">Swipe left/right to skip</p>
             </div>
           </div>
         )}
 
         {/* Video Controls Overlay */}
         {!videoError && (
-          <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+          <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent ${
+            isMobile ? 'p-3' : 'p-6'
+          } transition-all duration-300 ${
+            controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             {/* Progress Bar */}
-            <div className="mb-4">
+            <div className={isMobile ? 'mb-3' : 'mb-4'}>
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={progress}
                 onChange={handleProgressChange}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                className={`w-full ${isMobile ? 'h-1' : 'h-2'} bg-gray-600 rounded-lg appearance-none cursor-pointer`}
                 style={{
                   background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${progress}%, #4b5563 ${progress}%, #4b5563 100%)`
                 }}
               />
-              <div className="flex justify-between text-white text-sm mt-2">
+              <div className={`flex justify-between text-white ${isMobile ? 'text-xs mt-1' : 'text-sm mt-2'}`}>
                 <span className={`font-medium transition-colors duration-300 ${getTimeColor()}`}>
                   {formatTime(videoRef.current?.currentTime)}
                 </span>
@@ -455,9 +567,10 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
             </div>
 
             {/* Control Buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                {onClose && (
+            <div className={`flex items-center ${isMobile && orientation === 'portrait' ? 'flex-col space-y-3' : 'justify-between'}`}>
+              {/* Left Controls */}
+              <div className={`flex items-center ${isMobile ? 'space-x-2' : 'space-x-4'}`}>
+                {onClose && !isMobile && (
                   <button
                     onClick={onClose}
                     className="text-white hover:text-red-500 transition-colors duration-200"
@@ -472,21 +585,23 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                   className="text-white hover:text-gray-300 transition-colors duration-200"
                   title="Skip back 10s"
                 >
-                  <SkipBack size={24} />
+                  <SkipBack size={isMobile ? 20 : 24} />
                 </button>
 
                 <button
                   onClick={handlePlayPause}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105"
+                  className={`bg-red-600 hover:bg-red-700 text-white rounded-full ${
+                    isMobile ? 'p-3' : 'p-4'
+                  } transition-all duration-200 transform hover:scale-105`}
                   title={isPlaying ? "Pause" : "Play"}
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <Loader2 className="animate-spin" size={28} />
+                    <Loader2 className="animate-spin" size={isMobile ? 20 : 28} />
                   ) : isPlaying ? (
-                    <Pause size={28} />
+                    <Pause size={isMobile ? 20 : 28} />
                   ) : (
-                    <Play size={28} />
+                    <Play size={isMobile ? 20 : 28} />
                   )}
                 </button>
 
@@ -495,46 +610,58 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                   className="text-white hover:text-gray-300 transition-colors duration-200"
                   title="Skip forward 10s"
                 >
-                  <SkipForward size={24} />
+                  <SkipForward size={isMobile ? 20 : 24} />
                 </button>
 
-                {/* Volume Controls */}
-                <div className="flex items-center space-x-2 group/volume">
+                {/* Volume Controls - Modified for mobile */}
+                {isMobile ? (
                   <button
-                    onClick={handleMute}
+                    onClick={() => setShowVolumeSlider(!showVolumeSlider)}
                     className="text-white hover:text-gray-300 transition-colors duration-200"
                     title={isMuted ? "Unmute" : "Mute"}
                   >
-                    {isMuted || volume === 0 ? <VolumeX size={28} /> : <Volume2 size={28} />}
+                    {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
                   </button>
-                  <div className="opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={isMuted ? 0 : volume}
-                      onChange={handleVolumeChange}
-                      className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                      title="Volume"
-                      style={{
-                        background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${isMuted ? 0 : volume}%, #4b5563 ${isMuted ? 0 : volume}%, #4b5563 100%)`
-                      }}
-                    />
+                ) : (
+                  <div className="flex items-center space-x-2 group/volume">
+                    <button
+                      onClick={handleMute}
+                      className="text-white hover:text-gray-300 transition-colors duration-200"
+                      title={isMuted ? "Unmute" : "Mute"}
+                    >
+                      {isMuted || volume === 0 ? <VolumeX size={28} /> : <Volume2 size={28} />}
+                    </button>
+                    <div className="opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={isMuted ? 0 : volume}
+                        onChange={handleVolumeChange}
+                        className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                        title="Volume"
+                        style={{
+                          background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${isMuted ? 0 : volume}%, #4b5563 ${isMuted ? 0 : volume}%, #4b5563 100%)`
+                        }}
+                      />
+                    </div>
+                    <span className="text-white text-sm w-8 opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
+                      {Math.round(isMuted ? 0 : volume)}
+                    </span>
                   </div>
-                  <span className="text-white text-sm w-8 opacity-0 group-hover/volume:opacity-100 transition-opacity duration-200">
-                    {Math.round(isMuted ? 0 : volume)}
-                  </span>
-                </div>
+                )}
               </div>
 
-              <div className="text-white text-center">
-                <h3 className="text-2xl font-bold">{movie.title}</h3>
-                <p className="text-gray-300">
+              {/* Movie Title - Responsive positioning */}
+              <div className={`text-white text-center ${isMobile && orientation === 'portrait' ? 'order-first' : ''}`}>
+                <h3 className={`font-bold ${isMobile ? 'text-lg' : 'text-2xl'}`}>{movie.title}</h3>
+                <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-base'}`}>
                   {movie.genres?.map(g => g.name).join(', ') || movie.genre} • {movie.year} • {movie.duration}
                 </p>
               </div>
 
-              <div className="flex items-center space-x-2">
+              {/* Right Controls */}
+              <div className={`flex items-center ${isMobile ? 'space-x-2' : 'space-x-2'}`}>
                 {/* Quality Menu */}
                 <div className="relative">
                   <button
@@ -542,10 +669,12 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                     className="text-white hover:text-gray-300 transition-colors duration-200"
                     title="Quality settings"
                   >
-                    <Settings size={28} />
+                    <Settings size={isMobile ? 20 : 28} />
                   </button>
                   {showQualityMenu && (
-                    <div className="absolute bottom-full right-0 mb-2 bg-black/90 rounded-lg p-2 min-w-[100px]">
+                    <div className={`absolute bottom-full right-0 mb-2 bg-black/90 rounded-lg p-2 min-w-[100px] ${
+                      isMobile ? 'text-sm' : ''
+                    }`}>
                       {qualityOptions.map(quality => (
                         <button
                           key={quality}
@@ -553,10 +682,11 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                             setSelectedQuality(quality);
                             setShowQualityMenu(false);
                           }}
-                          className={`block w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedQuality === quality
-                            ? 'bg-red-600 text-white'
-                            : 'text-gray-300 hover:bg-gray-700'
-                            }`}
+                          className={`block w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                            selectedQuality === quality
+                              ? 'bg-red-600 text-white'
+                              : 'text-gray-300 hover:bg-gray-700'
+                          }`}
                         >
                           {quality}
                         </button>
@@ -570,18 +700,41 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
                   className="text-white hover:text-gray-300 transition-colors duration-200"
                   title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                 >
-                  <Maximize size={28} />
+                  <Maximize size={isMobile ? 20 : 28} />
                 </button>
               </div>
             </div>
+
+            {/* Mobile Volume Slider */}
+            {isMobile && showVolumeSlider && (
+              <div className="mt-3 flex items-center space-x-3">
+                <VolumeX size={16} className="text-gray-400" />
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${isMuted ? 0 : volume}%, #4b5563 ${isMuted ? 0 : volume}%, #4b5563 100%)`
+                  }}
+                />
+                <Volume2 size={16} className="text-gray-400" />
+                <span className="text-white text-xs w-8 text-center">
+                  {Math.round(isMuted ? 0 : volume)}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
         {/* Center play/pause indicator */}
-        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-200 ${!controlsVisible && !isPlaying && !isLoading ? 'opacity-100' : 'opacity-0'
-          }`}>
+        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-200 ${
+          !controlsVisible && !isPlaying && !isLoading ? 'opacity-100' : 'opacity-0'
+        }`}>
           <div className="bg-black/50 rounded-full p-6">
-            <Play className="text-white" size={48} />
+            <Play className="text-white" size={isMobile ? 32 : 48} />
           </div>
         </div>
       </div>
