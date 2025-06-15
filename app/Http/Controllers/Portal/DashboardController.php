@@ -20,11 +20,13 @@ class DashboardController extends Controller
     {
         try {
             $Movies = \App\Models\Movie::with('genres')->get();
+            $trendingMovies = \App\Models\Movie::with('genres')->where('type', 'movie')->latest()->take(5)->get();
 
             return response()->json([
                 'status' => true,
                 'response' => [
                     'setMovies' => $Movies,
+                    'trendingMovies' => $trendingMovies,
                 ]
             ]);
         } catch (\Exception $e) {

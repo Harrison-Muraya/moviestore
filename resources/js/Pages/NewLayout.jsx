@@ -7,6 +7,7 @@ const NetflixInterface = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
+  const [trendingMovies, setTreds ] = useState([]);
 
   // Sample movie trailers (using placeholder videos)
   const trailers = [
@@ -17,59 +18,35 @@ const NetflixInterface = () => {
 
   const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
 
-  const trendingMovies = [
-    {
-      id: 1,
-      title: 'Zombie Joget',
-      category: 'Horror',
-      image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop',
-      color: 'bg-red-600'
-    },
-    {
-      id: 2,
-      title: 'Family 100K',
-      category: 'Family',
-      image: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=300&h=400&fit=crop',
-      color: 'bg-blue-600'
-    },
-    {
-      id: 3,
-      title: 'Pesawat Kertas',
-      category: 'Documentary',
-      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=300&h=400&fit=crop',
-      color: 'bg-yellow-600'
-    },
-    {
-      id: 4,
-      title: 'Surat Cinta Starling',
-      category: 'Romance',
-      image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=400&fit=crop',
-      color: 'bg-pink-600'
-    },
-    {
-      id: 5,
-      title: 'Steel Mountain',
-      category: 'Sports',
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=400&fit=crop',
-      color: 'bg-green-600'
-    }
-  ];
-
+  // loading data from database
+  useEffect(() => {
+    const url = route('getmoviedata');
+    fetch(url, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === true) {
+          // console.log("setMovies retrieved successfully:", data.response.setMovies);
+          console.log("trendingMovies retrieved successfully:", data.response.trendingMovies);
+          // Appending Movies and production records to the state
+          setTreds(data.response.trendingMovies)
+          setMovies(data.response.setMovies)
+        } else {
+          console.error("Failed to fetch movies:", data);
+        }
+      })
+      .catch((error) => console.error("Error fetching movies:", error));
+  }, []);
+  
+  // Effect to handle video mute state
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
     }
   }, [isMuted]);
 
-  const hundleWatchMovie = (movieData) => {
-    // Handle the action when the "Watch Movie" button is clicked
-    console.log(`Watching movie: ${movieData}`);
-    // fetch(`/video-player/${movieData}`)
-    //   .catch(error => {
-    //     console.error('Error fetching video data:', error);
-    //   });
-  };
-
+  // Function to handle movie watch action
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };
@@ -104,7 +81,7 @@ const NetflixInterface = () => {
             <a href="#" className="text-gray-300 hover:text-white transition-colors">New & Popular</a>
           </nav>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <Search className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
           <Bell className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
@@ -122,17 +99,17 @@ const NetflixInterface = () => {
               New Movie
             </span>
           </div>
-          
+
           <h2 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
             Keluarga Cemara
           </h2>
-          
+
           <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-xl leading-relaxed">
-            This film depicts a very desirable family without any problems 
-            and always get along every day, until a father figure leaves his 
+            This film depicts a very desirable family without any problems
+            and always get along every day, until a father figure leaves his
             family, and everything changes.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Link href={route('video.player', 12)} className="flex items-center justify-center bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-colors" onClick={() => hundleWatchMovie({ title: 'Keluarga Cemara' })}>
               <Play className="w-5 h-5 mr-2 fill-current" />
@@ -163,32 +140,33 @@ const NetflixInterface = () => {
             <ChevronRight className="w-5 h-5 ml-1" />
           </button>
         </div>
-        
+
         <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
+          {}
           {trendingMovies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 group cursor-pointer">
               <div className="relative w-48 h-64 rounded-lg overflow-hidden bg-gray-800">
                 <img
-                  src={movie.image}
+                  src={movie.thumbnail}
                   alt={movie.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                
+
                 {/* Category Badge */}
                 <div className="absolute top-3 left-3">
-                  <span className={`${movie.color} text-white text-xs px-2 py-1 rounded font-medium`}>
-                    {movie.category}
+                  <span className={`${movie.color || 'bg-red-600'} text-white text-xs px-2 py-1 rounded font-medium`}>
+                    {movie.genres[0]?.name || 'Unknown Genre'}
                   </span>
                 </div>
-                
+
                 {/* Title */}
                 <div className="absolute bottom-4 left-4 right-4">
-                  <h4 className="text-white font-semibold text-lg leading-tight">
+                  <h4 className="text-white font-semibold text-lg leading-tight capitalize">
                     {movie.title}
                   </h4>
                 </div>
-                
+
                 {/* Hover Play Button */}
                 <Link href={route('video.player', movie.id)} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" onClick={() => hundleWatchMovie(movie.id)}>
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
