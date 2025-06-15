@@ -27,7 +27,7 @@ export default function Login({ status, canResetPassword }) {
             <div className="relative h-screen bg-[url('/images/wp4286137-stuff-wallpapers.jpg')] bg-cover bg-center bg-no-repeat">
                 <div className="absolute inset-0 bg-black opacity-5 z-10"></div>
 
-                <div className="absolute inset-0 flex items-center justify-center z-20">
+                <div className="absolute top-24 md:inset-0 w-full flex items-center justify-center z-20">
                     <div className="relative bg-opacity-80 dark:bg-gray-800 dark:bg-opacity-80 p-6 border-[2px] border-gray-400 w-full rounded-lg mx-4 md:mx-0 md:w-1/2 md:max-w-md z-40 overflow-hidden">
                         <div className="absolute inset-0  bg-white bg-opacity-30 z-30 backdrop-blur-sm"></div>
                         {status && (
