@@ -28,7 +28,7 @@ export default function Login({ status, canResetPassword }) {
                 <div className="absolute inset-0 bg-black opacity-5 z-10"></div>
 
                 <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <div className="relative bg-opacity-80 dark:bg-gray-800 dark:bg-opacity-80 p-6 border-[2px] border-gray-400 rounded-lg w-1/2 max-w-md z-40 overflow-hidden">
+                    <div className="relative bg-opacity-80 dark:bg-gray-800 dark:bg-opacity-80 p-6 border-[2px] border-gray-400 w-full rounded-lg mx-4 md:mx-0 md:w-1/2 md:max-w-md z-40 overflow-hidden">
                         <div className="absolute inset-0  bg-white bg-opacity-30 z-30 backdrop-blur-sm"></div>
                         {status && (
                             <div className="mb-4 text-sm font-medium text-green-600">
@@ -44,7 +44,7 @@ export default function Login({ status, canResetPassword }) {
                                 <p className="text-white text-2xl md:text-2xl  tracking-wider my-4">
                                     Welcome Back
                                 </p>
-                                <Link href={route('register')} className="text-white text-sm   hover:text-gray-300">
+                                <Link href={route('register')} className="text-white text-sm mb-2  hover:text-gray-300">
                                     Don't have an account yet? Sign In
                                 </Link>
                             </div>
