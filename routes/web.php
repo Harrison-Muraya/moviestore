@@ -24,8 +24,14 @@ Route::controller(DashboardController::class)->group(function () {
 Route::get('/api/genres', function () {
     return response()->json(\App\Models\Genre::all());
 });
-
+                 
+Route::controller(NewDashboardController::class)->group(function () {
+    Route::get('/newlayout',  'dashboard')->name('newdashboard.layout');
+    Route::get('/video-player', 'VideoPlayer')->name('video.player');
+   
+}); 
 Route::get('/newlayout', [NewDashboardController::class, 'dashboard']);
+
 
 Route::controller(ContentUploadController::class)->group(function(){
     Route::get('/upload-movies', 'index')->name('storeview');   

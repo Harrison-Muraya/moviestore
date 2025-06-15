@@ -37,4 +37,9 @@ class NewDashboardController extends Controller
         }
     }
 
+    public function VideoPlayer ()
+    {
+        return Inertia::render('VideoPlayer');
+    }
+
 }
