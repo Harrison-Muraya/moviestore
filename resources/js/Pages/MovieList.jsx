@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { usePage } from '@inertiajs/react';
 
-function AllMovies(){
+function MovieList() {
 
-    const [movies, setMovies] = useState([]);
-    console.log(movies);
+    const { props } = usePage();
+
+    console.log(props);
+    const movies = props.movies || [];
+
+    // const [movies, setMovies] = useState([]);
+    // console.log(movies);
+
+    // movies.map((movie) => {
+    //     console.log(movie);
+    // });
 
     return (
-        <div>
-            <h1>Edit Video</h1>
-            <p>This is the video edit page.</p>
-        </div>
-    );
+        <>
+            <div className="fixed bg-blue-300 h-screen w-full"></div>
+        </>
+
+    )
 }
 
-export default AllMovies;
+export default MovieList;
