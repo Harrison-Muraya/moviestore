@@ -4,20 +4,17 @@ import { usePage } from '@inertiajs/react';
 function MovieList() {
 
     const { props } = usePage();
-
     console.log(props);
     const movies = props.movies || [];
 
-    // const [movies, setMovies] = useState([]);
-    // console.log(movies);
-
-    // movies.map((movie) => {
-    //     console.log(movie);
-    // });
 
     return (
         <>
-            <div className="fixed bg-blue-300 h-screen w-full"></div>
+            <div className="relative bg-[url('/images/silence.jpg')]  h-screen bg-cover bg-center bg-no-repeat">
+                <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
+                <div className="relative container bg-red-50 h-10 z-30 mx-auto"></div>
+                
+            </div>
         </>
 
     )
