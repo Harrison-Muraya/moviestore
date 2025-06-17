@@ -27,6 +27,17 @@ class ContentUploadController extends Controller
         ]);
     }
 
+    public function movieList(): Response
+    {
+        $movies = Movie::get();
+
+        dd($movies);
+
+        return Inertia::render('MovieList', [
+            'movies' => $movies
+        ]);
+    }
+
     public function store(Request $request)
     {
         Log::info('Raw request data:', [
@@ -96,8 +107,6 @@ class ContentUploadController extends Controller
             // Optionally rethrow or return error response
             throw $e;
         }
-
-
 
         try {
             DB::beginTransaction();
