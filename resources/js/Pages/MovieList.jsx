@@ -27,8 +27,11 @@ function MovieList() {
                                 Singles
                             </p>
                             <div className="card">
+                                <ul>
+                                    <li className="text-white text-lg bg-white/20 backdrop-blur-sm md:text-2xl my-6 font-semibold tracking-wider rounded-sm"></li>
+                                </ul>
                                 
-                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
+                                    <p className="text-white text-lg bg-white/20 backdrop-blur-sm md:text-2xl my-6 font-semibold tracking-wider rounded-sm">
                                         harrispm
                                     </p>
                                     <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
