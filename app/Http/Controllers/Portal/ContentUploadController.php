@@ -33,8 +33,11 @@ class ContentUploadController extends Controller
 
         // dd($movies);
 
+        $testing = 'felix';
+
         return Inertia::render('MovieList', [
-            'movies' => $movies
+            'movies' => $movies,
+            'testing' => $testing
         ]);
     }
 

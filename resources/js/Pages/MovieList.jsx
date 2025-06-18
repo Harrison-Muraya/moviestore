@@ -6,6 +6,9 @@ function MovieList() {
     const { props } = usePage();
     console.log(props);
     const movies = props.movies || [];
+    const user = props.testing || []
+
+    console.log("user", user);
 
 
     return (
