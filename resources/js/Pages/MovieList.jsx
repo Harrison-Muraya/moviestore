@@ -4,11 +4,11 @@ import { usePage } from '@inertiajs/react';
 function MovieList() {
 
     const { props } = usePage();
-    console.log(props);
+    // console.log(props);
     const movies = props.movies || [];
     const user = props.testing || []
 
-    console.log("user", user);
+    // console.log("user", user);
 
 
     return (
@@ -21,7 +21,26 @@ function MovieList() {
                             ALPHA <span className="text-red-600">.</span>
                         </p>
                     </div>
-                    <div className="text-center bg-red-300 mt-4">hello</div>
+                    <div className="grid grid-cols-2 mt-6 gap-x-5">
+                        <div className="grid grid-row bg-white/20 backdrop-blur-sm p-2 md:p-2 rounded-lg shadow-lg">
+                            <p className="text-white text-xl md:text-4xl my-6 font-semibold tracking-wider">
+                                Singles
+                            </p>
+                            <div className="card">
+                                
+                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
+                                        harrispm
+                                    </p>
+                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
+                                        harrispm
+                                    </p>
+                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
+                                        harrispm                                    </p>
+                                
+                            </div>
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm p-2 md:p-2 rounded-lg shadow-lg">hello</div>
+                    </div>
 
                 </div>
 
