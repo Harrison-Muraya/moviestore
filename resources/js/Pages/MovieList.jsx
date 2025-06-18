@@ -28,18 +28,14 @@ function MovieList() {
                             </p>
                             <div className="card">
                                 <ul>
+                                    {movies.map((movie, index) => (
+                                        <li key={index} className="text-white text-lg bg-black/40 backdrop-blur-sm md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-sm">
+                                            {movie.title}
+                                        </li>
+                                    ))}
                                     <li className="text-white text-lg bg-white/20 backdrop-blur-sm md:text-2xl my-6 font-semibold tracking-wider rounded-sm"></li>
                                 </ul>
-                                
-                                    <p className="text-white text-lg bg-white/20 backdrop-blur-sm md:text-2xl my-6 font-semibold tracking-wider rounded-sm">
-                                        harrispm
-                                    </p>
-                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
-                                        harrispm
-                                    </p>
-                                    <p className="text-white text-lg md:text-2xl my-6 font-semibold tracking-wider">
-                                        harrispm                                    </p>
-                                
+                                                               
                             </div>
                         </div>
                         <div className="bg-white/20 backdrop-blur-sm p-2 md:p-2 rounded-lg shadow-lg">hello</div>
