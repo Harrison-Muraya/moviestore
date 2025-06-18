@@ -33,9 +33,8 @@ function MovieList() {
                                             {movie.title}
                                         </li>
                                     ))}
-                                    <li className="text-white text-lg bg-white/20 backdrop-blur-sm md:text-2xl my-6 font-semibold tracking-wider rounded-sm"></li>
                                 </ul>
-                                                               
+
                             </div>
                         </div>
                         <div className="bg-white/20 backdrop-blur-sm p-2 md:p-2 rounded-lg shadow-lg">hello</div>
