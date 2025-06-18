@@ -15,6 +15,8 @@ function MovieList() {
         <div className="fixed inset-0 overflow-hidden bg-[url('/images/silence.jpg')] bg-cover bg-center bg-no-repeat">
             <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
 
+            <div className="bg-white h-4 container z-60"></div>
+
             <div className="relative container grid grid-flow-row z-30 mx-auto overflow-auto h-screen">
                 <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg shadow-lg">
                     <p className="text-indigo-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
