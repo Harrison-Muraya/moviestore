@@ -11,7 +11,7 @@ const NetflixInterface = () => {
   const [currentTrailer, setCurrentTrailer] = useState(null);
 
   // stranger things trailer
-  const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
+  // const `strangerThingsTrailer` = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
 
   // loading data from database
   useEffect(() => {
@@ -25,48 +25,54 @@ const NetflixInterface = () => {
 
           // Pick a random trailer AFTER loading
           const loadedTrailers = data.response.setMovies;
-          
+          console.log("Loaded Trailers:", loadedTrailers);
+
           if (loadedTrailers && loadedTrailers.length > 0) {
             const random = loadedTrailers[Math.floor(Math.random() * loadedTrailers.length)];
-            setCurrentTrailer(random?.trailer_path ? random : { 
-              id: 'fallback', // Add fallback id
-              trailer_path: strangerThingsTrailer,
-              title: 'Stranger Things',
-              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
-            });
+            setCurrentTrailer(random);
+            console.log("Random Trailer Selected:", random);
+            // setCurrentTrailer(random?.trailer_path ? random : { 
+            //   id: 'fallback', // Add fallback id
+            //   trailer_path: strangerThingsTrailer,
+            //   title: 'Stranger Things',
+            //   description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            // });
           } else {
             // No trailers available, use fallback
-            setCurrentTrailer({ 
-              id: 'fallback',
-              trailer_path: strangerThingsTrailer,
-              title: 'Stranger Things',
-              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
-            });
+            // setCurrentTrailer({ 
+            //   id: 'fallback',
+            //   trailer_path: strangerThingsTrailer,
+            //   title: 'Stranger Things',
+            //   description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            // });
           }
         } else {
           console.error("Failed to fetch movies:", data);
           // Set fallback on error
-          setCurrentTrailer({ 
-            id: 'fallback',
-            trailer_path: strangerThingsTrailer,
-            title: 'Stranger Things',
-            description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
-          });
+          // setCurrentTrailer({ 
+          //   id: 'fallback',
+          //   trailer_path: strangerThingsTrailer,
+          //   title: 'Stranger Things',
+          //   description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+          // });
         }
       })
       .catch((error) => {
         console.error("Error fetching movies:", error);
         // Set fallback on error
-        setCurrentTrailer({ 
-          id: 'fallback',
-          trailer_path: strangerThingsTrailer,
-          title: 'Stranger Things',
-          description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
-        });
+        // setCurrentTrailer({ 
+        //   id: 'fallback',
+        //   trailer_path: strangerThingsTrailer,
+        //   title: 'Stranger Things',
+        //   description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+        // });
       });
   }, []);
 
-  console.log("Current Trailer:", currentTrailer);
+  useEffect(() => {
+
+    console.log("Current Trailer harris:", currentTrailer);
+  }, [currentTrailer]);
 
   // Effect to handle video mute state
   useEffect(() => {
