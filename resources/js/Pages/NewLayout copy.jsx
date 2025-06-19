@@ -13,11 +13,11 @@ const NetflixInterface = () => {
 
 
   // stranger things trailer
-  const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
+  // const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
 
   // const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
 
-
+  console.log("first trailer:", trailers[0]);
 
   // loading data from database
 
@@ -80,7 +80,7 @@ const NetflixInterface = () => {
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-4">
             <Menu className="w-6 h-6 md:hidden" />
-            <h1  className="text-indigo-600 text-2xl font-bold">ALPHA
+            <h1 className="text-indigo-600 text-2xl font-bold">ALPHA
               <span className="text-red-600">.</span>
             </h1>
           </div>

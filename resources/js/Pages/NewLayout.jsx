@@ -25,6 +25,7 @@ const NetflixInterface = () => {
 
           // Pick a random trailer AFTER loading
           const loadedTrailers = data.response.setMovies;
+          
           if (loadedTrailers && loadedTrailers.length > 0) {
             const random = loadedTrailers[Math.floor(Math.random() * loadedTrailers.length)];
             setCurrentTrailer(random?.trailer_path ? random : { 
