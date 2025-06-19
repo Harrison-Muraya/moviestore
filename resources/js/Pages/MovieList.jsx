@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePage } from '@inertiajs/react';
+import { usePage, Link } from '@inertiajs/react';
 
 function MovieList() {
 
@@ -22,10 +22,10 @@ function MovieList() {
         <div className="fixed inset-0 overflow-hidden bg-[url('/images/silence.jpg')] bg-cover bg-center bg-no-repeat">
             <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
             <div className="relative grid grid-flow-row px-32  z-30 overflow-auto h-screen">
-                <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg shadow-lg">
-                    <p className="text-indigo-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
+                <div className="flex bg-white/20 backdrop-blur-sm p-2 mt-2 rounded-lg shadow-lg justify-center items-center">
+                    <Link href={route('dashboard')} className="text-indigo-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
                         ALPHA <span className="text-red-600">.</span>
-                    </p>
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-2 mt-6 gap-x-5">

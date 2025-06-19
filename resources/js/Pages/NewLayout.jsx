@@ -117,7 +117,7 @@ const NetflixInterface = () => {
             </h1>
           </div>
           <nav className="hidden md:flex space-x-6">
-            <a href="#" className="text-white hover:text-gray-300 transition-colors">Movies</a>
+            <Link href={route('movieList')} className="text-white hover:text-gray-300 transition-colors">Movies</Link>
             <a href="#" className="text-gray-300 hover:text-white transition-colors">New & Popular</a>
           </nav>
         </div>

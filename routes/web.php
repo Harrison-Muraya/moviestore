@@ -31,17 +31,17 @@ Route::get('/api/genres', function () {
    
 // }); 
 
+Route::middleware('auth')->group(function () {
+    Route::controller(ContentUploadController::class)->group(function(){
+        Route::get('/upload-movies', 'index')->name('storeview');   
+        Route::post('/upload-content', 'store')->name('uploadContent');
 
-Route::controller(ContentUploadController::class)->group(function(){
-    Route::get('/upload-movies', 'index')->name('storeview');   
-    Route::post('/upload-content', 'store')->name('uploadContent');
-
-    Route::get('/movie-list', 'movieList')->name('movieList');
-    Route::post('/update-movie/{id}', 'update')->name('updateMovie');
-    Route::get('/movie-details/{id}', 'show')->name('movieDetails');    
-    Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
+        Route::get('/movie-list', 'movieList')->name('movieList');
+        Route::post('/update-movie/{id}', 'update')->name('updateMovie');
+        Route::get('/movie-details/{id}', 'show')->name('movieDetails');    
+        Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
+    });
 });
-
 Route::middleware('auth')->group(function () {
     Route::controller(NewDashboardController::class)->group(function () {
         Route::get('/newlayout',  'dashboard')->name('dashboard');

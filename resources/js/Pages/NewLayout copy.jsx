@@ -80,12 +80,12 @@ const NetflixInterface = () => {
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-4">
             <Menu className="w-6 h-6 md:hidden" />
-            <h1 className="text-indigo-600 text-2xl font-bold">ALPHA
+            <h1  className="text-indigo-600 text-2xl font-bold">ALPHA
               <span className="text-red-600">.</span>
             </h1>
           </div>
           <nav className="hidden md:flex space-x-6">
-            <a href="#" className="text-white hover:text-gray-300 transition-colors">Movies</a>
+            <a href={route('movieList')} className="text-white hover:text-gray-300 transition-colors">Movies</a>
             <a href="#" className="text-gray-300 hover:text-white transition-colors">New & Popular</a>
           </nav>
         </div>
