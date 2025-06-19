@@ -47,7 +47,8 @@ function MovieList() {
                                             <div className="flex flex-col md:flex-row">
                                                 <div className="h-16 md:w-40 md:h-40">
                                                     <img
-                                                        src={movie.thumbnail}
+                                                        // src={movie.thumbnail}
+                                                        src={movie.thumbnail?.startsWith('http')? movie.thumbnail : `/storage/${movie.thumbnail}`}
                                                         alt={movie.title}
                                                         className="w-full h-full object-cover rounded-md"
                                                     />
