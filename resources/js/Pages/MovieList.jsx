@@ -44,7 +44,7 @@ function MovieList() {
                                             key={movie.id || index}
                                             className="text-white text-lg bg-white/60 backdrop-blur-sm md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-sm"
                                         >
-                                            <div className="flex flex-col md:flex-row">
+                                            <Link href={route('video.player',{id:movie.id})} className="flex flex-col md:flex-row">
                                                 <div className="h-16 md:w-40 md:h-40">
                                                     <img
                                                         // src={movie.thumbnail}
@@ -66,7 +66,7 @@ function MovieList() {
                                                         {movie.description || 'No description available.'}
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </Link>
                                         </li>
                                     ))
                                 )
