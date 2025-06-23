@@ -13,7 +13,7 @@ class NewDashboardController extends Controller
 {
     public function dashboard (): Response
     {
-        return Inertia::render('Latestdashboard');
+        return Inertia::render('NewLayout');
     }
 
 
@@ -49,7 +49,7 @@ class NewDashboardController extends Controller
                 'message' => 'Movie not found.',
             ]);
         }
-        return Inertia::render('NewvideoPlayer',
+        return Inertia::render('VideoPlayer',
             [
                 'movie' => $movie,
             ]
