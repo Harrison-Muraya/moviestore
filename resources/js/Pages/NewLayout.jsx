@@ -72,7 +72,7 @@ const NetflixInterface = () => {
   useEffect(() => {
 
     console.log("Current Trailer harris:", currentTrailer);
-  }, [currentTrailer]);
+  }, []);
 
   // Effect to handle video mute state
   useEffect(() => {

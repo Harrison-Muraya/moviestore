@@ -15,6 +15,64 @@ const NetflixInterface = () => {
   // stranger things trailer
   // const strangerThingsTrailer = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/StrangerThings.mp4';
 
+// ------------------------------------------------------------------
+// loading data from database
+  useEffect(() => {
+    const url = route('getmoviedata');
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === true) {
+          setTreds(data.response.trendingMovies);
+          setMovies(data.response.setMovies);
+
+          // Pick a random trailer AFTER loading
+          const loadedTrailers = data.response.setMovies;
+          console.log("Loaded Trailers:", loadedTrailers);
+
+          if (loadedTrailers && loadedTrailers.length > 0) {
+            const random = loadedTrailers[Math.floor(Math.random() * loadedTrailers.length)];
+            setCurrentTrailer(random);
+            console.log("Random Trailer Selected:", random);
+            setCurrentTrailer(random?.trailer_path ? random : { 
+              id: 'fallback', // Add fallback id
+              trailer_path: strangerThingsTrailer,
+              title: 'Stranger Things',
+              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            });
+          } else {
+            // No trailers available, use fallback
+            setCurrentTrailer({ 
+              id: 'fallback',
+              trailer_path: strangerThingsTrailer,
+              title: 'Stranger Things',
+              description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+            });
+          }
+        } else {
+          console.error("Failed to fetch movies:", data);
+          // Set fallback on error
+          setCurrentTrailer({ 
+            id: 'fallback',
+            trailer_path: strangerThingsTrailer,
+            title: 'Stranger Things',
+            description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+        // Set fallback on error
+        setCurrentTrailer({ 
+          id: 'fallback',
+          trailer_path: strangerThingsTrailer,
+          title: 'Stranger Things',
+          description: 'Alpha got you covered with the latest movies and TV shows. Enjoy a seamless streaming experience with our user-friendly interface and high-quality content.'
+        });
+      });
+  }, []);
+// ------------------------------------------------------------------
+
   // const [currentTrailer] = useState(trailers[Math.floor(Math.random() * trailers.length)]);
 
   console.log("first trailer:", trailers[0]);
