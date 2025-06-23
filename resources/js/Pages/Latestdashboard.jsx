@@ -3,9 +3,9 @@ import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User, Volume2, Vol
 
 const NetflixClone = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [hoveredRow, setHoveredRow] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
+  const rowRefs = useRef({});
 
   useEffect(() => {
     // Auto-play video when component mounts
@@ -95,52 +95,52 @@ const NetflixClone = () => {
     </div>
   );
 
-  const scrollRow = (direction, rowIndex) => {
-    const container = document.getElementById(`movie-row-${rowIndex}`);
-    const scrollAmount = 768; // Width of about 4 movie cards
-    if (direction === 'left') {
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    } else {
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  const scroll = (direction, rowIndex) => {
+    const rowRef = rowRefs.current[rowIndex];
+    if (rowRef) {
+      const scrollAmount = 300;
+      const currentScroll = rowRef.scrollLeft;
+      const newPosition = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount;
+      
+      rowRef.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
   const MovieRow = ({ category, rowIndex }) => (
-    <div 
-      className="mb-8 relative group"
-      onMouseEnter={() => setHoveredRow(rowIndex)}
-      onMouseLeave={() => setHoveredRow(null)}
-    >
-      <h3 className="text-white text-xl font-bold mb-4 px-4">{category.title}</h3>
+    <div className="px-4 md:px-12 group mb-8">
+      <h2 className="text-xl md:text-2xl font-semibold mb-4 text-white">
+        {category.title}
+      </h2>
+      
       <div className="relative">
-        {/* Left Arrow */}
         <button
-          className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-2 rounded-r transition-all duration-300 ${
-            hoveredRow === rowIndex ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={() => scrollRow('left', rowIndex)}
+          onClick={() => scroll('left', rowIndex)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 hover:scale-110"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft className="w-6 h-6" />
         </button>
         
-        {/* Right Arrow */}
-        <button
-          className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-2 rounded-l transition-all duration-300 ${
-            hoveredRow === rowIndex ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={() => scrollRow('right', rowIndex)}
-        >
-          <ChevronRight size={24} />
-        </button>
-
-        <div 
-          id={`movie-row-${rowIndex}`}
-          className="flex gap-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
+        <div
+          ref={el => rowRefs.current[rowIndex] = el}
+          className="flex space-x-4 overflow-x-scroll scrollbar-hide scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {category.movies.map((movie, index) => (
             <MovieCard key={movie.id} movie={movie} index={index} />
           ))}
         </div>
+        
+        <button
+          onClick={() => scroll('right', rowIndex)}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 hover:scale-110"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );
