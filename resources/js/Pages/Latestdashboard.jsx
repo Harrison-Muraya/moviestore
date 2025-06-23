@@ -3,7 +3,6 @@ import MovieRow from "@/Components/MovieRow";
 import Header from "@/Components/Header";
 import Hero from "@/Components/Hero";
 import Footer from "@/Components/Footer";
-import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User, Volume2, VolumeX } from 'lucide-react';
 
 const AlphaMovies = () => {
     const [isMuted, setIsMuted] = useState(true);
@@ -57,7 +56,18 @@ const AlphaMovies = () => {
             ]
         },
         {
-            title: "Action & Adventure",
+            title: "Action",
+            movies: [
+                { id: 13, title: "Extraction", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
+                { id: 14, title: "6 Underground", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
+                { id: 15, title: "The Old Guard", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
+                { id: 16, title: "Triple Frontier", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" },
+                { id: 17, title: "Bird Box", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" },
+                { id: 18, title: "The Platform", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" }
+            ]
+        },
+        {
+            title: "Adventure",
             movies: [
                 { id: 13, title: "Extraction", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
                 { id: 14, title: "6 Underground", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
@@ -94,7 +104,7 @@ const AlphaMovies = () => {
             <Hero />
             {/* Movie Rows */}
 
-            <main className="relative z-10 -mt-32">
+            <main className="relative z-10 -mt-36">
                 {movieCategories.map((category, index) => (
                     <MovieRow key={index} category={category} rowIndex={index} />
                 ))}

@@ -49,7 +49,7 @@ class NewDashboardController extends Controller
                 'message' => 'Movie not found.',
             ]);
         }
-        return Inertia::render('VideoPlayer',
+        return Inertia::render('NewvideoPlayer',
             [
                 'movie' => $movie,
             ]
