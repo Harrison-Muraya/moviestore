@@ -8,6 +8,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\NewDashboardController;
 use App\Http\Controllers\Portal\ContentUploadController;
+use App\Http\Controllers\Portal\LatestDashboardController;
 
 Route::get('/', [WelcomeController::class, 'welcome']);
 
@@ -19,6 +20,8 @@ Route::controller(DashboardController::class)->group(function () {
     // Added CowHealth API endpoint
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
+
+Route::get('/latestdashboard', [LatestDashboardController::class, 'dashboard'])->name('latestdashboard');
 
 // routes/api.php or routes/web.php
 Route::get('/api/genres', function () {
