@@ -1,66 +1,63 @@
-import { useState } from 'react';
-import { Play, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import VideoPlayer from './VideoPlayer';
+import React, { useRef, useState, useEffect } from 'react';
+import { Play, Info, Volume2, VolumeX } from 'lucide-react';
 
-const Hero = ({ movie }) => {
-  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
-  const title = movie.title || movie.name;
+const Hero = () => {
 
-  console.log('Hero component rendered with movie:', movie.thumbnail);
+    const [isMuted, setIsMuted] = useState(true);
+    const videoRef = useRef(null);
 
-  const imageUrl = `${movie.thumbnail?.startsWith('http') ? movie.thumbnail : `/storage/${movie.thumbnail}`}`;
-
-  const videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
-  const handlePlayClick = () => {
-    setIsVideoPlayerOpen(true);
-  };
-
-  return (
-    <>
-      <div className="relative h-screen flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-        </div>
-
-        <div className="relative z-10 px-4 md:px-12 max-w-2xl">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
-            {title}
-          </h1>
-          <p className="text-lg md:text-xl text-gray-200 mb-8 line-clamp-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            {movie.overview}
-          </p>
-
-          <div className="flex space-x-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <Button
-              onClick={handlePlayClick}
-              className="bg-white text-black hover:bg-gray-200 transition-all duration-200 px-8 py-3 text-lg font-semibold"
+    return (
+        <section className="relative h-screen flex items-center overflow-hidden">
+            {/* Background Video */}
+            <video
+                ref={videoRef}
+                className="absolute inset-0 w-full h-full object-cover"
+                autoPlay
+                muted={isMuted}
+                loop
+                playsInline
             >
-              <Play className="w-5 h-5 mr-2" />
-              Play
-            </Button>
-            <Button variant="outline" className="border-gray-400 text-white hover:bg-white hover:text-black transition-all duration-200 px-8 py-3 text-lg font-semibold">
-              <Info className="w-5 h-5 mr-2" />
-              More Info
-            </Button>
-          </div>
-        </div>
-      </div>
+                <source src={heroContent.videoUrl} type="video/mp4" />
+                {/* Fallback image if video fails to load */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1200&h=675&fit=crop)` }}
+                />
+            </video>
 
-      <VideoPlayer
-        isOpen={isVideoPlayerOpen}
-        onClose={() => setIsVideoPlayerOpen(false)}
-        videoUrl={videoUrl}
-        title={title || 'Unknown Title'}
-      />
-    </>
-  );
-};
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
 
-export default Hero;
+            {/* Mute/Unmute Button */}
+            <button
+                onClick={toggleMute}
+                className="absolute top-1/2 right-8 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-3 rounded-full transition-all duration-300 border border-white border-opacity-50 hover:border-opacity-100"
+            >
+                {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+            </button>
 
+            <div className="relative z-10 max-w-2xl px-4 ml-4">
+                <h1 className="text-6xl font-bold mb-4">{heroContent.title}</h1>
+                <p className="text-lg mb-8 leading-relaxed">{heroContent.description}</p>
+
+                <div className="flex gap-4">
+                    <button className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
+                        <Play size={24} />
+                        Play
+                    </button>
+                    <button className="bg-gray-600 bg-opacity-70 text-white px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-500 hover:bg-opacity-70 transition-colors">
+                        <Info size={24} />
+                        More Info
+                    </button>
+                </div>
+            </div>
+
+            {/* Age Rating and Genre Info */}
+            <div className="absolute bottom-8 left-4 z-10 flex items-center gap-4 text-sm">
+                <span className="bg-red-600 px-2 py-1 rounded text-white font-bold">TV-14</span>
+                <span className="text-white">Sci-Fi • Drama • Thriller</span>
+                <span className="text-gray-300">2016</span>
+            </div>
+        </section>
+    )
+}
