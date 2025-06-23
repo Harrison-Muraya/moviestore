@@ -13,7 +13,7 @@ class NewDashboardController extends Controller
 {
     public function dashboard (): Response
     {
-        return Inertia::render('NewLayout');
+        return Inertia::render('Latestdashboard');
     }
 
 

@@ -3,6 +3,7 @@ import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User } from 'lucid
 
 const NetflixClone = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   // Mock data for movies/shows
   const heroContent = {
@@ -76,13 +77,52 @@ const NetflixClone = () => {
     </div>
   );
 
-  const MovieRow = ({ category }) => (
-    <div className="mb-8">
+  const scrollRow = (direction, rowIndex) => {
+    const container = document.getElementById(`movie-row-${rowIndex}`);
+    const scrollAmount = 768; // Width of about 4 movie cards
+    if (direction === 'left') {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const MovieRow = ({ category, rowIndex }) => (
+    <div 
+      className="mb-8 relative group"
+      onMouseEnter={() => setHoveredRow(rowIndex)}
+      onMouseLeave={() => setHoveredRow(null)}
+    >
       <h3 className="text-white text-xl font-bold mb-4 px-4">{category.title}</h3>
-      <div className="flex gap-4 px-4 overflow-x-auto scrollbar-hide">
-        {category.movies.map((movie, index) => (
-          <MovieCard key={movie.id} movie={movie} index={index} />
-        ))}
+      <div className="relative">
+        {/* Left Arrow */}
+        <button
+          className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-2 rounded-r transition-all duration-300 ${
+            hoveredRow === rowIndex ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => scrollRow('left', rowIndex)}
+        >
+          <ChevronLeft size={24} />
+        </button>
+        
+        {/* Right Arrow */}
+        <button
+          className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-2 rounded-l transition-all duration-300 ${
+            hoveredRow === rowIndex ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => scrollRow('right', rowIndex)}
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        <div 
+          id={`movie-row-${rowIndex}`}
+          className="flex gap-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
+        >
+          {category.movies.map((movie, index) => (
+            <MovieCard key={movie.id} movie={movie} index={index} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -139,7 +179,7 @@ const NetflixClone = () => {
       {/* Movie Rows */}
       <main className="relative z-10 -mt-32">
         {movieCategories.map((category, index) => (
-          <MovieRow key={index} category={category} />
+          <MovieRow key={index} category={category} rowIndex={index} />
         ))}
       </main>
 
