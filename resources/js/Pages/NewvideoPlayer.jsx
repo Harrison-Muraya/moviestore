@@ -26,6 +26,10 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
   const [isBuffering, setIsBuffering] = useState(false);
   const [showSkipAnimation, setShowSkipAnimation] = useState({ show: false, direction: '' });
 
+  // From your movie listing page
+  const currentUrl = window.location.pathname + window.location.search;
+  // const videoUrl = `/watch/${movieId}?returnUrl=${encodeURIComponent(currentUrl)}`;
+
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
@@ -43,6 +47,109 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
     description: 'An epic adventure that will keep you on the edge of your seat.',
     video_path: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
   };
+
+  const handleClose = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnUrl = urlParams.get('returnUrl');
+
+    if (returnUrl) {
+      window.location.href = decodeURIComponent(returnUrl);
+    } else {
+      window.history.back(); // Fallback
+    }
+  };
+
+  // Auto-play video on mount
+  useEffect(() => {
+    const attemptAutoPlay = async () => {
+      if (videoRef.current && !autoPlayAttempted) {
+        setAutoPlayAttempted(true);
+        try {
+          setIsLoading(true);
+          await videoRef.current.play();
+          setIsPlaying(true);
+          setIsLoading(false);
+        } catch (error) {
+          console.log('Auto-play failed:', error);
+          setIsLoading(false);
+          // Auto-play failed, user will need to manually start
+        }
+      }
+    };
+
+    attemptAutoPlay();
+  }, [autoPlayAttempted]);
+
+
+  // useEffect(() => {
+  //   if (isOpen && videoRef.current && movieData.video_path) {
+  //     setIsLoading(true);
+  //     videoRef.current.src = movieData.video_path.startsWith('http')
+  //       ? movieData.video_path
+  //       : `/storage/${movieData.video_path}`; // Adjust path as needed
+  //     videoRef.current.crossOrigin = 'anonymous'; // Handle CORS for external videos
+  //     videoRef.current
+  //       .play()
+  //       .then(() => {
+  //         setIsPlaying(true);
+  //         setIsLoading(false);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Auto-play error:', error);
+  //         setVideoError(true);
+  //         setIsLoading(false);
+  //         setIsPlaying(false);
+  //         setAutoPlayAttempted(true);
+  //       });
+  //   }
+  // }, [isOpen, movieData.video_path]);
+
+  // Close player on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        if (isFullscreen) {
+          handleFullscreen();
+        } else if (onClose) {
+          onClose();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isFullscreen, onClose]);
+
+  // make double-click fullscreen  or exit fullscreen and single-click play/pause
+  useEffect(() => {
+    const handleDoubleClick = (e) => {
+      if (isOpen && !isMobile) {
+        if (e.detail === 2) {
+          handleFullscreen();
+        }
+      }
+    };
+    const handleSingleClick = (e) => {
+      if (isOpen && isMobile) {
+        handlePlayPause();
+      }
+    };
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      videoElement.addEventListener('dblclick', handleDoubleClick);
+      videoElement.addEventListener('click', handleSingleClick);
+    }
+    return () => {
+      if (videoElement) {
+        videoElement.removeEventListener('dblclick', handleDoubleClick);
+        videoElement.removeEventListener('click', handleSingleClick);
+      }
+    };
+  }, [isOpen, isMobile]);
+
+  // mute/
+
 
   // Mobile detection and orientation
   useEffect(() => {
@@ -429,7 +536,8 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={onClose}
+                // onClick={onClose}
+                onClick={handleClose}
                 className="text-white hover:text-gray-300 transition-colors p-2 hover:bg-white/10 rounded-full"
               >
                 <X size={isMobile ? 20 : 24} />
@@ -546,7 +654,18 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
               {/* Volume Control */}
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => setIsMuted(!isMuted)}
+                  onClick={() => {
+                    const newMutedState = !isMuted;
+                    setIsMuted(newMutedState);
+                    if (videoRef.current) {
+                      videoRef.current.muted = newMutedState;
+                      // Also ensure volume is audible when unmuting
+                      if (!newMutedState && volume === 0) {
+                        setVolume(50);
+                        videoRef.current.volume = 0.5;
+                      }
+                    }
+                  }}
                   className="text-white hover:text-gray-300 transition-colors"
                 >
                   {React.createElement(getVolumeIcon(), { size: isMobile ? 20 : 24 })}
