@@ -22,7 +22,7 @@ class LatestDashboardController extends Controller
             
         }
         // dd($genre);
-        return Inertia::render('NewLayout',
+        return Inertia::render('LatestDashboard',
             [
                 'genre' => $genre,
             ]

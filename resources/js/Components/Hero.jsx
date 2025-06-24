@@ -20,6 +20,7 @@ const Hero = () => {
         }
     };
 
+
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.play().catch((err) => {

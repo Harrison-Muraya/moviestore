@@ -7,6 +7,22 @@ const MovieRow = ({ category, rowIndex }) => {
     const [hoveredItem, setHoveredItem] = useState(null);
     const rowRefs = useRef({});
 
+        const scroll = (direction, rowIndex) => {
+        const rowRef = rowRefs.current[rowIndex];
+        if (rowRef) {
+            const scrollAmount = 300;
+            const currentScroll = rowRef.scrollLeft;
+            const newPosition = direction === 'left'
+                ? currentScroll - scrollAmount
+                : currentScroll + scrollAmount;
+
+            rowRef.scrollTo({
+                left: newPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
          <div className="px-4 md:px-12 group mb-8">
             <h2 className="text-xl md:text-2xl font-semibold mb-4 text-white">
