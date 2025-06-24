@@ -1,16 +1,28 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Info, Volume2, VolumeX } from 'lucide-react';
 
-const Hero = () => {
+const Hero = ({ randomMovie, isLoading = false }) => {
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
 
+    console.log("Random Movie from Hero:", randomMovie);
+
+    // Early return if still loading or no movie data
+    if (isLoading || !randomMovie) {
+        return (
+            <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+                <div className="text-white text-xl">Loading...</div>
+            </section>
+        );
+    }
+
     const heroContent = {
-        title: "Stranger Things",
-        description:
+        title: randomMovie.title || "Stranger Things",
+        description: randomMovie.description ||
             "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.",
-        videoUrl:
-            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        videoUrl: randomMovie.trailer_path?.startsWith('http') 
+            ? randomMovie.trailer_path 
+            : `/storage/${randomMovie.trailer_path}`
     };
 
     const toggleMute = () => {
@@ -20,46 +32,52 @@ const Hero = () => {
         }
     };
 
-
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.play().catch((err) => {
-                console.log("Auto-play was prevented:", err);
-            });
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (videoRef.current && heroContent.videoUrl) {
+    //         videoRef.current.play().catch((err) => {
+    //             console.log("Auto-play was prevented:", err);
+    //         });
+    //     }
+    // }, [heroContent.videoUrl]);
 
     return (
         <section className="relative h-screen flex items-center overflow-hidden">
             {/* Background Video */}
-            <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
-                autoPlay
-                muted={isMuted}
-                loop
-                playsInline
-            >
-                <source src={heroContent.videoUrl} type="video/mp4" />
-                {/* Fallback background */}
-                {/* Note: You can't place a <div> inside <video> */}
-            </video>
+            {heroContent.videoUrl && (
+                <video
+                    ref={videoRef}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    muted={isMuted}
+                    loop
+                    playsInline
+                >
+                    <source src={heroContent.videoUrl} type="video/mp4" />
+                </video>
+            )}
+
+            {/* Fallback background if no video */}
+            {!heroContent.videoUrl && (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black" />
+            )}
 
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
 
-            {/* Mute/Unmute Button */}
-            <button
-                onClick={toggleMute}
-                className="absolute top-1/2 right-8 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-3 rounded-full transition-all duration-300 border border-white border-opacity-50 hover:border-opacity-100"
-            >
-                {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-            </button>
+            {/* Mute/Unmute Button - Only show if there's a video */}
+            {heroContent.videoUrl && (
+                <button
+                    onClick={toggleMute}
+                    className="absolute top-1/2 right-8 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-80 text-white p-3 rounded-full transition-all duration-300 border border-white border-opacity-50 hover:border-opacity-100"
+                >
+                    {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                </button>
+            )}
 
             {/* Hero Text Content */}
             <div className="relative z-10 max-w-2xl px-4 ml-4">
-                <h1 className="text-6xl font-bold mb-4">{heroContent.title}</h1>
-                <p className="text-lg mb-8 leading-relaxed">{heroContent.description}</p>
+                <h1 className="text-6xl font-bold mb-4 capitalize text-white">{heroContent.title}</h1>
+                <p className="text-lg mb-8 leading-relaxed text-white">{heroContent.description}</p>
 
                 <div className="flex gap-4">
                     <button className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
@@ -71,20 +89,20 @@ const Hero = () => {
                         More Info
                     </button>
                 </div>
+
                 {/* Age Rating and Genre Info */}
-                <div className="bottom-40 left-4 z-10 flex items-center mt-8 gap-4 text-sm">
-                    <span className="bg-red-600 px-2 py-1 rounded text-white font-bold">TV-14</span>
-                    <span className="text-white">Sci-Fi • Drama • Thriller</span>
-                    <span className="text-gray-300">2016</span>
+                <div className="mt-8 flex items-center gap-4 text-sm">
+                    <span className="bg-red-600 px-2 py-1 rounded text-white font-bold">
+                        {randomMovie.rating || "TV-14"}
+                    </span>
+                    <span className="text-white">
+                        {randomMovie.genre || "Sci-Fi • Drama • Thriller"}
+                    </span>
+                    <span className="text-gray-300">
+                        {randomMovie.year || "2016"}
+                    </span>
                 </div>
             </div>
-
-            {/* Age Rating and Genre Info */}
-            {/* <div className="absolute bottom-40 left-4 z-10 flex items-center gap-4 text-sm">
-                <span className="bg-red-600 px-2 py-1 rounded text-white font-bold">TV-14</span>
-                <span className="text-white">Sci-Fi • Drama • Thriller</span>
-                <span className="text-gray-300">2016</span>
-            </div> */}
         </section>
     );
 };

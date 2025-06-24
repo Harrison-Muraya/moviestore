@@ -6,7 +6,7 @@ const Header = () => {
         <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black to-transparent px-4 py-4">
             <div className="flex items-center justify-between max-w-7xl mx-auto">
                 <div className="flex items-center gap-8">
-                    <h1 className="text-red-600 text-3xl font-bold">NETFLIX</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-red-600 tracking-wider">ALPHA</h1>
                     <nav className="hidden md:flex gap-6">
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">Home</a>
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">TV Shows</a>

@@ -4,7 +4,7 @@ import { Play, Info } from 'lucide-react';
 
 
 const MovieCard = ({ movie, index, hoveredItem, setHoveredItem  }) => {
-    console.log("Movie:", movie);
+    // console.log("Movie:", movie);
     return (
         <div
             className="relative flex-shrink-0 w-48 h-72 bg-gray-800 rounded-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-110 hover:z-10"

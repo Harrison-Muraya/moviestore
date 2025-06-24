@@ -6,61 +6,41 @@ import Footer from "@/Components/Footer";
 import { usePage } from '@inertiajs/react';
 
 const AlphaMovies = () => {
-    const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
     const rowRefs = useRef({});
+
+    const [randomMovie, setRandomMovie] = useState(null);
 
     // Initialize rowRefs for each movie category
     const { genre } = usePage().props;
 
-    // console.log("Movies:", genre);
 
-     // const movieCategories = [
-    //     {
-    //         title: "Trending Now",
-    //         movies: [
-    //             { id: 1, title: "The Crown", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" },
-    //             { id: 2, title: "Ozark", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" },
-    //             { id: 3, title: "The Witcher", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
-    //             { id: 4, title: "Bridgerton", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
-    //             { id: 5, title: "Money Heist", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    //             { id: 6, title: "Dark", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" }
-    //         ]
-    //     },
-    //     {
-    //         title: "Netflix Originals",
-    //         movies: [
-    //             { id: 7, title: "House of Cards", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" },
-    //             { id: 8, title: "Orange Is the New Black", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
-    //             { id: 9, title: "Narcos", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
-    //             { id: 10, title: "The Umbrella Academy", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    //             { id: 11, title: "Squid Game", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" },
-    //             { id: 12, title: "Wednesday", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" }
-    //         ]
-    //     },
-    //     {
-    //         title: "Action",
-    //         movies: [
-    //             { id: 13, title: "Extraction", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
-    //             { id: 14, title: "6 Underground", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
-    //             { id: 15, title: "The Old Guard", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    //             { id: 16, title: "Triple Frontier", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" },
-    //             { id: 17, title: "Bird Box", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" },
-    //             { id: 18, title: "The Platform", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" }
-    //         ]
-    //     },
-    //     {
-    //         title: "Adventure",
-    //         movies: [
-    //             { id: 13, title: "Extraction", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" },
-    //             { id: 14, title: "6 Underground", image: "https://images.unsplash.com/photo-1594736797933-d0db3ac3295d?w=300&h=450&fit=crop" },
-    //             { id: 15, title: "The Old Guard", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    //             { id: 16, title: "Triple Frontier", image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=450&fit=crop" },
-    //             { id: 17, title: "Bird Box", image: "https://images.unsplash.com/photo-1489599735734-79b1df2ebeeb?w=300&h=450&fit=crop" },
-    //             { id: 18, title: "The Platform", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop" }
-    //         ]
-    //     }
-    // ];
+    // this picks a random movie from the genre list
+    // and sets it to the randomMovie state
+    useEffect(() => {
+        if (genre.length > 0) {
+            // Pick a random genre
+            // const randomGenreIndex = Math.floor(Math.random() * genre.length);
+            // const selectedGenre = genre[randomGenreIndex];
+            const selectedGenre = genre[0];
+            // console.log('Selected Genre:', selectedGenre);
+
+            // Check if the selected genre has movies
+            if (selectedGenre.movies.length > 0) {
+                // Pick a random movie from that genre
+                const randomMovieIndex = Math.floor(Math.random() * selectedGenre.movies.length);
+                const selectedMovie = selectedGenre.movies[randomMovieIndex];
+                // console.log('Selected Movie aftre selecting genre:', selectedMovie);
+
+                setRandomMovie(selectedMovie);
+            }
+        }
+    }, [genre]);
+
+
+
+    // console.log('randomMovie:', randomMovie);
+
 
     return (
         <div className="bg-black min-h-screen text-white">
@@ -69,7 +49,7 @@ const AlphaMovies = () => {
             <Header />
 
             {/* Hero Section */}
-            <Hero />
+            <Hero randomMovie={randomMovie} />
 
             {/* Movie Rows */}
             <main className="relative z-10 -mt-36">
