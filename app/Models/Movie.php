@@ -28,7 +28,7 @@ class Movie extends Model
     // Relationships
     public function genres()
     {
-        return $this->belongsToMany(Genre::class);
+        return $this->belongsToMany(Genre::class, 'genre_movie');
     }
 
     public function seasons()
