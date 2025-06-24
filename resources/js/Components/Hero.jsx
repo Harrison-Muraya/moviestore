@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Info, Volume2, VolumeX } from 'lucide-react';
 
-const Hero = ({ randomMovie, isLoading = false }) => {
+const Hero = ({ randomMovie, isLoading = false , playlist}) => {
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
 
-    console.log("Random Movie from Hero:", randomMovie);
+    // console.log("Random Movie from Hero:", randomMovie);
+    console.log('playlist at hero', playlist);
 
     // Early return if still loading or no movie data
     if (isLoading || !randomMovie) {

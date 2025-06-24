@@ -5,7 +5,7 @@ import {
   Download, Share, MoreHorizontal, ChevronDown, Minimize
 } from 'lucide-react';
 
-const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
+const VideoPlayer = ({ movie, onClose, isOpen = true, playlist = [], currentIndex = 0, onVideoChange, autoPlayNext = true }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -25,6 +25,10 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
   const [buffered, setBuffered] = useState(0);
   const [isBuffering, setIsBuffering] = useState(false);
   const [showSkipAnimation, setShowSkipAnimation] = useState({ show: false, direction: '' });
+
+  const [showNextVideoOverlay, setShowNextVideoOverlay] = useState(false);
+  const [nextVideoCountdown, setNextVideoCountdown] = useState(0);
+  const [countdownIntervalRef, setCountdownIntervalRef] = useState(null);
 
   // From your movie listing page
   const currentUrl = window.location.pathname + window.location.search;
@@ -58,6 +62,91 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
       window.history.back(); // Fallback
     }
   };
+
+  //------------------------------------------------------------------------------------------
+
+  // make it play next video when the current video ends
+  const handleVideoEnd = () => {
+    console.log('Video ended');
+    setIsPlaying(false);
+
+    if (autoPlayNext && playlist.length > 0 && currentIndex < playlist.length - 1) {
+      // Show "Playing next in X seconds" overlay
+      setShowNextVideoOverlay(true);
+      setNextVideoCountdown(5); // 5 second countdown
+
+      // Start countdown
+      const countdownInterval = setInterval(() => {
+        setNextVideoCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            playNextVideo();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Store interval ref to allow cancellation
+      setCountdownIntervalRef(countdownInterval);
+    } else {
+      // No next video available or autoplay disabled
+      setProgress(0);
+      console.log('Playlist ended or autoplay disabled');
+    }
+  };
+
+  const playNextVideo = () => {
+    if (currentIndex < playlist.length - 1) {
+      const nextIndex = currentIndex + 1;
+      const nextMovie = playlist[nextIndex];
+
+      // Reset video states
+      setProgress(0);
+      setDuration(0);
+      setIsLoading(true);
+      setShowNextVideoOverlay(false);
+
+      // Notify parent component about video change
+      if (onVideoChange) {
+        onVideoChange(nextMovie, nextIndex);
+      }
+    }
+  };
+
+  const cancelAutoPlay = () => {
+    if (countdownIntervalRef) {
+      clearInterval(countdownIntervalRef);
+      setCountdownIntervalRef(null);
+    }
+    setShowNextVideoOverlay(false);
+    setNextVideoCountdown(0);
+  };
+
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // ... your existing event listeners ...
+
+    const handleEnded = () => handleVideoEnd();
+
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      // ... your existing cleanup ...
+      video.removeEventListener('ended', handleEnded);
+
+      // Clean up countdown interval
+      if (countdownIntervalRef) {
+        clearInterval(countdownIntervalRef);
+      }
+    };
+  }, [duration, currentIndex, playlist.length, autoPlayNext]);
+
+  //-------------------------------------------------------------------------------------------------
+
 
   // Auto-play video on mount
   useEffect(() => {
@@ -827,6 +916,44 @@ const VideoPlayer = ({ movie, onClose, isOpen = true }) => {
           </div>
         )}
       </div>
+      {/* Next Video Overlay */}
+      {showNextVideoOverlay && playlist[currentIndex + 1] && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
+          <div className="text-center text-white max-w-md mx-4">
+            <div className="mb-4">
+              <div className="text-6xl font-bold text-red-500 mb-2">
+                {nextVideoCountdown}
+              </div>
+              <p className="text-lg mb-2">Playing next video in</p>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-4 mb-6">
+              <h3 className="font-bold text-lg mb-1">
+                {playlist[currentIndex + 1].title}
+              </h3>
+              <p className="text-gray-400 text-sm">
+                {playlist[currentIndex + 1].year} • {playlist[currentIndex + 1].duration}
+              </p>
+            </div>
+
+            <div className="flex space-x-4 justify-center">
+              <button
+                onClick={playNextVideo}
+                className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded font-semibold transition-colors"
+              >
+                Play Now
+              </button>
+              <button
+                onClick={cancelAutoPlay}
+                className="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-semibold transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

@@ -38,6 +38,8 @@ class LatestDashboardController extends Controller
     {
 
         $movie = \App\Models\Movie::with('genres')->find($id);
+        $playlist = \App\Models\Movie::where('id', '!=', $id)->limit(10)->get();
+
         if (!$movie) {
             Log::error('Movie not found', ['id' => $id]);
             return Inertia::render('Error', [
@@ -48,6 +50,7 @@ class LatestDashboardController extends Controller
          return Inertia::render('NewVideoPlayer',
             [
                 'movie' => $movie,
+                'playlist' => $playlist,
             ]
         );
     }

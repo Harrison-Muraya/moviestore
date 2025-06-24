@@ -9,10 +9,30 @@ const AlphaMovies = () => {
     const videoRef = useRef(null);
     const rowRefs = useRef({});
 
+    const [currentMovieIndex, setCurrentMovieIndex] = useState(0);
     const [randomMovie, setRandomMovie] = useState(null);
+    const [isPlayerOpen, setIsPlayerOpen] = useState(false);
 
+    const handleClose = () => { // Add missing function
+        setIsPlayerOpen(false);
+    };
     // Initialize rowRefs for each movie category
-    const { genre } = usePage().props;
+    const { genre, } = usePage().props;
+    const { playlist, } = usePage().props;
+
+    const handleVideoChange = (newMovie, newIndex) => {
+        setCurrentMovieIndex(newIndex);
+        // You might also want to update URL or other state here
+    };
+
+    // const [moviePlaylist, setMoviePlaylist] = useState([
+    //     // Your movies array
+    //     { id: 1, title: "Movie 1", video_path: "path1.mp4", year: "2024", duration: "2h 15m" },
+    //     { id: 2, title: "Movie 2", video_path: "path2.mp4", year: "2024", duration: "1h 45m" },
+    //     // ... more movies
+    // ]);
+
+    // const [moviePlaylist, setMoviePlaylist] = useState([playlist])
 
 
     // this picks a random movie from the genre list
@@ -30,17 +50,17 @@ const AlphaMovies = () => {
                 // Pick a random movie from that genre
                 const randomMovieIndex = Math.floor(Math.random() * selectedGenre.movies.length);
                 const selectedMovie = selectedGenre.movies[randomMovieIndex];
-                // console.log('Selected Movie aftre selecting genre:', selectedMovie);
-
+                // console.log('Selected Movie aftre selecting genre:', selectedMovie.id);
                 setRandomMovie(selectedMovie);
             }
         }
     }, [genre]);
 
-
+    // if (!genre || !playlist) {
+    //     return <div className="bg-black min-h-screen text-white">Loading...</div>;
+    // }
 
     // console.log('randomMovie:', randomMovie);
-
 
     return (
         <div className="bg-black min-h-screen text-white">
@@ -49,12 +69,25 @@ const AlphaMovies = () => {
             <Header />
 
             {/* Hero Section */}
-            <Hero randomMovie={randomMovie} />
+            {/* <Hero randomMovie={randomMovie} /> */}
+
+            {/* Hero Section - only render when randomMovie is available */}
+            {randomMovie && <Hero randomMovie={randomMovie} />}
 
             {/* Movie Rows */}
             <main className="relative z-10 -mt-36">
                 {genre.map((category, id) => (
-                    <MovieRow key={id} category={category} rowIndex={id} />
+                    <MovieRow key={id}
+                        category={category}
+                        playlist={playlist}
+                        movie={randomMovie}
+                        currentIndex={currentMovieIndex}
+                        onVideoChange={handleVideoChange}
+                        onClose={handleClose}
+                        autoPlayNext={true}
+                        isOpen={isPlayerOpen}
+                        rowIndex={id}
+                    />
                 ))}
             </main>
 
