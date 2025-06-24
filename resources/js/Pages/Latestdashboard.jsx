@@ -13,7 +13,7 @@ const AlphaMovies = () => {
     // Initialize rowRefs for each movie category
     const { genre } = usePage().props;
 
-    console.log("Movies:", genre);
+    // console.log("Movies:", genre);
 
      // const movieCategories = [
     //     {

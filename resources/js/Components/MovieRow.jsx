@@ -7,7 +7,9 @@ const MovieRow = ({ category, rowIndex }) => {
     const [hoveredItem, setHoveredItem] = useState(null);
     const rowRefs = useRef({});
 
-        const scroll = (direction, rowIndex) => {
+    // console.log("Category:", category);
+
+    const scroll = (direction, rowIndex) => {
         const rowRef = rowRefs.current[rowIndex];
         if (rowRef) {
             const scrollAmount = 300;
@@ -24,9 +26,9 @@ const MovieRow = ({ category, rowIndex }) => {
     };
 
     return (
-         <div className="px-4 md:px-12 group mb-8">
+        <div className="px-4 md:px-12 group mb-8">
             <h2 className="text-xl md:text-2xl font-semibold mb-4 text-white">
-                {category.title}
+                {category.name || 'Untitled Category'}
             </h2>
 
             <div className="relative">
@@ -42,10 +44,10 @@ const MovieRow = ({ category, rowIndex }) => {
                     className="flex space-x-4 overflow-x-scroll scrollbar-hide scroll-smooth"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {category.movies.map((movie, index) => (
+                    {category.movies.map((movie, id) => (
                         <MovieCard key={movie.id}
                             movie={movie}
-                            index={index}
+                            index={id}
                             hoveredItem={hoveredItem}
                             setHoveredItem={setHoveredItem} />
                     ))}
