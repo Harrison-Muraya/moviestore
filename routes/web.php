@@ -21,7 +21,11 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
-Route::get('/latestdashboard', [LatestDashboardController::class, 'dashboard'])->name('latestdashboard');
+Route::controller(LatestDashboardController::class)->group(function () {
+    Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
+    Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
+});
+// Route::get('/latestdashboard', [LatestDashboardController::class, 'dashboard'])->name('latestdashboard');
 
 // routes/api.php or routes/web.php
 Route::get('/api/genres', function () {

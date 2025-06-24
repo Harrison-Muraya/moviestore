@@ -29,6 +29,29 @@ class LatestDashboardController extends Controller
         );
     }
 
+    /**
+     * Fetch movies with genres.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function findMovie($id): Response
+    {
+
+        $movie = \App\Models\Movie::with('genres')->find($id);
+        if (!$movie) {
+            Log::error('Movie not found', ['id' => $id]);
+            return Inertia::render('Error', [
+                'message' => 'Movie not found.',
+            ]);
+        }
+
+         return Inertia::render('NewVideoPlayer',
+            [
+                'movie' => $movie,
+            ]
+        );
+    }
+
 
     public function getMovies()
     {

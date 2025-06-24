@@ -79,11 +79,11 @@ const Hero = ({ randomMovie, isLoading = false }) => {
                 <h1 className="text-6xl font-bold mb-4 capitalize text-white">{heroContent.title}</h1>
                 <p className="text-lg mb-8 leading-relaxed text-white">{heroContent.description}</p>
 
-                <div className="flex gap-4">
-                    <button className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
+                <div  className="flex gap-4">
+                    <a href={route('newvideo.player', { id: randomMovie.id })} className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
                         <Play size={24} />
                         Play
-                    </button>
+                    </a>
                     <button className="bg-gray-600 bg-opacity-70 text-white px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-500 hover:bg-opacity-70 transition-colors">
                         <Info size={24} />
                         More Info
@@ -95,8 +95,9 @@ const Hero = ({ randomMovie, isLoading = false }) => {
                     <span className="bg-red-600 px-2 py-1 rounded text-white font-bold">
                         {randomMovie.rating || "TV-14"}
                     </span>
-                    <span className="text-white">
-                        {randomMovie.genre || "Sci-Fi • Drama • Thriller"}
+                    <span className="text-white capitalize">
+                        {/* {randomMovie.genres[0].name || "Sci-Fi • Drama • Thriller"} */}
+                        {randomMovie?.genres?.map(g => g.name).join(' • ') || "Sci-Fi • Drama • Thriller"}
                     </span>
                     <span className="text-gray-300">
                         {randomMovie.year || "2016"}
