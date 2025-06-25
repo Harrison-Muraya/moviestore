@@ -21,10 +21,10 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
-Route::controller(LatestDashboardController::class)->group(function () {
-    Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
-    Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
-});
+// Route::controller(LatestDashboardController::class)->group(function () {
+//     Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
+//     Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
+// });
 // Route::get('/latestdashboard', [LatestDashboardController::class, 'dashboard'])->name('latestdashboard');
 
 // routes/api.php or routes/web.php
@@ -50,6 +50,13 @@ Route::middleware('auth')->group(function () {
     });
 });
 Route::middleware('auth')->group(function () {
+
+    Route::controller(LatestDashboardController::class)->group(function () {
+        Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
+        Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
+    });
+
+
     Route::controller(NewDashboardController::class)->group(function () {
         Route::get('/newlayout',  'dashboard')->name('dashboard');
         Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');    
