@@ -23,7 +23,7 @@ function MovieList() {
             <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
             <div className="relative grid grid-flow-row px-32  z-30 overflow-auto h-screen">
                 <div className="flex bg-white/20 backdrop-blur-sm p-2 mt-2 rounded-lg shadow-lg justify-center items-center">
-                    <Link href={route('dashboard')} className="text-red-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
+                    <Link href={route('latestdashboard')} className="text-red-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
                         ALPHA <span className="text-red-600">.</span>
                     </Link>
                 </div>
