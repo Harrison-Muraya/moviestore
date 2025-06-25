@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, Bell, User } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 const Header = () => {
     return (
@@ -10,7 +11,7 @@ const Header = () => {
                     <nav className="hidden md:flex gap-6">
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">Home</a>
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">TV Shows</a>
-                        <a href="#" className="text-white hover:text-gray-300 transition-colors">Movies</a>
+                        <Link href={route('movieList')} className="text-white hover:text-gray-300 transition-colors">Movies</Link>
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">New & Popular</a>
                         <a href="#" className="text-white hover:text-gray-300 transition-colors">My List</a>
                     </nav>
