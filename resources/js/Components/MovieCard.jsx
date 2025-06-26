@@ -31,11 +31,11 @@ const MovieCard = ({ movie, index, hoveredItem, setHoveredItem }) => {
                         </button>
                     </div>
                     {/* Hover Play Button */}
-                    <Link href={route('newvideo.player', { id: movie.id })} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <a href={route('newvideo.player', { id: movie.id })} className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                             <Play className="w-8 h-8 text-white fill-current" />
                         </div>
-                    </Link>
+                    </a>
                 </div>
             )}
         </div>

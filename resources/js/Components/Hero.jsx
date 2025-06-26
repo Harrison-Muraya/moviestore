@@ -6,7 +6,7 @@ const Hero = ({ randomMovie, isLoading = false , playlist}) => {
     const videoRef = useRef(null);
 
     // console.log("Random Movie from Hero:", randomMovie);
-    console.log('playlist at hero', playlist);
+    // console.log('playlist at hero', randomMovie);
 
     // Early return if still loading or no movie data
     if (isLoading || !randomMovie) {
@@ -21,10 +21,10 @@ const Hero = ({ randomMovie, isLoading = false , playlist}) => {
         title: randomMovie.title || "Stranger Things",
         description: randomMovie.description ||
             "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.",
-        videoUrl: randomMovie.trailer_path?.startsWith('http') 
-            ? randomMovie.trailer_path 
-            : `/storage/${randomMovie.trailer_path}`
+        // videoUrl: randomMovie.trailer_path?.startsWith('http') ? randomMovie.trailer_path : `/storage/${randomMovie.trailer_path}`
+        videoUrl: randomMovie.video_path?.startsWith('http') ? randomMovie.video_path : `/storage/${randomMovie.video_path}`
     };
+    
 
     const toggleMute = () => {
         if (videoRef.current) {
@@ -53,6 +53,7 @@ const Hero = ({ randomMovie, isLoading = false , playlist}) => {
                     loop
                     playsInline
                 >
+                    {/* <source src={randomMovie.thumbnail?.startsWith('http') ? randomMovie.thumbnail : `/storage/${randomMovie.thumbnail}`} type="video/mp4" /> */}
                     <source src={heroContent.videoUrl} type="video/mp4" />
                 </video>
             )}
