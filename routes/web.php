@@ -57,10 +57,10 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    Route::controller(NewDashboardController::class)->group(function () {
-        Route::get('/newlayout',  'dashboard')->name('dashboard');
-        Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');    
-    }); 
+    // Route::controller(NewDashboardController::class)->group(function () {
+    //     Route::get('/newlayout',  'dashboard')->name('dashboard');
+    //     Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');    
+    // }); 
 
 
 
