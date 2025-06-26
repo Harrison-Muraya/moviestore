@@ -47,7 +47,7 @@ class LatestDashboardController extends Controller
             ]);
         }
 
-         return Inertia::render('NewVideoPlayer',
+         return Inertia::render('Player',
             [
                 'movie' => $movie,
                 'playlist' => $playlist,
@@ -88,7 +88,7 @@ class LatestDashboardController extends Controller
                 'message' => 'Movie not found.',
             ]);
         }
-        return Inertia::render('NewVideoPlayer',
+        return Inertia::render('Player',
             [
                 'movie' => $movie,
             ]
