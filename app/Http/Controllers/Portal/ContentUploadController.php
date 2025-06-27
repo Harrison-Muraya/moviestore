@@ -251,4 +251,387 @@ class ContentUploadController extends Controller
 
         return response()->json($query->paginate(12));
     }
+
+
+
+
+    public function update(Request $request, Movie $movie)
+    {
+        Log::info('Update request data:', [
+            'movie_id' => $movie->id,
+            'all' => $request->all(),
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'has_files' => $request->hasFile('thumbnail'),
+        ]);
+
+        try {
+            $request->validate([
+                // Basic content information
+                'title' => 'string|max:255',
+                'type' => 'nullable|in:movie,series',
+                'genres' => 'nullable|array|min:1',
+                'genres.*' => 'exists:genres,id',
+                'description' => 'nullable|string|max:2000',
+                'year' => 'nullable|numeric|min:1900|max:' . (date('Y') + 5),
+                'language' => 'nullable|string|max:10',
+                'country' => 'nullable|string|max:100',
+                'rating' => 'nullable|numeric|min:0|max:10',
+                
+                // Cast members
+                'cast' => 'nullable|array',
+                'cast.*' => 'string|max:255',
+                
+                // Optional files for update
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400',
+                'trailer' => 'nullable|file|mimetypes:video/*|max:102400',
+                
+                // Movie specific fields
+                'duration' => 'required_if:type,movie|nullable|string|max:20',
+                'video' => 'nullable|file|mimetypes:video/*|max:2048000',
+                
+                // Series specific fields
+                'seasons' => 'required_if:type,series|nullable|array|min:1',
+                'seasons.*.id' => 'nullable|exists:seasons,id',
+                'seasons.*.season_number' => 'required|integer|min:1',
+                'seasons.*.title' => 'nullable|string|max:255',
+                'seasons.*.description' => 'nullable|string|max:1000',
+                'seasons.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'seasons.*.delete' => 'nullable|boolean',
+                
+                // Episodes validation
+                'seasons.*.episodes' => 'required|array|min:1',
+                'seasons.*.episodes.*.id' => 'nullable|exists:episodes,id',
+                'seasons.*.episodes.*.episode_number' => 'required|integer|min:1',
+                'seasons.*.episodes.*.title' => 'required|string|max:255',
+                'seasons.*.episodes.*.description' => 'nullable|string|max:1000',
+                'seasons.*.episodes.*.duration' => 'nullable|string|max:20',
+                'seasons.*.episodes.*.video' => 'nullable|file|mimetypes:video/*|max:2048000',
+                'seasons.*.episodes.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'seasons.*.episodes.*.delete' => 'nullable|boolean',
+            ]);
+
+            Log::info(['Update form data season: ', $request->seasons]);
+
+        } catch (ValidationException $e) {
+            Log::error('Update validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+            ]);
+            throw $e;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Update movie/series
+            $this->updateMovie($movie, $request);
+
+            // Handle genres relationship
+            if ($request->has('genres')) {
+                $movie->genres()->sync($request->genres);
+            }
+
+            if ($request->type === 'series' && $request->has('seasons')) {
+                $this->updateSeries($movie, $request->seasons);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => ucfirst($request->type ?? $movie->type) . ' updated successfully!',
+                'data' => $movie->fresh()->load(['genres', 'seasons.episodes'])
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Update error:', [$e->getMessage()]);
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating content: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function updateMovie(Movie $movie, Request $request)
+    {
+        $updateData = [];
+
+        // Update basic fields if provided
+        $fields = ['title', 'type', 'description', 'year', 'language', 'country', 'rating', 'duration'];
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                $updateData[$field] = $request->$field;
+            }
+        }
+
+        // Update cast if provided
+        if ($request->has('cast')) {
+            $updateData['cast'] = $request->cast;
+        }
+
+        // Update slug if title or year changed
+        if ($request->has('title') || $request->has('year')) {
+            $title = $request->title ?? $movie->title;
+            $year = $request->year ?? $movie->year;
+            $updateData['slug'] = Str::slug($title . '-' . $year);
+        }
+
+        // Handle file uploads
+        if ($request->hasFile('thumbnail')) {
+            // Delete old thumbnail
+            if ($movie->thumbnail) {
+                Storage::disk('public')->delete($movie->thumbnail);
+            }
+            $updateData['thumbnail'] = $this->uploadFile($request->file('thumbnail'), 'thumbnails');
+        }
+
+        if ($request->hasFile('trailer')) {
+            // Delete old trailer
+            if ($movie->trailer_path) {
+                Storage::disk('public')->delete($movie->trailer_path);
+            }
+            $updateData['trailer_path'] = $this->uploadFile($request->file('trailer'), 'trailers');
+        }
+
+        if ($request->hasFile('video')) {
+            // Delete old video
+            if ($movie->video_path) {
+                Storage::disk('public')->delete($movie->video_path);
+            }
+            $updateData['video_path'] = $this->uploadFile($request->file('video'), 'videos');
+        }
+
+        // Update totals for series
+        if ($request->type === 'series' && $request->has('seasons')) {
+            $updateData['total_seasons'] = count($request->seasons);
+            $updateData['total_episodes'] = collect($request->seasons)->sum(fn($season) => count($season['episodes'] ?? []));
+        }
+
+        $movie->update($updateData);
+    }
+
+    private function updateSeries($movie, $seasonsData)
+    {
+        $existingSeasonIds = [];
+
+        foreach ($seasonsData as $seasonData) {
+            // Check if this season should be deleted
+            if (isset($seasonData['delete']) && $seasonData['delete']) {
+                if (isset($seasonData['id'])) {
+                    $this->deleteSeason($seasonData['id']);
+                }
+                continue;
+            }
+
+            if (isset($seasonData['id'])) {
+                // Update existing season
+                $season = Season::find($seasonData['id']);
+                if ($season) {
+                    $this->updateSeason($season, $seasonData);
+                    $existingSeasonIds[] = $season->id;
+                }
+            } else {
+                // Create new season
+                $season = $this->createSeason($movie, $seasonData);
+                $existingSeasonIds[] = $season->id;
+            }
+        }
+
+        // Delete seasons that are no longer in the request
+        Season::where('movie_id', $movie->id)
+            ->whereNotIn('id', $existingSeasonIds)
+            ->each(function ($season) {
+                $this->deleteSeason($season->id);
+            });
+    }
+
+    private function updateSeason($season, $seasonData)
+    {
+        $updateData = [];
+
+        $fields = ['season_number', 'title', 'description'];
+        foreach ($fields as $field) {
+            if (isset($seasonData[$field])) {
+                $updateData[$field] = $seasonData[$field];
+            }
+        }
+
+        // Handle season thumbnail
+        if (isset($seasonData['thumbnail']) && is_file($seasonData['thumbnail'])) {
+            // Delete old thumbnail
+            if ($season->thumbnail) {
+                Storage::disk('public')->delete($season->thumbnail);
+            }
+            $updateData['thumbnail'] = $this->uploadFile($seasonData['thumbnail'], 'seasons');
+        }
+
+        // Update episode count
+        if (isset($seasonData['episodes'])) {
+            $updateData['total_episodes'] = count($seasonData['episodes']);
+        }
+
+        $season->update($updateData);
+
+        // Update episodes
+        if (isset($seasonData['episodes'])) {
+            $this->updateEpisodes($season, $season->movie, $seasonData['episodes']);
+        }
+    }
+
+    private function createSeason($movie, $seasonData)
+    {
+        $seasonThumbnail = (isset($seasonData['thumbnail']) && is_file($seasonData['thumbnail']))
+            ? $this->uploadFile($seasonData['thumbnail'], 'seasons')
+            : null;
+
+        $season = Season::create([
+            'movie_id' => $movie->id,
+            'season_number' => $seasonData['season_number'],
+            'title' => $seasonData['title'] ?? null,
+            'description' => $seasonData['description'] ?? null,
+            'thumbnail' => $seasonThumbnail,
+            'total_episodes' => count($seasonData['episodes'] ?? []),
+            'status' => 1
+        ]);
+
+        if (isset($seasonData['episodes'])) {
+            $this->processEpisodes($season, $movie, $seasonData['episodes']);
+        }
+
+        return $season;
+    }
+
+    private function updateEpisodes($season, $movie, $episodesData)
+    {
+        $existingEpisodeIds = [];
+
+        foreach ($episodesData as $episodeData) {
+            // Check if this episode should be deleted
+            if (isset($episodeData['delete']) && $episodeData['delete']) {
+                if (isset($episodeData['id'])) {
+                    $this->deleteEpisode($episodeData['id']);
+                }
+                continue;
+            }
+
+            if (isset($episodeData['id'])) {
+                // Update existing episode
+                $episode = Episode::find($episodeData['id']);
+                if ($episode) {
+                    $this->updateEpisode($episode, $episodeData, $season, $movie);
+                    $existingEpisodeIds[] = $episode->id;
+                }
+            } else {
+                // Create new episode
+                $episode = $this->createEpisode($season, $movie, $episodeData);
+                $existingEpisodeIds[] = $episode->id;
+            }
+        }
+
+        // Delete episodes that are no longer in the request
+        Episode::where('season_id', $season->id)
+            ->whereNotIn('id', $existingEpisodeIds)
+            ->each(function ($episode) {
+                $this->deleteEpisode($episode->id);
+            });
+    }
+
+    private function updateEpisode($episode, $episodeData, $season, $movie)
+    {
+        $updateData = [];
+
+        $fields = ['episode_number', 'title', 'description', 'duration'];
+        foreach ($fields as $field) {
+            if (isset($episodeData[$field])) {
+                $updateData[$field] = $episodeData[$field];
+            }
+        }
+
+        // Update slug if title or episode number changed
+        if (isset($episodeData['title']) || isset($episodeData['episode_number'])) {
+            $title = $episodeData['title'] ?? $episode->title;
+            $episodeNumber = $episodeData['episode_number'] ?? $episode->episode_number;
+            $updateData['slug'] = Str::slug($movie->title . '-s' . $season->season_number . '-e' . $episodeNumber);
+        }
+
+        // Handle video upload
+        if (isset($episodeData['video']) && is_file($episodeData['video'])) {
+            // Delete old video
+            if ($episode->video_path) {
+                Storage::disk('public')->delete($episode->video_path);
+            }
+            $updateData['video_path'] = $this->uploadFile($episodeData['video'], 'episodes');
+        }
+
+        // Handle thumbnail upload
+        if (isset($episodeData['thumbnail']) && is_file($episodeData['thumbnail'])) {
+            // Delete old thumbnail
+            if ($episode->thumbnail) {
+                Storage::disk('public')->delete($episode->thumbnail);
+            }
+            $updateData['thumbnail'] = $this->uploadFile($episodeData['thumbnail'], 'episodes/thumbnails');
+        }
+
+        $episode->update($updateData);
+    }
+
+    private function createEpisode($season, $movie, $episodeData)
+    {
+        $videoPath = isset($episodeData['video']) && is_file($episodeData['video'])
+            ? $this->uploadFile($episodeData['video'], 'episodes')
+            : null;
+
+        $thumbnailPath = (isset($episodeData['thumbnail']) && is_file($episodeData['thumbnail']))
+            ? $this->uploadFile($episodeData['thumbnail'], 'episodes/thumbnails')
+            : null;
+
+        return Episode::create([
+            'season_id' => $season->id,
+            'movie_id' => $movie->id,
+            'episode_number' => $episodeData['episode_number'],
+            'title' => $episodeData['title'],
+            'slug' => Str::slug($movie->title . '-s' . $season->season_number . '-e' . $episodeData['episode_number']),
+            'description' => $episodeData['description'] ?? null,
+            'duration' => $episodeData['duration'] ?? null,
+            'video_path' => $videoPath,
+            'thumbnail' => $thumbnailPath,
+            'status' => 1
+        ]);
+    }
+
+    private function deleteSeason($seasonId)
+    {
+        $season = Season::find($seasonId);
+        if (!$season) return;
+
+        // Delete all episodes in this season
+        $season->episodes()->each(function ($episode) {
+            $this->deleteEpisode($episode->id);
+        });
+
+        // Delete season thumbnail
+        if ($season->thumbnail) {
+            Storage::disk('public')->delete($season->thumbnail);
+        }
+
+        $season->delete();
+    }
+
+    private function deleteEpisode($episodeId)
+    {
+        $episode = Episode::find($episodeId);
+        if (!$episode) return;
+
+        // Delete episode files
+        if ($episode->video_path) {
+            Storage::disk('public')->delete($episode->video_path);
+        }
+        if ($episode->thumbnail) {
+            Storage::disk('public')->delete($episode->thumbnail);
+        }
+
+        $episode->delete();
+    }
 }
