@@ -255,7 +255,7 @@ class ContentUploadController extends Controller
 
     public function showUpdate(): Response
     {
-
+        return Inertia::render('EdidMovie');
     }
 
 
