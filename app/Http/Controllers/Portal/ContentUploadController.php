@@ -31,13 +31,8 @@ class ContentUploadController extends Controller
     {
         $movies = Movie::get();
 
-        // dd($movies);
-
-        $testing = 'felix';
-
         return Inertia::render('MovieList', [
             'movies' => $movies,
-            'testing' => $testing
         ]);
     }
 
