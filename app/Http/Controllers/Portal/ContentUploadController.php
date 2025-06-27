@@ -253,6 +253,11 @@ class ContentUploadController extends Controller
     }
 
 
+    public function showUpdate(): Response
+    {
+
+    }
+
 
 
     public function update(Request $request, Movie $movie)
