@@ -21,7 +21,7 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
-Route::get('/movies/edit', [ContentUploadController::class, 'movieListEdit'])->name('movies.edit');
+Route::get('/movies/edit', [ContentUploadController::class, 'movieListEdit'])->name('movies.edit.list');
 Route::get('/movies/{movie}/edit', [ContentUploadController::class, 'edit'])->name('movies.edit');
 Route::put('/movies/{movie}', [ContentUploadController::class, 'update'])->name('movies.update');
 

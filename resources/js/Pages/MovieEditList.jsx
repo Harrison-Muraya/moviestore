@@ -66,8 +66,8 @@ function MovieList() {
                                                         {movie.description || 'No description available.'}
                                                     </div>
                                                 </div>
-                                                <a href={route('movies.edit', movie.id)} className="absolute bg-red-600 text-gray-100 text-sm rounded-md px-2 py-1 right-0">Edit</a>
-                                                <a href="" className="absolute bg-red-800 text-gray-100 text-sm rounded-md px-2 py-1 right-0 bottom-0">Delete</a>
+                                                <a href={route('movies.edit', movie.id)} className="absolute bg-red-600 hover:bg-red-800 text-gray-100 text-sm rounded-md px-2 py-1 right-0">Edit</a>
+                                                <a href="" className="absolute bg-red-800 hover:bg-red-950 text-gray-100 text-sm rounded-md px-2 py-1 right-0 bottom-0">Delete</a>
                                             </a>
                                         </li>
                                     ))
