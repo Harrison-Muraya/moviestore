@@ -836,24 +836,6 @@ const ContentUploadForm = () => {
                     </>
                 )}
             </button>
-
-            {/* <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
-            >
-                {loading ? (
-                    <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Uploading...
-                    </>
-                ) : (
-                    <>
-                        <Upload className="mr-2" size={16} />
-                        Upload Content
-                    </>
-                )}
-            </button> */}
         </div>
     );
 };
