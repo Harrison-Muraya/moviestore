@@ -253,7 +253,7 @@ class ContentUploadController extends Controller
     }
 
 
-      public function movieListEdit(): Response
+    public function movieListEdit(): Response
     {
         $movies = Movie::get();
 
@@ -265,7 +265,9 @@ class ContentUploadController extends Controller
     public function edit(Movie $movie)
     {
         $movie->load(['genres', 'seasons.episodes']);
-        $genres = Genre::active()->get();
+        $genres = Genre::get();
+
+        // dd($genres);
         
         return Inertia::render('EditMovie', [
             'movie' => $movie,
