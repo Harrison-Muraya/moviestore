@@ -253,12 +253,21 @@ class ContentUploadController extends Controller
     }
 
 
+      public function movieListEdit(): Response
+    {
+        $movies = Movie::get();
+
+        return Inertia::render('MovieEditList', [
+            'movies' => $movies,
+        ]);
+    }
+
     public function edit(Movie $movie)
     {
         $movie->load(['genres', 'seasons.episodes']);
-        $genres = Genre::active()->orderBy('sort_order')->get();
+        $genres = Genre::active()->get();
         
-        return Inertia::render('Movies/Edit', [
+        return Inertia::render('EditMovie', [
             'movie' => $movie,
             'genres' => $genres
         ]);
