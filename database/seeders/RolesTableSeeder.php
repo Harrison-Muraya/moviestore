@@ -22,24 +22,24 @@ class RolesTableSeeder extends Seeder
         ]);
 
         Role::create([
-            "name" => 'Customer',
-            "slug" => 'customer',
-            "module" => 'portal,customer',
-            "authority" => 'customer',
+            "name" => 'User',
+            "slug" => 'user',
+            "module" => 'portal,user',
+            "authority" => 'user',
         ]);
 
-        Role::create([
-            "name" => 'Employee',
-            "slug" => 'employee',
-            "module" => 'portal,employee',
-            "authority" => 'employee',
-        ]);
+        // Role::create([
+        //     "name" => 'Employee',
+        //     "slug" => 'employee',
+        //     "module" => 'portal,employee',
+        //     "authority" => 'employee',
+        // ]);
 
-        Role::create([
-            "name" => 'Farmer',
-            "slug" => 'farmer',
-            "module" => 'portal,Farmer',
-            "authority" => 'farmer',
-        ]);
+        // Role::create([
+        //     "name" => 'Farmer',
+        //     "slug" => 'farmer',
+        //     "module" => 'portal,Farmer',
+        //     "authority" => 'farmer',
+        // ]);
     }
 }
