@@ -26,7 +26,7 @@ class CheckRolePermission
 
         // ? If not logged in, redirect to login page
         if (!$user) {
-            return redirect()->route('account-signin');
+            return redirect()->route('admin');
         }
 
         // ? If logged in but does not have the required role, redirect to not authorized page 401

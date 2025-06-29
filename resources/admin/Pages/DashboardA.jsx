@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import MovieRow from "@/Components/MovieRow";
-import Header from "@/Components/Header";
-import Hero from "@/Components/Hero";
-import Footer from "@/Components/Footer";
+import MovieRow from "../Components/MovieRow";
+import Header from "../Components/Header";
+import Hero from "../Components/Hero";
+import Footer from "../Components/Footer";
 import { usePage } from '@inertiajs/react';
 
 const AlphaMovies = () => {

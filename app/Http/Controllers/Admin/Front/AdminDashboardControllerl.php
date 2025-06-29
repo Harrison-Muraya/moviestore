@@ -24,7 +24,7 @@ class AdminDashboardControllerl extends Controller
             
         }
         // dd($genre);
-        return Inertia::render('Latestdashboard',
+        return Inertia::render('DashboardA',
             [
                 'genre' => $genre,
             ]
@@ -50,7 +50,7 @@ class AdminDashboardControllerl extends Controller
             ]);
         }
 
-         return Inertia::render('Player',
+         return Inertia::render('PlayerA',
             [
                 'movie' => $movie,
                 'playlist' => $playlist,
@@ -93,7 +93,7 @@ class AdminDashboardControllerl extends Controller
                 'message' => 'Movie not found.',
             ]);
         }
-        return Inertia::render('Player',
+        return Inertia::render('PlayerA',
             [
                 'movie' => $movie,
             ]

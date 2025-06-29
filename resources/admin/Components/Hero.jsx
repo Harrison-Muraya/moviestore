@@ -82,7 +82,7 @@ const Hero = ({ randomMovie, isLoading = false , playlist}) => {
                 <p className="text-lg mb-8 leading-relaxed text-white">{heroContent.description}</p>
 
                 <div  className="flex gap-4">
-                    <a href={route('newvideo.player', { id: randomMovie.id })} className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
+                    <a href={route('admin.newvideo.player', { id: randomMovie.id })} className="bg-white text-black px-8 py-3 rounded flex items-center gap-2 font-semibold text-lg hover:bg-gray-200 transition-colors">
                         <Play size={24} />
                         Play
                     </a>

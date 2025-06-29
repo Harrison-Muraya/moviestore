@@ -5,7 +5,7 @@ const Hero = ({ randomMovie }) => {
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
 
-    console.log("Random Movie from Hero:", randomMovie);
+    // console.log("Random Movie from Hero:", randomMovie);
 
     const heroContent = {
         title: randomMovie?.title || "Stranger Things",
