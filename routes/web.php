@@ -53,7 +53,7 @@ Route::controller(DashboardController::class)->group(function () {
    
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'check.permission:user'])->group(function () {
     // Route::controller(ContentUploadController::class)->group(function(){
     //     // Route::get('/upload-movies', 'index')->name('storeview');   
     //     // Route::post('/upload-content', 'store')->name('uploadContent');

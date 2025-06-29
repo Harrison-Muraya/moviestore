@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin')
         ]);
 
-         User::with(['roles'])->create([
+         $user = User::with(['roles'])->create([
             'username' => 'harrison muraya',
             'name' => 'harrison',
             'email' => 'harrison@gmail.com',
@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
 
         // ? Assign roles with ID 1 to the user
         $admin->roles()->attach(1);
+        $user->roles()->attach(2);
 
     }
 }
