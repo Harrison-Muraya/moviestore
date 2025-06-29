@@ -23,14 +23,14 @@ export default function Login({ status, canResetPassword }) {
 
         <div className="flex items-center justify-center h-screen  relative" style={{ backgroundImage: `url(${adminLoginBg})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center', }}>
             {/* <div className="flex items-center justify-center h-screen bg-[url('/images/adminlogin.png')] bg-cover bg-center bg-no-repeat">  */}
-            <div className="absolute inset-0 bg-black opacity-40"></div>
+            {/* <div className="absolute inset-0 bg-black opacity-20"></div> */}
             <div className="relative z-10">
 
                 <form onSubmit={submit}>
                     <div className="flex items-center justify-center">
 
                         <div className="flex justify-center items-center bg-white rounded-md">
-                            <div className="p-8 shadow-lg rounded-xl w-96">
+                            <div className="p-8 shadow-lg rounded-xl" style={{width: '450px'}}>
                                 <h2 className="text-2xl font-bold text-center mb-6">Admin Log In</h2>
 
                                 <div className="mb-4">

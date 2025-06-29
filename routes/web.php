@@ -52,8 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/movie-details/{id}', 'show')->name('movieDetails');    
         Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
     });
-});
-Route::middleware('auth')->group(function () {
+
 
     Route::controller(LatestDashboardController::class)->group(function () {
         Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
