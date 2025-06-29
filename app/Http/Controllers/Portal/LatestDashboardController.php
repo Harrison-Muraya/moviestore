@@ -55,6 +55,15 @@ class LatestDashboardController extends Controller
         );
     }
 
+     public function movieList(): Response
+    {
+        $movies = \App\Models\Movie::get();
+
+        return Inertia::render('MovieList', [
+            'movies' => $movies,
+        ]);
+    }
+
 
     public function getMovies()
     {

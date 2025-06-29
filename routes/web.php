@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\NewDashboardController;
-use App\Http\Controllers\Portal\ContentUploadController;
+use App\Http\Controllers\Admin\Front\ContentUploadController;
 use App\Http\Controllers\Admin\Front\AdminDashboardControllerl;
 use App\Http\Controllers\Portal\LatestDashboardController;
 use App\Http\Controllers\Admin\Front\AdminDashboardController;
@@ -19,13 +19,17 @@ Route::get('/', [WelcomeController::class, 'welcome']);
 Route::controller(AdminDashboardControllerl::class)->group(function () {
     Route::get('/admin/dashboard', 'dashboard')->name('admin.dashboard');
 
+    
+
     // Added CowHealth API endpoint
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');
 });
 
-Route::get('/movies/edit', [ContentUploadController::class, 'movieListEdit'])->name('movies.edit.list');
-Route::get('/movies/{movie}/edit', [ContentUploadController::class, 'edit'])->name('movies.edit');
-Route::put('/movies/{movie}', [ContentUploadController::class, 'update'])->name('movies.update');
+Route::controller(ContentUploadController::class)->group(function () {
+    Route::get('/movies/edit', 'movieListEdit')->name('movies.edit.list');
+    Route::get('/movies/{movie}/edit', 'edit')->name('movies.edit');
+    Route::put('/movies/{movie}', 'update')->name('movies.update');
+});
 
 // Route::controller(LatestDashboardController::class)->group(function () {
 //     Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
@@ -44,36 +48,27 @@ Route::get('/api/genres', function () {
    
 // }); 
 Route::controller(DashboardController::class)->group(function () {
-    // Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
-
     // Added users API endpoint
     Route::get('/get-users', 'getUsers')->name('getUsers');
-    // Route::controller(UserController::class)->group(function () {
-    //     Route::post('/add-user', 'store')->name('user.store');
-    //     Route::delete('/delete-user/{id}', 'destroy')->name('user.destroy');
-    //     Route::put('/update-user/{id}', 'update')->name('user.update');
-    // });
-    // Route::controller(FarmController::class)->group(function () {
-    //     Route::post('/add-farm', 'store')->name('farm.store');
-    //     Route::delete('/delete-farm/{id}', 'destroy')->name('farm.destroy');
-    //     Route::put('/update-farm/{id}', 'update')->name('farm.update');
-    // });
+   
 });
 
 Route::middleware('auth')->group(function () {
-    Route::controller(ContentUploadController::class)->group(function(){
-        Route::get('/upload-movies', 'index')->name('storeview');   
-        Route::post('/upload-content', 'store')->name('uploadContent');
+    // Route::controller(ContentUploadController::class)->group(function(){
+    //     // Route::get('/upload-movies', 'index')->name('storeview');   
+    //     // Route::post('/upload-content', 'store')->name('uploadContent');
 
-        Route::get('/movie-list', 'movieList')->name('movieList');
-        Route::post('/update-movie/{id}', 'update')->name('updateMovie');
-        Route::get('/movie-details/{id}', 'show')->name('movieDetails');    
-        Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
-    });
+    //     // Route::get('/movie-list', 'movieList')->name('movieList');
+
+    //     Route::post('/update-movie/{id}', 'update')->name('updateMovie');
+    //     Route::get('/movie-details/{id}', 'show')->name('movieDetails');    
+    //     Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
+    // });
 
     Route::controller(LatestDashboardController::class)->group(function () {
         Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
         Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
+        Route::get('/movie-list', 'movieList')->name('movieList');
     });
 
     // Route::controller(NewDashboardController::class)->group(function () {

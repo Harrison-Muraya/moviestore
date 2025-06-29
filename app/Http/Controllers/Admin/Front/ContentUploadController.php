@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Portal;
+namespace App\Http\Controllers\Admin\Front;
 
 use Inertia\Inertia;
 use App\Models\Genre;
