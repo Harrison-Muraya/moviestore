@@ -8,6 +8,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\NewDashboardController;
 use App\Http\Controllers\Portal\ContentUploadController;
+use App\Http\Controllers\Admin\Front\AdminDashboardControllerl;
 use App\Http\Controllers\Portal\LatestDashboardController;
 use App\Http\Controllers\Admin\Front\AdminDashboardController;
 
@@ -15,8 +16,8 @@ Route::get('/', [WelcomeController::class, 'welcome']);
 
 // Route::get('/dashboard',[DashboardController::class, 'dashboard'] )->name('dashboard');
 
-Route::controller(AdminDashboardController::class)->group(function () {
-    Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
+Route::controller(AdminDashboardControllerl::class)->group(function () {
+    Route::get('/admin/dashboard', 'dashboard')->name('admin.dashboard');
 
     // Added CowHealth API endpoint
     Route::get('/get-movies', 'getMovies')->name('getmoviedata');

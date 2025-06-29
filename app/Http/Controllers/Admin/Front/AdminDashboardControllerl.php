@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Portal;
+namespace App\Http\Controllers\Admin\Front;
 
 use Inertia\Inertia;
 use Inertia\Response;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 
-class LatestDashboardController extends Controller
+class AdminDashboardControllerl extends Controller
 {
     public function dashboard (): Response
     {
