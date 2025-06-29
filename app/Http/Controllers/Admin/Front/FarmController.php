@@ -47,7 +47,7 @@ public function store(Request $request)
         return redirect()->back()->withErrors(['That user already has a farm registered.']);
     }
 
-    Farm::create($validated);
+    // Farm::create($validated);
 
     return redirect()->back()->with('success', 'Farm registered successfully.');
 }
@@ -74,7 +74,7 @@ public function store(Request $request)
      */
     public function update(Request $request, string $id)
     {
-        $farm = Farm::findOrFail($id);
+        // $farm = Farm::findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -86,7 +86,7 @@ public function store(Request $request)
             'employee_count' => 'nullable|integer',
         ]);
 
-        $farm->update($validated);
+        // $farm->update($validated);
 
     }
 
@@ -95,8 +95,8 @@ public function store(Request $request)
      */
     public function destroy(string $id)
     {
-        $farm = Farm::findOrFail($id);
+        // $farm = Farm::findOrFail($id);
 
-        $farm->delete();
+        // $farm->delete();
     }
 }

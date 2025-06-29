@@ -16,7 +16,10 @@ class AdminDashboardController extends Controller
     {
         Inertia::setRootView('admin');
 
-        return Inertia::render('Admin',);
+        // dd('Admin Dashboard');
+
+        return Inertia::render('Latestdashboard',);
+        // return Inertia::render('Admin',);
     }
 
     public function getUsers()

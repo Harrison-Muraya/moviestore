@@ -41,11 +41,11 @@ class DatabaseSeeder extends Seeder
         // $this->call($movies);
 
         // Add RolesTableSeeder
-        // $roles = RolesTableSeeder::class;
-        // $this->call($roles);
+        $roles = RolesTableSeeder::class;
+        $this->call($roles);
 
         // ? Assign roles with ID 1 to the user
-        // $admin->roles()->attach(1);
+        $admin->roles()->attach(1);
 
     }
 }
