@@ -18,7 +18,7 @@ class AdminDashboardController extends Controller
 
         // dd('Admin Dashboard');
 
-        return Inertia::render('Latestdashboard',);
+        return Inertia::render('Dashboard',);
         // return Inertia::render('Admin',);
     }
 

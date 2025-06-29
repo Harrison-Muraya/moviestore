@@ -26,9 +26,9 @@ Route::controller(AdminDashboardControllerl::class)->group(function () {
 });
 
 Route::controller(ContentUploadController::class)->group(function () {
-    Route::get('/movies/edit', 'movieListEdit')->name('movies.edit.list');
-    Route::get('/movies/{movie}/edit', 'edit')->name('movies.edit');
-    Route::put('/movies/{movie}', 'update')->name('movies.update');
+    Route::get('/admin/movies/edit', 'movieList')->name('movies.edit.list');
+    Route::get('/admin/movies/{movie}/edit', 'edit')->name('movies.edit');
+    Route::put('/admin/movies/{movie}', 'update')->name('movies.update');
 });
 
 // Route::controller(LatestDashboardController::class)->group(function () {
