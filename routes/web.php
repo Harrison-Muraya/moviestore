@@ -9,12 +9,13 @@ use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\NewDashboardController;
 use App\Http\Controllers\Portal\ContentUploadController;
 use App\Http\Controllers\Portal\LatestDashboardController;
+use App\Http\Controllers\Admin\Front\AdminDashboardController;
 
 Route::get('/', [WelcomeController::class, 'welcome']);
 
 // Route::get('/dashboard',[DashboardController::class, 'dashboard'] )->name('dashboard');
 
-Route::controller(DashboardController::class)->group(function () {
+Route::controller(AdminDashboardController::class)->group(function () {
     Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
 
     // Added CowHealth API endpoint
@@ -41,6 +42,22 @@ Route::get('/api/genres', function () {
 //     Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');
    
 // }); 
+Route::controller(DashboardController::class)->group(function () {
+    // Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
+
+    // Added users API endpoint
+    Route::get('/get-users', 'getUsers')->name('getUsers');
+    // Route::controller(UserController::class)->group(function () {
+    //     Route::post('/add-user', 'store')->name('user.store');
+    //     Route::delete('/delete-user/{id}', 'destroy')->name('user.destroy');
+    //     Route::put('/update-user/{id}', 'update')->name('user.update');
+    // });
+    // Route::controller(FarmController::class)->group(function () {
+    //     Route::post('/add-farm', 'store')->name('farm.store');
+    //     Route::delete('/delete-farm/{id}', 'destroy')->name('farm.destroy');
+    //     Route::put('/update-farm/{id}', 'update')->name('farm.update');
+    // });
+});
 
 Route::middleware('auth')->group(function () {
     Route::controller(ContentUploadController::class)->group(function(){
@@ -53,19 +70,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/delete-movie/{id}', 'destroy')->name('deleteMovie');
     });
 
-
     Route::controller(LatestDashboardController::class)->group(function () {
         Route::get('/latestdashboard', 'dashboard')->name('latestdashboard');
         Route::get('/newvideo-player/{id}', 'findMovie')->name('newvideo.player');
     });
 
-
     // Route::controller(NewDashboardController::class)->group(function () {
     //     Route::get('/newlayout',  'dashboard')->name('dashboard');
     //     Route::get('/video-player/{id}', 'VideoPlayer')->name('video.player');    
     // }); 
-
-
 
     // Route::get('/dashboard',[DashboardController::class, 'dashboard'] )->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

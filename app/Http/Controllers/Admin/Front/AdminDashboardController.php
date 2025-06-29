@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
 
-class DashboardController extends Controller
+class AdminDashboardController extends Controller
 {
     public function index(): Response
     {
@@ -26,7 +26,7 @@ class DashboardController extends Controller
         $farmers = User::whereHas('roles', function ($query) {
             $query->where('name', 'farmer');
         })->get();
-        $farms = \App\Models\Farm::with('user')->get();
+        // $farms = \App\Models\Farm::with('user')->get();
         
         $roles = \App\Models\Role::all();
 
@@ -36,7 +36,7 @@ class DashboardController extends Controller
                 'users' => $users,
                 'roles' => $roles,
                 'farmers' => $farmers,
-                'farms' => $farms
+                // 'farms' => $farms
             ]
         ]);
     }
