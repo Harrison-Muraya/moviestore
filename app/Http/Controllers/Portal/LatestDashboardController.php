@@ -13,7 +13,12 @@ class LatestDashboardController extends Controller
 {
     public function dashboard (): Response
     {
-        $genre = \App\Models\Genre::with('movies')->get();
+        // $genre = \App\Models\Genre::with('movies')->get();
+
+        $genre = \App\Models\Genre::with(['movies' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            }])->get();
+
         if ($genre->isEmpty()) {
             Log::warning('No genre found in the database.');
             return Inertia::render('Error', [
