@@ -133,7 +133,7 @@ export default function UpdateContent({ movie, genres }) {
             });
         }
 
-        router.post(route('movies.update', movie.id), formData, {
+        router.post(route('admin.update', movie.id), formData, {
             forceFormData: true,
             onSuccess: () => {
                 alert('Content updated successfully!');
@@ -825,7 +825,7 @@ export default function UpdateContent({ movie, genres }) {
                             <div className="flex space-x-4">
                                 <button
                                     type="button"
-                                    onClick={() => router.get(route('movies.show', movie.id))}
+                                    onClick={() => router.get(route('movies.edit.list'))}
                                     className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel

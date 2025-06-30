@@ -365,11 +365,13 @@ class ContentUploadController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => ucfirst($request->type ?? $movie->type) . ' updated successfully!',
-                'data' => $movie->fresh()->load(['genres', 'seasons.episodes'])
-            ]);
+            return redirect()->intended(route('movies.edit.list', absolute: false));
+
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => ucfirst($request->type ?? $movie->type) . ' updated successfully!',
+            //     'data' => $movie->fresh()->load(['genres', 'seasons.episodes'])
+            // ]);
 
         } catch (\Exception $e) {
             Log::error('Update error:', [$e->getMessage()]);

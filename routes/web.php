@@ -24,7 +24,7 @@ Route::middleware([CheckRolePermission::class . ':permissions'])->group(function
             Route::get('/dashboard', 'dashboard')->name('admin.dashboard');
             Route::get('/get-movies', 'getMovies')->name('getmoviedata');
             Route::get('/newvideo-player/{id}', 'findMovie')->name('admin.newvideo.player');
-            Route::get('/movie-list', 'movieList')->name('admin.movieList');
+            // Route::get('/movie-list', 'movieList')->name('admin.movieList');
         });
 
         Route::controller(ContentUploadController::class)->group(function () {
