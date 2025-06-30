@@ -34,6 +34,7 @@ Route::middleware([CheckRolePermission::class . ':permissions'])->group(function
             Route::get('/movies/edit', 'movieList')->name('movies.edit.list');
             Route::get('/movies/{movie}/edit', 'edit')->name('admin.edit');
             Route::put('/movies/{movie}', 'update')->name('admin.update');
+            Route::delete('/delete/movies/{movie}', 'destroy')->name('movies.destroy');
         });
     });
 });

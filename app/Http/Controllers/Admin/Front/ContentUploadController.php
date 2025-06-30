@@ -663,4 +663,76 @@ class ContentUploadController extends Controller
 
         $episode->delete();
     }
+
+
+    public function destroy(Movie $movie)
+    {
+        try {
+            DB::beginTransaction();
+
+            Log::info('Deleting movie/series:', [
+                'id' => $movie->id,
+                'title' => $movie->title,
+                'type' => $movie->type
+            ]);
+
+            // Delete all associated files and records
+            $this->deleteMovieCompletely($movie);
+
+            DB::commit();
+
+
+            return redirect()->intended(route('movies.edit.list', absolute: false));
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => ucfirst($movie->type) . ' "' . $movie->title . '" deleted successfully!'
+            // ]);
+
+        } catch (\Exception $e) {
+            Log::error('Delete error:', [
+                'movie_id' => $movie->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting content: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function deleteMovieCompletely(Movie $movie)
+    {
+        // Delete all seasons and episodes if it's a series
+        if ($movie->type === 'series') {
+            $movie->seasons()->each(function ($season) {
+                $this->deleteSeason($season->id);
+            });
+        }
+
+        // Delete movie files
+        if ($movie->thumbnail) {
+            Storage::disk('public')->delete($movie->thumbnail);
+        }
+        
+        if ($movie->trailer_path) {
+            Storage::disk('public')->delete($movie->trailer_path);
+        }
+        
+        if ($movie->video_path) {
+            Storage::disk('public')->delete($movie->video_path);
+        }
+
+        // Remove genre relationships
+        $movie->genres()->detach();
+
+        // Delete the movie record
+        $movie->delete();
+
+        Log::info('Movie deleted successfully:', ['id' => $movie->id]);
+    }
+
+
 }

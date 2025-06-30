@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { usePage, Link } from '@inertiajs/react';
+import { usePage, Link, router } from '@inertiajs/react';
 
 function MovieList() {
     const { props } = usePage();
     const [singleMovies, setSingleMovies] = useState([]);
     const [seriesMovies, setSeriesMovies] = useState([]);
+    const [deletingId, setDeletingId] = useState(null);
 
     const movies = props.movies || [];
 
@@ -15,14 +16,103 @@ function MovieList() {
         setSingleMovies(singles);
     }, [movies]);
 
-    const handleDelete = (movieId, e) => {
+    const handleDelete = async (movieId, e) => {
         e.preventDefault();
-        if (confirm('Are you sure you want to delete this movie?')) {
-            // Add your delete logic here
-            // For example: router.delete(route('admin.delete', movieId));
-            console.log('Delete movie with ID:', movieId);
+        e.stopPropagation();
+
+        // Get movie title for confirmation
+        const movie = movies.find(m => m.id === movieId);
+        const movieTitle = movie ? movie.title : 'this item';
+
+        // Show confirmation dialog
+        const isConfirmed = window.confirm(
+            `Are you sure you want to delete "${movieTitle}"?\n\nThis action cannot be undone and will permanently remove all associated files, seasons, and episodes.`
+        );
+
+        if (!isConfirmed) return;
+
+        try {
+            setDeletingId(movieId);
+
+            // Make delete request using Inertia router
+            router.delete(`/admin/delete/movies/${movieId}`, {
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    // Handle success response
+                    console.log('Movie deleted successfully');
+                    
+                    // Update local state to remove deleted movie
+                    const updatedMovies = movies.filter(movie => movie.id !== movieId);
+                    const updatedSingles = updatedMovies.filter(movie => movie.type === 'movie');
+                    const updatedSeries = updatedMovies.filter(movie => movie.type === 'series');
+                    setSingleMovies(updatedSingles);
+                    setSeriesMovies(updatedSeries);
+                },
+                onError: (errors) => {
+                    // Handle error response
+                    console.error('Delete error:', errors);
+                    alert('Failed to delete content. Please try again.');
+                },
+                onFinish: () => {
+                    // Reset loading state
+                    setDeletingId(null);
+                }
+            });
+
+        } catch (error) {
+            console.error('Delete request failed:', error);
+            alert('Failed to delete content. Please try again.');
+            setDeletingId(null);
         }
     };
+
+    // Alternative using fetch API if you prefer
+    // const handleDeleteWithFetch = async (movieId, e) => {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+
+    //     const movie = movies.find(m => m.id === movieId);
+    //     const movieTitle = movie ? movie.title : 'this item';
+
+    //     const isConfirmed = window.confirm(
+    //         `Are you sure you want to delete "${movieTitle}"?\n\nThis action cannot be undone and will permanently remove all associated files, seasons, and episodes.`
+    //     );
+
+    //     if (!isConfirmed) return;
+
+    //     try {
+    //         setDeletingId(movieId);
+
+    //         const response = await fetch(`/delete/movies/${movieId}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+    //                 'Accept': 'application/json',
+    //             },
+    //         });
+
+    //         const result = await response.json();
+
+    //         if (result.success) {
+    //             // Update local state to remove deleted movie
+    //             const updatedSingles = singleMovies.filter(movie => movie.id !== movieId);
+    //             const updatedSeries = seriesMovies.filter(movie => movie.id !== movieId);
+    //             setSingleMovies(updatedSingles);
+    //             setSeriesMovies(updatedSeries);
+                
+    //             alert(result.message);
+    //         } else {
+    //             alert(result.message || 'Failed to delete content');
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Delete request failed:', error);
+    //         alert('Failed to delete content. Please try again.');
+    //     } finally {
+    //         setDeletingId(null);
+    //     }
+    // };
 
     return (
         <div className="fixed inset-0 overflow-hidden bg-[url('/images/silence.jpg')] bg-cover bg-center bg-no-repeat">
@@ -57,7 +147,7 @@ function MovieList() {
                                                         alt={movie.title}
                                                         className="w-full h-full object-cover rounded-md"
                                                         onError={(e) => {
-                                                            e.target.src = '/images/default-thumbnail.jpg'; // Fallback image
+                                                            e.target.src = '/images/default-thumbnail.jpg';
                                                         }}
                                                     />
                                                 </div>
@@ -88,11 +178,26 @@ function MovieList() {
                                                 >
                                                     Edit
                                                 </Link>
+
                                                 <button
                                                     onClick={(e) => handleDelete(movie.id, e)}
-                                                    className="bg-red-600 hover:bg-red-700 text-white text-sm rounded-md px-3 py-1 transition-colors"
+                                                    disabled={deletingId === movie.id}
+                                                    className={`${deletingId === movie.id ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} 
+                                                            text-white text-sm rounded-md px-3 py-1 transition-colors
+                                                            flex items-center justify-center gap-1
+                                                        `}
                                                 >
-                                                    Delete
+                                                    {deletingId === movie.id ? (
+                                                        <>
+                                                            <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                                            </svg>
+                                                            Deleting...
+                                                        </>
+                                                    ) : (
+                                                        'Delete'
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
@@ -128,7 +233,7 @@ function MovieList() {
                                                         alt={movie.title}
                                                         className="w-full h-full object-cover rounded-md"
                                                         onError={(e) => {
-                                                            e.target.src = '/images/default-thumbnail.jpg'; // Fallback image
+                                                            e.target.src = '/images/default-thumbnail.jpg';
                                                         }}
                                                     />
                                                 </div>
@@ -159,11 +264,26 @@ function MovieList() {
                                                 >
                                                     Edit
                                                 </Link>
+                                                
                                                 <button
                                                     onClick={(e) => handleDelete(movie.id, e)}
-                                                    className="bg-red-600 hover:bg-red-700 text-white text-sm rounded-md px-3 py-1 transition-colors"
+                                                    disabled={deletingId === movie.id}
+                                                    className={`${deletingId === movie.id ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} 
+                                                            text-white text-sm rounded-md px-3 py-1 transition-colors
+                                                            flex items-center justify-center gap-1
+                                                        `}
                                                 >
-                                                    Delete
+                                                    {deletingId === movie.id ? (
+                                                        <>
+                                                            <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                                            </svg>
+                                                            Deleting...
+                                                        </>
+                                                    ) : (
+                                                        'Delete'
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
