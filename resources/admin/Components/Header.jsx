@@ -14,6 +14,7 @@ const Header = () => {
             <Link href={route('movies.edit.list')} className="text-white hover:text-gray-300 transition-colors">Movies</Link>
             <a href="#" className="text-white hover:text-gray-300 transition-colors">New & Popular</a>
             <a href="#" className="text-white hover:text-gray-300 transition-colors">My List</a>
+            <a href={route('admin.storeview')} className="text-white hover:text-gray-300 transition-colors">Add Movie</a>
           </nav>
         </div>
         <div className="flex items-center gap-4">

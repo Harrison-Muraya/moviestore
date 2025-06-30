@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { usePage, Link } from '@inertiajs/react';
 
 function MovieList() {
-
     const { props } = usePage();
     const [singleMovies, setSingleMovies] = useState([]);
-    const [SeriesMovies, setSeriesMovies] = useState([]);
+    const [seriesMovies, setSeriesMovies] = useState([]);
 
     const movies = props.movies || [];
 
@@ -16,122 +15,171 @@ function MovieList() {
         setSingleMovies(singles);
     }, [movies]);
 
-    // console.log('Single Movies:', singleMovies);
+    const handleDelete = (movieId, e) => {
+        e.preventDefault();
+        if (confirm('Are you sure you want to delete this movie?')) {
+            // Add your delete logic here
+            // For example: router.delete(route('admin.delete', movieId));
+            console.log('Delete movie with ID:', movieId);
+        }
+    };
 
     return (
         <div className="fixed inset-0 overflow-hidden bg-[url('/images/silence.jpg')] bg-cover bg-center bg-no-repeat">
-            <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
-            <div className="relative grid grid-flow-row px-32  z-30 overflow-auto h-screen">
+            <div className="absolute inset-0 bg-black bg-opacity-20 z-20 backdrop-blur-sm"></div>
+            <div className="relative grid grid-flow-row px-4 sm:px-8 lg:px-32 z-30 overflow-auto h-screen">
                 <div className="flex bg-white/20 backdrop-blur-sm p-2 mt-2 rounded-lg shadow-lg justify-center items-center">
                     <Link href={route('admin.dashboard')} className="text-red-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
                         ALPHA <span className="text-red-600">.</span>
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-2 mt-6 gap-x-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 mt-6 gap-5">
                     {/* Single Movies Section */}
-                    <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg shadow-lg">
-                        <p className="text-white text-xl md:text-4xl my-6 font-semibold tracking-wider">
-                            Single Movies
+                    <div className="bg-white/20 backdrop-blur-sm p-4 rounded-lg shadow-lg">
+                        <p className="text-white text-xl md:text-3xl my-6 font-semibold tracking-wider">
+                            Single Movies ({singleMovies.length})
                         </p>
 
-                        <div className="card">
-                            <ul>
-
-                                {singleMovies.length > 0 ? (
-                                    singleMovies.map((movie, index) => (
-                                        <li
-                                            key={movie.id || index}
-                                            className="text-white text-lg bg-white/60 backdrop-blur-sm md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-md"
-                                        >
-                                            <a href={route('newvideo.player', { id: movie.id })} className="relative flex flex-col md:flex-row">
-                                                <div className="h-16 md:w-40 md:h-40">
+                        <div className="space-y-4">
+                            {singleMovies.length > 0 ? (
+                                singleMovies.map((movie, index) => (
+                                    <div
+                                        key={movie.id || index}
+                                        className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                    >
+                                        <div className="flex flex-col md:flex-row gap-4 relative">
+                                            {/* Movie Image */}
+                                            <Link href={route('newvideo.player', { id: movie.id })} className="flex-shrink-0">
+                                                <div className="w-full md:w-40 h-32 md:h-40">
                                                     <img
-                                                        // src={movie.thumbnail}
                                                         src={movie.thumbnail?.startsWith('http') ? movie.thumbnail : `/storage/${movie.thumbnail}`}
                                                         alt={movie.title}
                                                         className="w-full h-full object-cover rounded-md"
+                                                        onError={(e) => {
+                                                            e.target.src = '/images/default-thumbnail.jpg'; // Fallback image
+                                                        }}
                                                     />
                                                 </div>
-                                                <div className="justify-left ml-4">
-                                                    <div className="flex flex-row ">
-                                                        <span className="text-black text-lg md:text-2xl font-bold capitalize">
+                                            </Link>
+
+                                            {/* Movie Details */}
+                                            <div className="flex-1 min-w-0">
+                                                <Link href={route('newvideo.player', { id: movie.id })} className="block">
+                                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                        <h3 className="text-black text-lg md:text-xl font-bold capitalize truncate">
                                                             {movie.title}
-                                                        </span>
-                                                        <span className="bg-red-600 text-gray-100 text-sm  ml-2 rounded-md px-2 py-1">
-                                                            {movie.genres[0]?.name || 'Unknown Genre'}
+                                                        </h3>
+                                                        <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap">
+                                                            {movie.genres?.[0]?.name || 'Unknown Genre'}
                                                         </span>
                                                     </div>
-                                                    <div className="text-base text-black font-mono">
+                                                    <p className="text-gray-700 text-sm md:text-base line-clamp-3">
                                                         {movie.description || 'No description available.'}
-                                                    </div>
-                                                </div>
-                                                <a href={route('movies.edit', movie.id)} className="absolute bg-red-600 hover:bg-red-800 text-gray-100 text-sm rounded-md px-2 py-1 right-0">Edit</a>
-                                                <a href="" className="absolute bg-red-800 hover:bg-red-950 text-gray-100 text-sm rounded-md px-2 py-1 right-0 bottom-0">Delete</a>
-                                            </a>
-                                        </li>
-                                    ))
-                                )
-                                    : (
-                                        <li className="text-white text-lg md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-sm">
-                                            No movies available
-                                        </li>
-                                    )}
-                            </ul>
+                                                    </p>
+                                                </Link>
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            <div className="flex flex-col gap-2 md:absolute md:top-0 md:right-0">
+                                                <Link
+                                                    href={route('admin.edit', movie.id)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md px-3 py-1 text-center transition-colors"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    onClick={(e) => handleDelete(movie.id, e)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white text-sm rounded-md px-3 py-1 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="bg-white/60 backdrop-blur-sm p-4 rounded-lg text-center">
+                                    <p className="text-gray-700 text-lg font-medium">No single movies available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {/* Series Movies Section */}
-                    <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg shadow-lg">
-                        <p className="text-white text-xl md:text-4xl my-6 font-semibold tracking-wider">
-                            Series Movies
+                    <div className="bg-white/20 backdrop-blur-sm p-4 rounded-lg shadow-lg">
+                        <p className="text-white text-xl md:text-3xl my-6 font-semibold tracking-wider">
+                            Series Movies ({seriesMovies.length})
                         </p>
 
-                        <div className="card">
-                            <ul>
-
-                                {SeriesMovies.length > 0 ? (
-                                    SeriesMovies.map((movie, index) => (
-                                        <li
-                                            key={movie.id || index}
-                                            className="text-white text-lg bg-white/60 backdrop-blur-sm md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-sm"
-                                        >
-                                            <div className="flex flex-col md:flex-row">
-                                                <div className="h-16 md:w-40 md:h-40">
+                        <div className="space-y-4">
+                            {seriesMovies.length > 0 ? (
+                                seriesMovies.map((movie, index) => (
+                                    <div
+                                        key={movie.id || index}
+                                        className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                    >
+                                        <div className="flex flex-col md:flex-row gap-4 relative">
+                                            {/* Movie Image */}
+                                            <Link href={route('newvideo.player', { id: movie.id })} className="flex-shrink-0">
+                                                <div className="w-full md:w-40 h-32 md:h-40">
                                                     <img
-                                                        src={movie.thumbnail}
+                                                        src={movie.thumbnail?.startsWith('http') ? movie.thumbnail : `/storage/${movie.thumbnail}`}
                                                         alt={movie.title}
                                                         className="w-full h-full object-cover rounded-md"
+                                                        onError={(e) => {
+                                                            e.target.src = '/images/default-thumbnail.jpg'; // Fallback image
+                                                        }}
                                                     />
                                                 </div>
-                                                <div className="justify-left ml-4">
-                                                    <div className="flex flex-row ">
-                                                        <span className="text-black text-lg md:text-2xl font-bold capitalize">
+                                            </Link>
+
+                                            {/* Movie Details */}
+                                            <div className="flex-1 min-w-0">
+                                                <Link href={route('newvideo.player', { id: movie.id })} className="block">
+                                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                        <h3 className="text-black text-lg md:text-xl font-bold capitalize truncate">
                                                             {movie.title}
-                                                        </span>
-                                                        <span className="bg-indigo-600 text-gray-100 text-sm  ml-2 rounded-sm px-2 py-1">
-                                                            {movie.genres[0]?.name || 'Unknown Genre'}
+                                                        </h3>
+                                                        <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap">
+                                                            {movie.genres?.[0]?.name || 'Unknown Genre'}
                                                         </span>
                                                     </div>
-                                                    <div className="">Description</div>
-                                                </div>
+                                                    <p className="text-gray-700 text-sm md:text-base line-clamp-3">
+                                                        {movie.description || 'No description available.'}
+                                                    </p>
+                                                </Link>
                                             </div>
-                                        </li>
-                                    ))
-                                )
-                                    : (
-                                        <li className="text-white text-lg md:text-2xl p-2 my-6 font-semibold tracking-wider rounded-sm">
-                                            No movies available
-                                        </li>
-                                    )}
-                            </ul>
+
+                                            {/* Action Buttons */}
+                                            <div className="flex flex-col gap-2 md:absolute md:top-0 md:right-0">
+                                                <Link
+                                                    href={route('admin.edit', movie.id)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md px-3 py-1 text-center transition-colors"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    onClick={(e) => handleDelete(movie.id, e)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white text-sm rounded-md px-3 py-1 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="bg-white/60 backdrop-blur-sm p-4 rounded-lg text-center">
+                                    <p className="text-gray-700 text-lg font-medium">No series movies available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     );
-
 }
 
 export default MovieList;

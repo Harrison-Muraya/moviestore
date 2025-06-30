@@ -33,6 +33,7 @@ class ContentUploadController extends Controller
         Inertia::setRootView('admin');
         $movies = Movie::get();
 
+        // dd($movies);
         return Inertia::render('MovieEditList', [
             'movies' => $movies,
         ]);
