@@ -611,7 +611,7 @@ const ContentUploadForm = () => {
                                 type="file"
                                 name="trailer"
                                 onChange={handleFileChange}
-                                accept="video/*"
+                                accept=".mp4,.mkv,.webm,video/*"
                                 className="w-full border rounded-md px-3 py-2"
                             />
                         </div>
@@ -624,7 +624,7 @@ const ContentUploadForm = () => {
                                 type="file"
                                 name="video"
                                 onChange={handleFileChange}
-                                accept="video/*"
+                                accept=".mp4,.mkv,.webm,video/*"
                                 className="w-full border rounded-md px-3 py-2"
                             />
                             {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
