@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePage, Link } from '@inertiajs/react';
+import Header from '@/Components/Header';
+import Footer from '@/Components/Header';
 
 function MovieList() {
 
@@ -20,14 +22,9 @@ function MovieList() {
 
     return (
         <div className="fixed inset-0 overflow-hidden bg-[url('/images/silence.jpg')] bg-cover bg-center bg-no-repeat">
+            <Header />
             <div className="absolute inset-0 bg-white bg-opacity-20 z-20 backdrop-blur-sm"></div>
-            <div className="relative grid grid-flow-row px-32  z-30 overflow-auto h-screen">
-                <div className="flex bg-white/20 backdrop-blur-sm p-2 mt-2 rounded-lg shadow-lg justify-center items-center">
-                    <Link href={route('latestdashboard')} className="text-red-600 text-2xl md:text-4xl my-6 text-center font-semibold tracking-wider">
-                        ALPHA <span className="text-red-600">.</span>
-                    </Link>
-                </div>
-
+            <div className="relative grid grid-flow-row px-32  z-30 overflow-auto h-screen mt-12">
                 <div className="grid grid-cols-2 mt-6 gap-x-5">
                     {/* Single Movies Section */}
                     <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg shadow-lg">
@@ -127,6 +124,7 @@ function MovieList() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 
