@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ContentUploadController extends Controller
 {
@@ -79,8 +77,7 @@ class ContentUploadController extends Controller
                 
                 // Movie specific fields
                 'duration' => 'required_if:type,movie|nullable|string|max:20',
-                'video' => 'required_if:type,movie|nullable|file|mimetypes:video/*,video/x-matroska,video/x-msvideo,video/quicktime|max:5120000',
-                // 'video' => 'required_if:type,movie|nullable|file|mimetypes:video/*|max:2048000',
+                'video' => 'required_if:type,movie|nullable|file|mimetypes:video/*|max:2048000',
                 // 'video' => 'required_if:type,movie|nullable|file|mimes:mp4,avi,mov,wmv,webm|max:2048000', // 2GB
                 
                 // Series specific fields
@@ -224,172 +221,15 @@ class ContentUploadController extends Controller
         }
     }
 
-   private function uploadFile($file, $directory)
+    private function uploadFile($file, $directory)
     {
+        // Add null check for safety
         if (!$file) {
             return null;
         }
         
-        $filename = time() . '_' . Str::random(10);
-        $originalExtension = $file->getClientOriginalExtension();
-        
-        // Check if it's a video file that needs conversion
-        if (in_array(strtolower($originalExtension), ['mkv', 'avi', 'mov', 'wmv', 'flv'])) {
-            return $this->convertAndUploadVideo($file, $directory, $filename);
-        }
-        
-        // For images and other files, upload as normal
-        $fullFilename = $filename . '.' . $originalExtension;
-        return $file->storeAs($directory, $fullFilename, 'public');
-    }
-
-    private function convertAndUploadVideo($file, $directory, $filename)
-    {
-        try {
-            // Create temporary directory if it doesn't exist
-            $tempDir = storage_path('app/temp');
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0755, true);
-            }
-
-            // Save uploaded file temporarily
-            $tempInputPath = $tempDir . '/' . $filename . '.' . $file->getClientOriginalExtension();
-            $file->move($tempDir, $filename . '.' . $file->getClientOriginalExtension());
-
-            // Output file paths
-            $outputFilename = $filename . '.mp4';
-            $tempOutputPath = $tempDir . '/' . $outputFilename;
-            $finalStoragePath = $directory . '/' . $outputFilename;
-            $fullStoragePath = storage_path('app/public/' . $finalStoragePath);
-
-            // Create output directory if it doesn't exist
-            $outputDir = dirname($fullStoragePath);
-            if (!file_exists($outputDir)) {
-                mkdir($outputDir, 0755, true);
-            }
-
-            // FFmpeg command for web-optimized conversion
-            $ffmpegCommand = [
-                'ffmpeg',
-                '-i', $tempInputPath,
-                '-c:v', 'libx264',           // H.264 video codec
-                '-c:a', 'aac',               // AAC audio codec
-                '-preset', 'medium',         // Encoding speed/quality balance
-                '-crf', '23',                // Quality (18-28 range, 23 is good)
-                '-movflags', '+faststart',   // Optimize for web streaming
-                '-pix_fmt', 'yuv420p',       // Pixel format for compatibility
-                '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease', // Scale down large videos
-                '-r', '30',                  // Frame rate
-                '-b:a', '128k',              // Audio bitrate
-                '-ar', '44100',              // Audio sample rate
-                '-y',                        // Overwrite output file
-                $fullStoragePath
-            ];
-
-            Log::info('Starting video conversion', [
-                'input' => $tempInputPath,
-                'output' => $fullStoragePath,
-                'command' => implode(' ', $ffmpegCommand)
-            ]);
-
-            // Execute FFmpeg conversion
-            $process = new Process($ffmpegCommand);
-            $process->setTimeout(3600); // 1 hour timeout
-            $process->run();
-
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            // Clean up temporary input file
-            if (file_exists($tempInputPath)) {
-                unlink($tempInputPath);
-            }
-
-            Log::info('Video conversion completed successfully', [
-                'output_path' => $finalStoragePath,
-                'file_size' => filesize($fullStoragePath)
-            ]);
-
-            return $finalStoragePath;
-
-        } catch (\Exception $e) {
-            Log::error('Video conversion failed', [
-                'error' => $e->getMessage(),
-                'file' => $file->getClientOriginalName()
-            ]);
-
-            // Clean up temporary files
-            if (isset($tempInputPath) && file_exists($tempInputPath)) {
-                unlink($tempInputPath);
-            }
-
-            // Fallback: upload original file
-            $originalFilename = $filename . '.' . $file->getClientOriginalExtension();
-            return $file->storeAs($directory, $originalFilename, 'public');
-        }
-    }
-
-    // Method to check video codec compatibility
-    private function checkVideoCodec($filePath)
-    {
-        try {
-            $command = [
-                'ffprobe',
-                '-v', 'quiet',
-                '-print_format', 'json',
-                '-show_format',
-                '-show_streams',
-                $filePath
-            ];
-
-            $process = new Process($command);
-            $process->run();
-
-            if ($process->isSuccessful()) {
-                $output = json_decode($process->getOutput(), true);
-                
-                $videoCodec = null;
-                $audioCodec = null;
-                
-                foreach ($output['streams'] as $stream) {
-                    if ($stream['codec_type'] === 'video') {
-                        $videoCodec = $stream['codec_name'];
-                    } elseif ($stream['codec_type'] === 'audio') {
-                        $audioCodec = $stream['codec_name'];
-                    }
-                }
-
-                Log::info('Video codec analysis', [
-                    'video_codec' => $videoCodec,
-                    'audio_codec' => $audioCodec,
-                    'file' => basename($filePath)
-                ]);
-
-                return [
-                    'video_codec' => $videoCodec,
-                    'audio_codec' => $audioCodec,
-                    'needs_conversion' => !($videoCodec === 'h264' && in_array($audioCodec, ['aac', 'mp3']))
-                ];
-            }
-        } catch (\Exception $e) {
-            Log::error('Codec analysis failed', ['error' => $e->getMessage()]);
-        }
-
-        return ['needs_conversion' => true]; // Default to conversion if analysis fails
-    }
-
-    // Background job method for large file conversion
-    public function queueVideoConversion($movieId, $filePath, $fileType)
-    {
-        // This would typically dispatch a queued job
-        // dispatch(new ConvertVideoJob($movieId, $filePath, $fileType));
-        
-        Log::info('Video conversion queued', [
-            'movie_id' => $movieId,
-            'file_path' => $filePath,
-            'type' => $fileType
-        ]);
+        $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+        return $file->storeAs($directory, $filename, 'public');
     }
 
     // API endpoints for React
@@ -441,7 +281,7 @@ class ContentUploadController extends Controller
     }
 
 
-    // update movie
+
     public function update(Request $request, Movie $movie)
     {
         Log::info('Update request data:', [
