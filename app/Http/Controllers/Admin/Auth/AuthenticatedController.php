@@ -49,7 +49,7 @@ class AuthenticatedController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function logout(Request $request): Response
+    public function destroy(Request $request): Response
     {
         // Auth::guard('web')->logout();
 
