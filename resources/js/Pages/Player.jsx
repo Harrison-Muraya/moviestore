@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1,
   Maximize, Settings, X, Loader2, AlertCircle, Plus, ThumbsUp,
@@ -570,6 +571,8 @@ const VideoPlayer = ({ movie, onClose, isOpen = true, playlist = [], currentInde
   }
 
   return (
+    <>
+    <Head title = { movieData.title || 'Alpha Player' } />
     <div className="fixed inset-0 z-50 bg-black">
       <div
         ref={playerRef}
@@ -955,6 +958,7 @@ const VideoPlayer = ({ movie, onClose, isOpen = true, playlist = [], currentInde
       )}
 
     </div>
+    </>
   );
 };
 

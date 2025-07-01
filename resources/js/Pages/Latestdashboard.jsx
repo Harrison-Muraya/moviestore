@@ -3,7 +3,8 @@ import MovieRow from "@/Components/MovieRow";
 import Header from "@/Components/Header";
 import Hero from "@/Components/Hero";
 import Footer from "@/Components/Footer";
-import { usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+
 
 const AlphaMovies = () => {
     const videoRef = useRef(null);
@@ -63,38 +64,39 @@ const AlphaMovies = () => {
     // console.log('randomMovie:', randomMovie);
 
     return (
-        <div className="bg-black min-h-screen text-white">
+        <>
+            <Head title="Alpha - Dashboard" />
+            <div className="bg-black min-h-screen text-white">
+                {/* Header */}
+                <Header />
 
-            {/* Header */}
-            <Header />
+                {/* Hero Section */}
+                {/* <Hero randomMovie={randomMovie} /> */}
 
-            {/* Hero Section */}
-            {/* <Hero randomMovie={randomMovie} /> */}
+                {/* Hero Section - only render when randomMovie is available */}
+                {randomMovie && <Hero randomMovie={randomMovie} />}
 
-            {/* Hero Section - only render when randomMovie is available */}
-            {randomMovie && <Hero randomMovie={randomMovie} />}
+                {/* Movie Rows */}
+                <main className="relative z-10 -mt-36">
+                    {genre.map((category, id) => (
+                        <MovieRow key={id}
+                            category={category}
+                            playlist={playlist}
+                            movie={randomMovie}
+                            currentIndex={currentMovieIndex}
+                            onVideoChange={handleVideoChange}
+                            onClose={handleClose}
+                            autoPlayNext={true}
+                            isOpen={isPlayerOpen}
+                            rowIndex={id}
+                        />
+                    ))}
+                </main>
 
-            {/* Movie Rows */}
-            <main className="relative z-10 -mt-36">
-                {genre.map((category, id) => (
-                    <MovieRow key={id}
-                        category={category}
-                        playlist={playlist}
-                        movie={randomMovie}
-                        currentIndex={currentMovieIndex}
-                        onVideoChange={handleVideoChange}
-                        onClose={handleClose}
-                        autoPlayNext={true}
-                        isOpen={isPlayerOpen}
-                        rowIndex={id}
-                    />
-                ))}
-            </main>
+                {/* Footer */}
+                <Footer />
 
-            {/* Footer */}
-            <Footer />
-
-            <style>{`
+                <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -103,7 +105,8 @@ const AlphaMovies = () => {
           display: none;
         }
       `}</style>
-        </div>
+            </div>
+        </>
     );
 };
 

@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AlphaLogo from '@/Components/AlphaLogo';
+import TextInput from '@/Components/TextInput';
+import Footer from '@/Components/Footer';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -24,10 +26,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div className="flex justify-between items-center p-6 md:py-6 md:px-48">
                         <AlphaLogo/>
                         {/* <p
-                            className="text-indigo-600 text-2xl md:text-4xl font-semibold tracking-wider">
+                            className="text-red-600 text-2xl md:text-4xl font-semibold tracking-wider">
                             ALPHA <span className="text-red-600">.</span>
                         </p> */}
-                        <Link href={route('login')} className="text-white bg-indigo-600 rounded-full px-4 py-[2px] p md:px-6 md:py-2 font-semibold">
+                        <Link href={route('login')} className="text-white bg-red-500 rounded-full px-4 py-[2px] p md:px-6 md:py-2 font-semibold">
                             Sign In
                         </Link>
                     </div>
@@ -42,12 +44,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </p>
                             <div className="mt-6 flex max-w-md gap-x-4">
                                 <label htmlFor="email-address" className="sr-only">Email address</label>
-                                <input id="email-address" name="email" type="email" autoComplete="email" required className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" placeholder="Enter your email" />
-                                <button type="submit" className="flex-none rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Get Started</button>
+                                <TextInput id="email-address" name="email" type="email" autoComplete="email" required className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
+                                <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
                             </div>
                         </div>
                     </div>
                 </div>
+                {/* <Footer/> */}
             </div>
         </>
     );
