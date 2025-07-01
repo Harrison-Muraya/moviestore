@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import AlphaLogo from '@/Components/AlphaLogo';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -21,10 +22,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <div className="relative z-10 h-full flex flex-col justify-between">
                     {/* Navbar */}
                     <div className="flex justify-between items-center p-6 md:py-6 md:px-48">
-                        <p
+                        <AlphaLogo/>
+                        {/* <p
                             className="text-indigo-600 text-2xl md:text-4xl font-semibold tracking-wider">
                             ALPHA <span className="text-red-600">.</span>
-                        </p>
+                        </p> */}
                         <Link href={route('login')} className="text-white bg-indigo-600 rounded-full px-4 py-[2px] p md:px-6 md:py-2 font-semibold">
                             Sign In
                         </Link>
