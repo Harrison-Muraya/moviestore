@@ -38,7 +38,7 @@ export default function Login({ status, canResetPassword }) {
                         <div className="relative z-40  dark:text-white">
                             <div className="flex flex-col justify-between items-center ">
                                 <p
-                                    className="bg-indigo-600 text-white text-base md:text-2xl font-semibold tracking-wider rounded-full px-4 py-[2px] md:px-6 md:py-2">
+                                    className="bg-red-500 text-white text-base md:text-2xl font-semibold tracking-wider rounded-full px-4 py-[2px] md:px-6 md:py-2">
                                     ALPHA 
                                 </p>
                                 <p className="text-white text-2xl md:text-2xl  tracking-wider my-4">
@@ -101,7 +101,7 @@ export default function Login({ status, canResetPassword }) {
                                     {canResetPassword && (
                                         <Link
                                             href={route('password.request')}
-                                            className="rounded-md text-sm text-gray-100 underline hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                                            className="rounded-md text-sm text-gray-100 underline hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                                         >
                                             Forgot your password?
                                         </Link>

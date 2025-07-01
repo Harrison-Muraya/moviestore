@@ -39,7 +39,7 @@ export default function Register() {
                         <div className="relative z-40  dark:text-white">
                             <div className="flex flex-col justify-between items-center ">
                                 <p
-                                    className="bg-indigo-600 text-white text-base md:text-2xl font-semibold tracking-wider rounded-full px-4 py-[2px] md:px-6 md:py-2">
+                                    className="bg-red-500 text-white text-base md:text-2xl font-semibold tracking-wider rounded-full px-4 py-[2px] md:px-6 md:py-2">
                                     ALPHA
                                 </p>
                                 <p className="text-white text-2xl md:text-2xl  tracking-wider my-4">

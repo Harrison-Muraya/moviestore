@@ -10,7 +10,7 @@ const Footer = () => {
                         <div>
                             <h4 className="text-white font-semibold mb-4">Company</h4>
                             <ul className="space-y-2">
-                                <li><a href="#" className="hover:text-white transition-colors">About Netflix</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">About Alpha</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Investor Relations</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Jobs</a></li>
                             </ul>
@@ -41,7 +41,7 @@ const Footer = () => {
                         </div>
                     </div>
                     <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-                        <p>&copy; 2025 Netflix Clone. This is a demo interface.</p>
+                        <p>&copy; {new Date().getFullYear()} Alpha.</p>
                     </div>
                 </div>
             </footer>
