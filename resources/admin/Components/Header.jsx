@@ -3,6 +3,14 @@ import { Search, Bell, User } from 'lucide-react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 const Header = () => {
+
+  const { post, processing } = useForm()
+
+  const handleLogout = (e) =>{
+    e.preventDefault();
+    post(route('admin.logout'))
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black to-transparent px-4 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -21,6 +29,13 @@ const Header = () => {
           <Search className="w-6 h-6 cursor-pointer hover:text-gray-300 transition-colors" />
           <Bell className="w-6 h-6 cursor-pointer hover:text-gray-300 transition-colors" />
           <User className="w-8 h-8 bg-red-600 rounded p-1 cursor-pointer hover:bg-red-700 transition-colors" />
+          <button
+            onClick={handleLogout}
+            disabled={processing}
+            className="text-white hover:text-gray-300 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50"
+          >
+            {processing ? 'Logging out...' : 'Logout'}
+          </button>
         </div>
       </div>
     </header>
