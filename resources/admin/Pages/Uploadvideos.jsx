@@ -306,12 +306,12 @@ const ContentUploadForm = () => {
             console.log('Submitting FormData:', debugText);
 
             // Make the request
-            const response = await fetch('/admin/upload-content', {
-                method: 'POST',
+            const response = await fetch('/api/v1/admin/upload-content', {
+                // method: 'POST',
                 body: form,
                 headers: {
                     'Accept': 'application/json',
-                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+                    // ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
                 },
                 credentials: 'same-origin'
             });
