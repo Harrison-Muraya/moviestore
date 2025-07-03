@@ -307,7 +307,7 @@ const ContentUploadForm = () => {
 
             // Make the request
             const response = await fetch('/api/v1/admin/upload-content', {
-                // method: 'POST',
+                method: 'POST',
                 body: form,
                 headers: {
                     'Accept': 'application/json',
