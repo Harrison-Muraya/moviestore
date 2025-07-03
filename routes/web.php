@@ -29,7 +29,7 @@ Route::middleware([CheckRolePermission::class . ':permissions'])->group(function
 
         Route::controller(ContentUploadController::class)->group(function () {
             Route::get('/upload-movies', 'index')->name('admin.storeview');   
-            Route::post('/upload-content', 'store')->name('admin.uploadContent');
+            // Route::post('/upload-content', 'store')->name('admin.uploadContent');
 
             Route::get('/movies/edit', 'movieList')->name('movies.edit.list');
             Route::get('/movies/{movie}/edit', 'edit')->name('admin.edit');
