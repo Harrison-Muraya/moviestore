@@ -252,21 +252,27 @@ class ContentUploadController extends Controller
                 mkdir($tempDir, 0755, true);
             }
 
-            // Save uploaded file temporarily
-            $tempInputPath = $tempDir . '/' . $filename . '.' . $file->getClientOriginalExtension();
-            $file->move($tempDir, $filename . '.' . $file->getClientOriginalExtension());
+            // Save uploaded file temporarily with original extension
+            $originalExtension = $file->getClientOriginalExtension();
+            $tempInputPath = $tempDir . '/' . $filename . '.' . $originalExtension;
+            $file->move($tempDir, $filename . '.' . $originalExtension);
 
-            // Output file paths
+            // Define output paths
             $outputFilename = $filename . '.mp4';
             $tempOutputPath = $tempDir . '/' . $outputFilename;
-            $finalStoragePath = $directory . '/' . $outputFilename;
-            $fullStoragePath = storage_path('app/public/' . $finalStoragePath);
-
-            // Create output directory if it doesn't exist
-            $outputDir = dirname($fullStoragePath);
-            if (!file_exists($outputDir)) {
-                mkdir($outputDir, 0755, true);
+            
+            // Create the public storage directory path
+            $publicStorageDir = storage_path('app/public/' . $directory);
+            if (!file_exists($publicStorageDir)) {
+                mkdir($publicStorageDir, 0755, true);
             }
+
+            Log::info('Starting video conversion', [
+                'input' => $tempInputPath,
+                'temp_output' => $tempOutputPath,
+                'final_directory' => $publicStorageDir,
+                'original_extension' => $originalExtension
+            ]);
 
             // FFmpeg command for web-optimized conversion
             $ffmpegCommand = [
@@ -283,22 +289,36 @@ class ContentUploadController extends Controller
                 '-b:a', '128k',              // Audio bitrate
                 '-ar', '44100',              // Audio sample rate
                 '-y',                        // Overwrite output file
-                $fullStoragePath
+                $tempOutputPath              // Output to temp directory first
             ];
 
-            Log::info('Starting video conversion', [
-                'input' => $tempInputPath,
-                'output' => $fullStoragePath,
+            Log::info('FFmpeg command', [
                 'command' => implode(' ', $ffmpegCommand)
             ]);
 
             // Execute FFmpeg conversion
             $process = new Process($ffmpegCommand);
-            $process->setTimeout(3600); // 1 hour timeout
+            $process->setTimeout(7200); // 2 hour timeout
             $process->run();
 
             if (!$process->isSuccessful()) {
+                Log::error('FFmpeg process failed', [
+                    'exit_code' => $process->getExitCode(),
+                    'error_output' => $process->getErrorOutput(),
+                    'output' => $process->getOutput()
+                ]);
                 throw new ProcessFailedException($process);
+            }
+
+            // Check if conversion was successful
+            if (!file_exists($tempOutputPath)) {
+                throw new \Exception('Converted file was not created');
+            }
+
+            // Move the converted file to final location
+            $finalPath = $publicStorageDir . '/' . $outputFilename;
+            if (!rename($tempOutputPath, $finalPath)) {
+                throw new \Exception('Failed to move converted file to final location');
             }
 
             // Clean up temporary input file
@@ -306,25 +326,34 @@ class ContentUploadController extends Controller
                 unlink($tempInputPath);
             }
 
+            // Return the relative path for database storage
+            $relativePath = $directory . '/' . $outputFilename;
+
             Log::info('Video conversion completed successfully', [
-                'output_path' => $finalStoragePath,
-                'file_size' => filesize($fullStoragePath)
+                'final_path' => $finalPath,
+                'relative_path' => $relativePath,
+                'file_size' => filesize($finalPath)
             ]);
 
-            return $finalStoragePath;
+            return $relativePath;
 
         } catch (\Exception $e) {
             Log::error('Video conversion failed', [
                 'error' => $e->getMessage(),
-                'file' => $file->getClientOriginalName()
+                'file' => $file->getClientOriginalName(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             // Clean up temporary files
             if (isset($tempInputPath) && file_exists($tempInputPath)) {
                 unlink($tempInputPath);
             }
+            if (isset($tempOutputPath) && file_exists($tempOutputPath)) {
+                unlink($tempOutputPath);
+            }
 
-            // Fallback: upload original file
+            // Fallback: upload original file without conversion
+            Log::info('Falling back to original file upload');
             $originalFilename = $filename . '.' . $file->getClientOriginalExtension();
             return $file->storeAs($directory, $originalFilename, 'public');
         }
