@@ -145,16 +145,31 @@ class ContentUploadController extends Controller
 
     private function createMovie(Request $request)
     {
-        // Thumbnail is now required, so we don't need to check for null
-        $thumbnailPath = $this->uploadFile($request->file('thumbnail'), 'thumbnails');
+        // Initialize paths as null
+        $thumbnailPath = null;
+        $trailerPath = null;
+        $videoPath = null;
+
+        // Handle thumbnail upload - check if file exists and is valid
+        if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
+            $thumbnailPath = $this->uploadFile($request->file('thumbnail'), 'thumbnails');
+            if (!$thumbnailPath) {
+                throw new \Exception('Failed to upload thumbnail');
+            }
+        }
         
-        $trailerPath = $request->hasFile('trailer') 
-            ? $this->uploadFile($request->file('trailer'), 'trailers') 
-            : null;
-            
-        $videoPath = $request->hasFile('video') 
-            ? $this->uploadFile($request->file('video'), 'videos') 
-            : null;
+        // Handle trailer upload
+        if ($request->hasFile('trailer') && $request->file('trailer')->isValid()) {
+            $trailerPath = $this->uploadFile($request->file('trailer'), 'trailers');
+        }
+        
+        // Handle video upload for movies
+        if ($request->hasFile('video') && $request->file('video')->isValid()) {
+            $videoPath = $this->uploadFile($request->file('video'), 'videos');
+            if (!$videoPath && $request->type === 'movie') {
+                throw new \Exception('Failed to upload video file');
+            }
+        }
 
         return Movie::create([
             'title' => $request->title,
@@ -181,9 +196,11 @@ class ContentUploadController extends Controller
     private function processSeries($movie, $seasonsData)
     {
         foreach ($seasonsData as $seasonData) {
-            $seasonThumbnail = isset($seasonData['thumbnail']) 
-                ? $this->uploadFile($seasonData['thumbnail'], 'seasons') 
-                : null;
+            $seasonThumbnail = null;
+            
+            if (isset($seasonData['thumbnail']) && $seasonData['thumbnail']->isValid()) {
+                $seasonThumbnail = $this->uploadFile($seasonData['thumbnail'], 'seasons');
+            }
 
             $season = Season::create([
                 'movie_id' => $movie->id,
@@ -202,12 +219,23 @@ class ContentUploadController extends Controller
     private function processEpisodes($season, $movie, $episodesData)
     {
         foreach ($episodesData as $episodeData) {
-            // Episode video is required by validation, so no need to check for null
-            $videoPath = $this->uploadFile($episodeData['video'], 'episodes');
+            $videoPath = null;
+            $thumbnailPath = null;
+
+            // Episode video is required - check if it exists and is valid
+            if (isset($episodeData['video']) && $episodeData['video']->isValid()) {
+                $videoPath = $this->uploadFile($episodeData['video'], 'episodes');
+                if (!$videoPath) {
+                    throw new \Exception('Failed to upload episode video');
+                }
+            } else {
+                throw new \Exception('Episode video is required');
+            }
             
-            $thumbnailPath = isset($episodeData['thumbnail']) 
-                ? $this->uploadFile($episodeData['thumbnail'], 'episodes/thumbnails') 
-                : null;
+            // Episode thumbnail is optional
+            if (isset($episodeData['thumbnail']) && $episodeData['thumbnail']->isValid()) {
+                $thumbnailPath = $this->uploadFile($episodeData['thumbnail'], 'episodes/thumbnails');
+            }
 
             Episode::create([
                 'season_id' => $season->id,
@@ -224,38 +252,112 @@ class ContentUploadController extends Controller
         }
     }
 
-   private function uploadFile($file, $directory)
+    private function uploadFile($file, $directory)
     {
-        if (!$file) {
+        // Validate input parameters
+        if (!$file || !$directory) {
+            Log::error('Upload file called with invalid parameters', [
+                'file' => $file ? 'present' : 'missing',
+                'directory' => $directory ?: 'empty'
+            ]);
             return null;
         }
-        
-        $filename = time() . '_' . Str::random(10);
-        $originalExtension = $file->getClientOriginalExtension();
-        
-        // Check if it's a video file that needs conversion
-        if (in_array(strtolower($originalExtension), ['mkv', 'avi', 'mov', 'wmv', 'flv'])) {
-            return $this->convertAndUploadVideo($file, $directory, $filename);
+
+        // Check if file is valid
+        if (!$file->isValid()) {
+            Log::error('Invalid file upload', [
+                'error' => $file->getError(),
+                'directory' => $directory
+            ]);
+            return null;
         }
-        
-        // For images and other files, upload as normal
-        $fullFilename = $filename . '.' . $originalExtension;
-        return $file->storeAs($directory, $fullFilename, 'public');
+
+        try {
+            $filename = time() . '_' . Str::random(10);
+            $originalExtension = $file->getClientOriginalExtension();
+            
+            // Validate extension
+            if (!$originalExtension) {
+                Log::error('File has no extension', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'directory' => $directory
+                ]);
+                return null;
+            }
+            
+            Log::info('Starting file upload', [
+                'original_name' => $file->getClientOriginalName(),
+                'extension' => $originalExtension,
+                'directory' => $directory,
+                'size' => $file->getSize()
+            ]);
+            
+            // Check if it's a video file that needs conversion
+            if (in_array(strtolower($originalExtension), ['mkv', 'avi', 'mov', 'wmv', 'flv'])) {
+                return $this->convertAndUploadVideo($file, $directory, $filename);
+            }
+            
+            // For images and other files, upload as normal
+            $fullFilename = $filename . '.' . $originalExtension;
+            $path = $file->storeAs($directory, $fullFilename, 'public');
+            
+            if (!$path) {
+                Log::error('Failed to store file', [
+                    'filename' => $fullFilename,
+                    'directory' => $directory
+                ]);
+                return null;
+            }
+            
+            Log::info('File uploaded successfully', [
+                'path' => $path,
+                'filename' => $fullFilename
+            ]);
+            
+            return $path;
+            
+        } catch (\Exception $e) {
+            Log::error('File upload exception', [
+                'error' => $e->getMessage(),
+                'directory' => $directory,
+                'file' => $file->getClientOriginalName()
+            ]);
+            return null;
+        }
     }
 
     private function convertAndUploadVideo($file, $directory, $filename)
     {
         try {
+            // Validate inputs
+            if (!$file || !$directory || !$filename) {
+                throw new \Exception('Invalid parameters for video conversion');
+            }
+
             // Create temporary directory if it doesn't exist
             $tempDir = storage_path('app/temp');
             if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0755, true);
+                if (!mkdir($tempDir, 0755, true)) {
+                    throw new \Exception('Failed to create temporary directory');
+                }
             }
 
             // Save uploaded file temporarily with original extension
             $originalExtension = $file->getClientOriginalExtension();
+            if (!$originalExtension) {
+                throw new \Exception('File has no extension');
+            }
+
             $tempInputPath = $tempDir . '/' . $filename . '.' . $originalExtension;
-            $file->move($tempDir, $filename . '.' . $originalExtension);
+            
+            // Move file to temporary location
+            if (!$file->move($tempDir, $filename . '.' . $originalExtension)) {
+                throw new \Exception('Failed to move file to temporary location');
+            }
+
+            if (!file_exists($tempInputPath)) {
+                throw new \Exception('Temporary input file does not exist');
+            }
 
             // Define output paths
             $outputFilename = $filename . '.mp4';
@@ -264,7 +366,9 @@ class ContentUploadController extends Controller
             // Create the public storage directory path
             $publicStorageDir = storage_path('app/public/' . $directory);
             if (!file_exists($publicStorageDir)) {
-                mkdir($publicStorageDir, 0755, true);
+                if (!mkdir($publicStorageDir, 0755, true)) {
+                    throw new \Exception('Failed to create storage directory');
+                }
             }
 
             Log::info('Starting video conversion', [
@@ -292,10 +396,6 @@ class ContentUploadController extends Controller
                 $tempOutputPath              // Output to temp directory first
             ];
 
-            Log::info('FFmpeg command', [
-                'command' => implode(' ', $ffmpegCommand)
-            ]);
-
             // Execute FFmpeg conversion
             $process = new Process($ffmpegCommand);
             $process->setTimeout(7200); // 2 hour timeout
@@ -307,7 +407,7 @@ class ContentUploadController extends Controller
                     'error_output' => $process->getErrorOutput(),
                     'output' => $process->getOutput()
                 ]);
-                throw new ProcessFailedException($process);
+                throw new \Exception('Video conversion failed: ' . $process->getErrorOutput());
             }
 
             // Check if conversion was successful
@@ -340,8 +440,9 @@ class ContentUploadController extends Controller
         } catch (\Exception $e) {
             Log::error('Video conversion failed', [
                 'error' => $e->getMessage(),
-                'file' => $file->getClientOriginalName(),
-                'trace' => $e->getTraceAsString()
+                'file' => $file ? $file->getClientOriginalName() : 'null',
+                'directory' => $directory ?? 'null',
+                'filename' => $filename ?? 'null'
             ]);
 
             // Clean up temporary files
@@ -353,9 +454,22 @@ class ContentUploadController extends Controller
             }
 
             // Fallback: upload original file without conversion
-            Log::info('Falling back to original file upload');
-            $originalFilename = $filename . '.' . $file->getClientOriginalExtension();
-            return $file->storeAs($directory, $originalFilename, 'public');
+            try {
+                Log::info('Falling back to original file upload');
+                $originalFilename = $filename . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs($directory, $originalFilename, 'public');
+                
+                if (!$path) {
+                    throw new \Exception('Fallback upload also failed');
+                }
+                
+                return $path;
+            } catch (\Exception $fallbackError) {
+                Log::error('Fallback upload failed', [
+                    'error' => $fallbackError->getMessage()
+                ]);
+                return null;
+            }
         }
     }
 
