@@ -398,7 +398,7 @@ class ContentUploadController extends Controller
 
             // Execute FFmpeg conversion
             $process = new Process($ffmpegCommand);
-            $process->setTimeout(7200); // 2 hour timeout
+            $process->setTimeout(25200); // 7 hour timeout
             $process->run();
 
             if (!$process->isSuccessful()) {
