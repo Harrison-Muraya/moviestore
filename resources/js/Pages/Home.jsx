@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import AlphaLogo from '@/Components/AlphaLogo';
 import TextInput from '@/Components/TextInput';
+import InputError from '@/Components/InputError';
 import Footer from '@/Components/Footer';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
@@ -15,6 +16,19 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         document.getElementById('background')?.classList.add('!hidden');
     };
 
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: '',
+
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        // Handle form submission logic here
+        post(route('authenticate'), {
+            // onFinish: () => reset('password'),
+        });
+    };
+
     return (
         <>
             <Head title="Alpha - Welcome" />
@@ -24,7 +38,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <div className="relative z-10 h-full flex flex-col justify-between">
                     {/* Navbar */}
                     <div className="flex justify-between items-center p-6 md:py-6 md:px-48">
-                        <AlphaLogo/>
+                        <AlphaLogo />
                         {/* <p
                             className="text-red-600 text-2xl md:text-4xl font-semibold tracking-wider">
                             ALPHA <span className="text-red-600">.</span>
@@ -43,9 +57,18 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 Ready to watch? Enter your email to create or restart your membership.
                             </p>
                             <div className="mt-6 flex max-w-md gap-x-4">
-                                <label htmlFor="email-address" className="sr-only">Email address</label>
-                                <TextInput id="email-address" name="email" type="email" autoComplete="email" required className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
-                                <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
+                                <form onSubmit={submit}>
+                                    <label htmlFor="email-address" className="sr-only">Email address</label>
+                                    <TextInput id="email-address"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        required 
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
+                                    <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
+                                    <InputError message={errors.email} className="mt-2" />
+                                </form>
                             </div>
                         </div>
                     </div>
