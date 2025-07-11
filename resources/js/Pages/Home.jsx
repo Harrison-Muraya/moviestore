@@ -56,20 +56,19 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <p className="my-4 text-lg">
                                 Ready to watch? Enter your email to create or restart your membership.
                             </p>
-                            <div className="mt-6 flex max-w-md gap-x-4">
-                                <form onSubmit={submit}>
-                                    <label htmlFor="email-address" className="sr-only">Email address</label>
-                                    <TextInput id="email-address"
-                                        name="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        required 
-                                        onChange={(e) => setData('email', e.target.value)}
-                                        className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
-                                    <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
-                                    <InputError message={errors.email} className="mt-2" />
-                                </form>
-                            </div>
+                            <form onSubmit={submit} className="mt-6 flex max-w-md gap-x-4">
+                                <label htmlFor="email-address" className="sr-only">Email address</label>
+                                <TextInput id="email-address"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    required
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
+                                <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
+                            </form>
+                            <InputError message={errors.email} className="mt-2" />
+
                         </div>
                     </div>
                 </div>
