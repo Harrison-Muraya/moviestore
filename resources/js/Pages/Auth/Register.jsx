@@ -3,12 +3,21 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function Register() {
+    
+    const { props } = usePage('');
+    const email = props.email || ''; // Get the email passed from the controller
+    const message = props.message || ''; // Get the message passed from the controller
+    const alertType = props.alertType || 'info'; // Get the alert type passed from the controller
+    // console.log('email passed is: ', email) // This will log the email passed from the controller;
+    // console.log('message passed is: ', message) // This will log the message passed from the controller;
+    // console.log('alertType passed is: ', alertType) // This will log the alert type passed from the controller;
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        email: email,
         password: '',
         password_confirmation: '',
     });
@@ -45,6 +54,7 @@ export default function Register() {
                                 <p className="text-white text-2xl md:text-2xl  tracking-wider my-4">
                                     Welcome Back
                                 </p>
+                                <InputError message={errors.email} className="mt-2"/>
                                 <Link href={route('login')} className="text-white text-sm  mb-2 hover:text-gray-300">
                                     Already have an account? Login
                                 </Link>

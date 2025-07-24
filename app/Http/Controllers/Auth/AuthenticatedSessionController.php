@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
     }
 
     // authenticate via email
-    public function authenticate(Request $request): RedirectResponse
+    public function authenticate(Request $request): Response | RedirectResponse
     {
         // Log::info('Authenticating user with email: ', [ $request->all()]);
         $request->validate([
@@ -37,9 +37,15 @@ class AuthenticatedSessionController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return redirect()->intended(route('register', $email))->withErrors([
-                'email' => 'The provided email does not exist in our records. Please register first.',
-            ]);  
+            // return redirect()->intended(route('register', $email))->withErrors([
+            //     'email' => 'The provided email does not exist in our records. Please register first.',
+            // ]); 
+
+             return Inertia::render('Auth/Register', [ 
+                'email' => $email,
+                'message' => 'The provided email does not exist in our records. Please register first.',
+                'alertType' => 'warning',
+            ]);
           }
         Auth::login($user);
         $request->session()->regenerate();

@@ -558,7 +558,7 @@ class ContentUploadController extends Controller
         return response()->json($query->paginate(12));
     }
 
-
+    // Movie list edit page
     public function movieListEdit(): Response
     {
         Inertia::setRootView('admin');
