@@ -49,7 +49,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     </div>
 
                     {/* Centered Content */}
-                    <div className="flex flex-col items-center justify-center text-white flex-1 text-center md:text-left px-6">
+                    <div className="flex flex-col items-center md:mt-20 text-white flex-1 text-center md:text-left px-6">
                         <div>
                             <p className="text-2xl md:text-5xl font-bold capitalize">Alpha got you covered,</p>
                             <p className="text-2xl md:text-5xl font-bold capitalize mt-2">enjoy series and shows...</p>
@@ -67,7 +67,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 sm:text-sm/6" placeholder="Enter your email" />
                                 <button type="submit" className="flex-none rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Get Started</button>
                             </form>
-                            <InputError message={errors.email} className="mt-2" />
+                            <InputError message={errors.email} className="mt-2"/>
 
                         </div>
                     </div>

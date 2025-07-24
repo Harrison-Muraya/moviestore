@@ -33,10 +33,11 @@ class AuthenticatedSessionController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
         ]);
+        $email = $request->input('email');
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return redirect()->back()->withErrors([
+            return redirect()->intended(route('register', $email))->withErrors([
                 'email' => 'The provided email does not exist in our records. Please register first.',
             ]);  
           }
