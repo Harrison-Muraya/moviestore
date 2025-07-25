@@ -20,7 +20,7 @@ class LatestDashboardController extends Controller
             }])->get();
 
         if ($genre->isEmpty()) {
-            Log::warning('No genre found in the database.');
+            // Log::warning('No genre found in the database.');
             return Inertia::render('Error', [
                 'message' => 'No genre available.',
             ]);      
@@ -82,7 +82,7 @@ class LatestDashboardController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Movie fetch failed', ['error' => $e->getMessage()]);
+            // Log::error('Movie fetch failed', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to fetch movies.',
@@ -93,7 +93,7 @@ class LatestDashboardController extends Controller
 
     public function VideoPlayer ($id): Response
     {
-        Log::info('VideoPlayer method called ',[ $id]);
+        // Log::info('VideoPlayer method called ',[ $id]);
 
         $movie = \App\Models\Movie::with('genres')->find($id);
         if (!$movie) {

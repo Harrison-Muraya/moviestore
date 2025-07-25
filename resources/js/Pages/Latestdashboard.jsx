@@ -41,9 +41,9 @@ const AlphaMovies = () => {
     useEffect(() => {
         if (genre.length > 0) {
             // Pick a random genre
-            // const randomGenreIndex = Math.floor(Math.random() * genre.length);
-            // const selectedGenre = genre[randomGenreIndex];
-            const selectedGenre = genre[0];
+            const randomGenreIndex = Math.floor(Math.random() * genre.length);
+            const selectedGenre = genre[randomGenreIndex];
+            // const selectedGenre = genre[0];
             // console.log('Selected Genre:', selectedGenre);
 
             // Check if the selected genre has movies
