@@ -33,7 +33,7 @@ class ContentUploadController extends Controller
     public function movieList(): Response
     {
         Inertia::setRootView('admin');
-        $movies = Movie::get();
+        $movies = Movie::orderBy('created_at', 'desc')->get();
 
         // dd($movies);
         return Inertia::render('MovieEditList', [
@@ -583,7 +583,6 @@ class ContentUploadController extends Controller
         ]);
     }
 
-
     // update movie
     public function update(Request $request, Movie $movie)
     {
@@ -966,7 +965,6 @@ class ContentUploadController extends Controller
 
         $episode->delete();
     }
-
 
     public function destroy(Movie $movie)
     {
