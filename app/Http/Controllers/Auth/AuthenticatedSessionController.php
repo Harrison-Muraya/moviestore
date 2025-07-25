@@ -37,10 +37,7 @@ class AuthenticatedSessionController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            // return redirect()->intended(route('register', $email))->withErrors([
-            //     'email' => 'The provided email does not exist in our records. Please register first.',
-            // ]); 
-
+            
              return Inertia::render('Auth/Register', [ 
                 'email' => $email,
                 'message' => 'The provided email does not exist in our records. Please register first.',

@@ -6,7 +6,7 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function Register() {
-    
+
     const { props } = usePage('');
     const email = props.email || ''; // Get the email passed from the controller
     const message = props.message || ''; // Get the message passed from the controller
@@ -21,6 +21,14 @@ export default function Register() {
         password: '',
         password_confirmation: '',
     });
+
+    const alertStyles = {
+        warning: 'bg-yellow-100 text-yellow-800 border-yellow-600',
+        info: 'bg-blue-100 text-blue-800 border-blue-600',
+        danger: 'bg-red-100 text-red-800 border-red-600',
+        success: 'bg-green-100 text-green-800 border-green-600',
+    };
+    const alertClass = alertStyles[alertType] || alertStyles.info;
 
     const submit = (e) => {
         e.preventDefault();
@@ -51,10 +59,16 @@ export default function Register() {
                                     className="bg-red-500 text-white text-base md:text-2xl font-semibold tracking-wider rounded-full px-4 py-[2px] md:px-6 md:py-2">
                                     ALPHA
                                 </p>
+
+                                {message && (
+                                    <div className={`my-2 p-3 rounded border-2 text-sm ${alertClass}`}>
+                                        {message}
+                                    </div>
+                                )}
                                 <p className="text-white text-2xl md:text-2xl  tracking-wider my-4">
                                     Welcome Back
                                 </p>
-                                <InputError message={errors.email} className="mt-2"/>
+                                <InputError message={errors.email} className="mt-2" />
                                 <Link href={route('login')} className="text-white text-sm  mb-2 hover:text-gray-300">
                                     Already have an account? Login
                                 </Link>
